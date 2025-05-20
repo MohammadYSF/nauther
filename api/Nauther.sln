@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Identity.Api", "Identity\Nauther.Identity.Api\Nauther.Identity.Api.csproj", "{74AFC760-0AC8-7334-7267-180AB995ED4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Identity.Application", "Identity\Nauther.Identity.Application\Nauther.Identity.Application.csproj", "{2FB06D5E-D580-5F2A-E054-C966DA18D66F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Identity.Domain", "Identity\Nauther.Identity.Domain\Nauther.Identity.Domain.csproj", "{81E8DA92-8052-860B-E34B-ACFF80F67128}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Identity.Infrastructure", "Identity\Nauther.Identity.Infrastructure\Nauther.Identity.Infrastructure.csproj", "{0174051A-A60D-AFA7-D7B1-89A28855CA27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Identity.Persistence", "Identity\Nauther.Identity.Persistence\Nauther.Identity.Persistence.csproj", "{5BA89A46-6782-3706-43D0-4C2FC7637717}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Framework.Shared", "Framework\Nauther.Framework.Shared\Nauther.Framework.Shared.csproj", "{2E6AE92C-60C3-B110-FD51-ABE0CF8F8AC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Framework.RestApi", "Framework\Nauther.Framework.RestApi\Nauther.Framework.RestApi.csproj", "{4198B84B-A2E5-B7E3-972C-2B6B8D8DB95E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Framework.Infrastructure", "Framework\Nauther.Framework.Infrastructure\Nauther.Framework.Infrastructure.csproj", "{904D63C0-FA3D-8642-4A00-E4477E5CB7CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Framework.Domain", "Framework\Nauther.Framework.Domain\Nauther.Framework.Domain.csproj", "{450C5DDB-E094-EEE0-C33D-E728219C5291}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nauther.Framework.Application", "Framework\Nauther.Framework.Application\Nauther.Framework.Application.csproj", "{112BE4AC-9B5A-12CA-2A6D-CD9AF458EF5D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74AFC760-0AC8-7334-7267-180AB995ED4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74AFC760-0AC8-7334-7267-180AB995ED4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74AFC760-0AC8-7334-7267-180AB995ED4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74AFC760-0AC8-7334-7267-180AB995ED4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FB06D5E-D580-5F2A-E054-C966DA18D66F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FB06D5E-D580-5F2A-E054-C966DA18D66F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FB06D5E-D580-5F2A-E054-C966DA18D66F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FB06D5E-D580-5F2A-E054-C966DA18D66F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81E8DA92-8052-860B-E34B-ACFF80F67128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81E8DA92-8052-860B-E34B-ACFF80F67128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81E8DA92-8052-860B-E34B-ACFF80F67128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81E8DA92-8052-860B-E34B-ACFF80F67128}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0174051A-A60D-AFA7-D7B1-89A28855CA27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0174051A-A60D-AFA7-D7B1-89A28855CA27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0174051A-A60D-AFA7-D7B1-89A28855CA27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0174051A-A60D-AFA7-D7B1-89A28855CA27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BA89A46-6782-3706-43D0-4C2FC7637717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BA89A46-6782-3706-43D0-4C2FC7637717}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BA89A46-6782-3706-43D0-4C2FC7637717}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BA89A46-6782-3706-43D0-4C2FC7637717}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E6AE92C-60C3-B110-FD51-ABE0CF8F8AC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E6AE92C-60C3-B110-FD51-ABE0CF8F8AC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E6AE92C-60C3-B110-FD51-ABE0CF8F8AC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E6AE92C-60C3-B110-FD51-ABE0CF8F8AC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4198B84B-A2E5-B7E3-972C-2B6B8D8DB95E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4198B84B-A2E5-B7E3-972C-2B6B8D8DB95E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4198B84B-A2E5-B7E3-972C-2B6B8D8DB95E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4198B84B-A2E5-B7E3-972C-2B6B8D8DB95E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{904D63C0-FA3D-8642-4A00-E4477E5CB7CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{904D63C0-FA3D-8642-4A00-E4477E5CB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{904D63C0-FA3D-8642-4A00-E4477E5CB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{904D63C0-FA3D-8642-4A00-E4477E5CB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{450C5DDB-E094-EEE0-C33D-E728219C5291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{450C5DDB-E094-EEE0-C33D-E728219C5291}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{450C5DDB-E094-EEE0-C33D-E728219C5291}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{450C5DDB-E094-EEE0-C33D-E728219C5291}.Release|Any CPU.Build.0 = Release|Any CPU
+		{112BE4AC-9B5A-12CA-2A6D-CD9AF458EF5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{112BE4AC-9B5A-12CA-2A6D-CD9AF458EF5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{112BE4AC-9B5A-12CA-2A6D-CD9AF458EF5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{112BE4AC-9B5A-12CA-2A6D-CD9AF458EF5D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5695D1A4-DD5B-4392-82C8-3921E263C54A}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="14.0.0" />
+      <PackageReference Include="FluentValidation" Version="11.11.0" />
+      <PackageReference Include="MediatR" Version="12.4.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Framework\Nauther.Framework.Application\Nauther.Framework.Application.csproj" />
+      <ProjectReference Include="..\..\Framework\Nauther.Framework.Infrastructure\Nauther.Framework.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Framework\Nauther.Framework.Shared\Nauther.Framework.Shared.csproj" />
+      <ProjectReference Include="..\Nauther.Identity.Domain\Nauther.Identity.Domain.csproj" />
+      <ProjectReference Include="..\Nauther.Identity.Infrastructure\Nauther.Identity.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

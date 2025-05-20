@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Common\Constants\**" />
+      <Compile Remove="Common\Models\**" />
+      <EmbeddedResource Remove="Common\Constants\**" />
+      <EmbeddedResource Remove="Common\Models\**" />
+      <None Remove="Common\Constants\**" />
+      <None Remove="Common\Models\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Nauther.Framework.Infrastructure\Nauther.Framework.Infrastructure.csproj" />
+      <ProjectReference Include="..\Nauther.Framework.Shared\Nauther.Framework.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="11.11.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Interfaces\" />
+    </ItemGroup>
+
+</Project>
