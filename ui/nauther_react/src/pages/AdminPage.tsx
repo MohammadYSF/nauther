@@ -1,6 +1,4 @@
-import { Box, Button, Typography, Paper } from '@mui/material';
-import Sidebar from '../components/Sidebar';
-import Topbar from '../components/Topbar';
+import { Button, Typography, Card } from 'antd';
 import UserTable from '../components/UserTable';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -9,62 +7,43 @@ export default function AdminPage() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string[]>([]);
   const handleDeleteSelected = () => {
-    // Implement delete logic here if needed
     setSelected([]);
   };
   return (
-    <Box sx={{ bgcolor: '#f4f6f8', minHeight: '100vh', width: '100vw', p: 0, m: 0 }}>
-      <Box
-        sx={{
-          borderRadius: 0,
-          overflow: 'hidden',
-          bgcolor: '#f4f6f8',
-          width: '100vw',
-          minHeight: '100vh',
-          boxShadow: 0,
-          position: 'relative',
-        }}
-      >
-        <Sidebar />
-        <Box sx={{ pr: 7 }}>
-          <Topbar />
-          <Paper
-            sx={{
-              mt: 3,
-              p: 3,
-              borderRadius: 2,
-              boxShadow: 0,
+
+          <Card
+            style={{
+              border:'none',
+              marginTop: 24,
+              padding: 24,
+              boxShadow: 'none',
               minHeight: 500,
               overflow: 'auto',
-              width: 'calc(100vw - 100px)', // leave space for sidebar
-              mx: 'auto',
-              bgcolor: '#fff',
+              width: 'calc(100vw - 100px)',
+              marginLeft: 'auto',
+              marginRight: 'auto',
             }}
           >
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>ادمین</Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center', mb: 2 }}>
+            <Typography.Title level={5} >ادمین</Typography.Title>
+            <div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', marginBottom: 16 }}>
               <Button
-                variant="contained"
-                color="primary"
-                sx={{ borderRadius: 2 }}
+                type="primary"
+                style={{ borderRadius: 8 }}
                 onClick={() => navigate('/admin/new')}
               >
                 ادمین جدید
               </Button>
-                      <Button
-                      sx={{marginRight: 1}}
-          variant="contained"
-          color="error"
-          disabled={selected.length === 0}
-          onClick={handleDeleteSelected}
-        >
-          حذف انتخاب شده‌ها
-        </Button>
-            </Box>
+              <Button
+                style={{ marginRight: 8 }}
+                type="primary"
+                danger
+                disabled={selected.length === 0}
+                onClick={handleDeleteSelected}
+              >
+                حذف انتخاب شده‌ها
+              </Button>
+            </div>
             <UserTable selected={selected} setSelected={setSelected} />
-          </Paper>
-        </Box>
-      </Box>
-    </Box>
+          </Card>
   );
 }

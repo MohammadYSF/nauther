@@ -1,27 +1,5 @@
-import {
-  Box,
-  Typography,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Avatar,
-  Button,
-  MenuItem,
-  FormControl,
-  Chip,
-  OutlinedInput,
-  Paper,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Popper,
-  ClickAwayListener,
-  Select,
-} from '@mui/material';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import SearchIcon from '@mui/icons-material/Search';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { Typography, Input, Button, Select, Card, Form, Avatar, List, Popover } from 'antd';
+import { SearchOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { useEffect, useState, useRef } from 'react';
@@ -33,11 +11,9 @@ export default function AdminNewPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
 
-  // Fetch all users for selection
   const [users, setUsers] = useState<any[]>([]);
-  // Form state
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [permissions, setPermissions] = useState<{ id: string, name: string, displayName: string }[]>([]);
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userDropdown, setUserDropdown] = useState(false);
@@ -52,9 +28,9 @@ export default function AdminNewPage() {
   useEffect(() => {
     if (isEdit && id) {
       getAdminById(id).then(res => {
-        setSelectedUser(res); // Adjust according to your API response
-        setPermissions(res.permissions);
-        setPassword(''); // Usually left blank for security
+        setSelectedUser(res);
+        setPermissions(res.permissions?.map((p: any) => p.id) || []);
+        setPassword('');
         setConfirmPassword('');
       });
     }
@@ -71,188 +47,118 @@ export default function AdminNewPage() {
   );
 
   return (
-    <Box sx={{ bgcolor: '#f4f6f8', minHeight: '100vh', width: '100vw', p: 0, m: 0 }}>
-      <Box sx={{ width: '100vw', minHeight: '100vh', position: 'relative' }}>
-        <Sidebar />
-        <Box sx={{ pr: 7 }}>
-          <Topbar />
-          <Box sx={{ p: 4, pt: 5, maxWidth: 900, mx: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
+
+          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', borderRadius: 16 }}>
+            <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
               <span style={{ color: '#337ab7', fontWeight: 700 }}>
                 {isEdit ? `ویرایش ادمین ${id}` : 'ادمین جدید'}
               </span>
               <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
-            </Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 4,
-                width: '100%',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-end',
-              }}
-            >
-              {/* Right column: user select and permissions */}
-              <Box sx={{ minWidth: 320, flex: 1 }}>
-                <Typography sx={{ mb: 1, fontWeight: 500 }}>نام کاربر</Typography>
-                <Box ref={anchorRef} sx={{ position: 'relative', mb: 2 }}>
-                  <Paper
-                    sx={{
-                      p: 0,
+            </Typography.Title>
+            <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
+              <Form.Item label="نام کاربر">
+                <Popover
+                  content={
+                    <div style={{ maxHeight: 220, overflowY: 'auto', minWidth: 220 }}>
+                      <Input
+                        size="small"
+                        placeholder="جستجو"
+                        value={userSearch}
+                        onChange={e => setUserSearch(e.target.value)}
+                        prefix={<SearchOutlined />}
+                        style={{ marginBottom: 8 }}
+                      />
+                      <List
+                        dataSource={filteredUsers}
+                        renderItem={user => (
+                          <List.Item
+                            key={user.id}
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setUserDropdown(false);
+                            }}
+                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                          >
+                            <Typography.Text style={{ color: '#888', fontSize: 13, minWidth: 60 }}>{user.id}</Typography.Text>
+                            <Avatar style={{ width: 24, height: 24, margin: '0 8px' }} src={user.avatar} />
+                            <Typography.Text style={{ fontWeight: 500, fontSize: 15 }}>{user.name}</Typography.Text>
+                          </List.Item>
+                        )}
+                      />
+                    </div>
+                  }
+                  trigger="click"
+                  open={userDropdown}
+                  onOpenChange={setUserDropdown}
+                  getPopupContainer={() => anchorRef.current || document.body}
+                >
+                  <div
+                    ref={anchorRef}
+                    style={{
                       display: 'flex',
                       alignItems: 'center',
-                      borderRadius: 2,
-                      boxShadow: userDropdown ? 4 : 1,
-                      cursor: isEdit ? 'not-allowed' : 'pointer',
                       border: userDropdown ? '1.5px solid #337ab7' : '1px solid #e0e0e0',
+                      borderRadius: 8,
                       minHeight: 44,
-                      bgcolor: isEdit ? '#f5f5f5' : 'inherit',
+                      background: isEdit ? '#f5f5f5' : 'inherit',
+                      cursor: isEdit ? 'not-allowed' : 'pointer',
+                      padding: '0 12px',
+                      marginBottom: 16,
                     }}
                     onClick={() => {
-                      if (!isEdit) setUserDropdown((prev) => !prev);
+                      if (!isEdit) setUserDropdown(prev => !prev);
                     }}
                   >
-                    <Box sx={{ flex: 1, px: 2, py: 1, display: 'flex', alignItems: 'center' }}>
-                      {selectedUser ? (
-                        <>
-                          <Typography sx={{ fontWeight: 500, ml: 1 }}>{selectedUser.name}</Typography>
-                          <Avatar sx={{ width: 24, height: 24, ml: 1 }} src={selectedUser.avatar} />
-                          <Typography sx={{ color: '#888', fontSize: 13 }}>{selectedUser.id}</Typography>
-                        </>
-                      ) : (
-                        <Typography sx={{ color: '#aaa' }}>انتخاب کنید</Typography>
-                      )}
-                    </Box>
-                    <ArrowDropDownIcon sx={{ color: '#888', mr: 1 }} />
-                  </Paper>
-                  {!isEdit && (
-                    <Popper
-                      open={userDropdown}
-                      anchorEl={anchorRef.current}
-                      placement="bottom-end"
-                      sx={{ zIndex: 1301, width: anchorRef.current?.offsetWidth || 320 }}
-                    >
-                      <ClickAwayListener onClickAway={() => setUserDropdown(false)}>
-                        <Paper sx={{ mt: 1, borderRadius: 3, p: 1, minWidth: 320, maxWidth: 350 }}>
-                          <Box sx={{ px: 1, pb: 1 }}>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              placeholder="جستجو"
-                              value={userSearch}
-                              onChange={e => setUserSearch(e.target.value)}
-                              InputProps={{
-                                startAdornment: (
-                                  <InputAdornment position="start">
-                                    <SearchIcon fontSize="small" />
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          </Box>
-                          <List dense sx={{ maxHeight: 220, overflowY: 'auto', direction: 'rtl' }}>
-                            {filteredUsers.map((user) => (
-                              <ListItem
-                                key={user.id}
-                                onClick={() => {
-                                  setSelectedUser(user);
-                                  setUserDropdown(false);
-                                }}
-                                sx={{
-                                  borderRadius: 2,
-                                  mb: 0.5,
-                                  '&:hover': { bgcolor: '#f0f7ff' },
-                                }}
-                              >
-                                <Typography sx={{ color: '#888', fontSize: 13, minWidth: 60 }}>{user.id}</Typography>
-                                <ListItemAvatar>
-                                  <Avatar sx={{ width: 24, height: 24 }} src={user.avatar} />
-                                </ListItemAvatar>
-                                <ListItemText
-                                  primary={user.name}
-                                  primaryTypographyProps={{ sx: { fontWeight: 500, fontSize: 15 } }}
-                                  sx={{ textAlign: 'right', mr: 1 }}
-                                />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </Paper>
-                      </ClickAwayListener>
-                    </Popper>
-                  )}
-                </Box>
-                <Typography sx={{ mb: 1, fontWeight: 500 }}>دسترسی‌ها</Typography>
-                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                  <Select
-                    multiple
-                    displayEmpty
-                    value={permissions}
-                    onChange={e => {
-                      let x = e.target.value;
-                      setPermissions(x as { id: string, name: string, displayName: string }[]);
-
-                    }
-                    }
-                    input={<OutlinedInput />}
-                    renderValue={selected =>
-                      (selected).length === 0
-                        ? <em>انتخاب کنید</em>
-                        : (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {(selected).map(item => (
-                              <Chip key={item.id} label={item.displayName} />
-                            ))}
-                          </Box>
-                        )
-                    }
-                  >
-                    <MenuItem disabled value="">
-                      <em>انتخاب کنید</em>
-                    </MenuItem>
-                    {roles.map((r: any) => (
-                      <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-              {/* Left column: password */}
-              <Box sx={{ minWidth: 320, flex: 2 }}>
-                <Typography sx={{ mb: 1, fontWeight: 500 }}>رمز عبور</Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="password"
+                    {selectedUser ? (
+                      <>
+                        <Typography.Text style={{ fontWeight: 500, marginLeft: 8 }}>{selectedUser.name}</Typography.Text>
+                        <Avatar style={{ width: 24, height: 24, marginLeft: 8 }} src={selectedUser.avatar} />
+                        <Typography.Text style={{ color: '#888', fontSize: 13 }}>{selectedUser.id}</Typography.Text>
+                      </>
+                    ) : (
+                      <Typography.Text style={{ color: '#aaa' }}>انتخاب کنید</Typography.Text>
+                    )}
+                    <ArrowDownOutlined style={{ color: '#888', marginRight: 'auto' }} />
+                  </div>
+                </Popover>
+              </Form.Item>
+              <Form.Item label="دسترسی‌ها">
+                <Select
+                  mode="multiple"
+                  value={permissions}
+                  onChange={setPermissions}
+                  placeholder="انتخاب کنید"
+                  style={{ width: '100%' }}
+                  optionLabelProp="label"
+                >
+                  {roles.map((role, idx) => (
+                    <Select.Option key={role.id} value={role.id} label={role.displayName}>
+                      {role.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item label="رمز عبور جدید">
+                <Input.Password
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  sx={{ mb: 2 }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton tabIndex={-1} edge="end" size="small" disabled>
-                          <VisibilityOffIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
+                  placeholder="رمز عبور جدید را وارد کنید"
                 />
-                <Typography sx={{ mb: 1, fontWeight: 500 }}>تکرار رمز عبور</Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="password"
+              </Form.Item>
+              <Form.Item label="تکرار رمز عبور جدید">
+                <Input.Password
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  sx={{ mb: 2 }}
+                  placeholder="تکرار رمز عبور جدید را وارد کنید"
                 />
-                <Button variant="contained" color="primary" sx={{ mt: 1, borderRadius: 2, minWidth: 100 }}>
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
                   ذخیره
                 </Button>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+              </Form.Item>
+            </Form>
+          </Card>
+
   );
 }

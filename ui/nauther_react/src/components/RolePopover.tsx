@@ -1,5 +1,5 @@
-import { Popover, Box, Typography, Avatar, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Popover, Typography, Avatar, Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 
 interface RolePopoverProps {
   anchorEl: HTMLElement | null;
@@ -21,31 +21,27 @@ export default function RolePopover({ anchorEl, onClose, open }: RolePopoverProp
   return (
     <Popover
       open={open}
-      anchorEl={anchorEl}
-      onClose={onClose}
-      anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
-      transformOrigin={{ vertical: 'center', horizontal: 'center' }}
-      PaperProps={{
-        sx: { p: 2, borderRadius: 3, minWidth: 320, maxWidth: 350, direction: 'rtl' },
-      }}
-      BackdropProps={{
-        sx: { backgroundColor: 'rgba(0,0,0,0.2)' },
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-        <Typography sx={{ fontWeight: 500, flex: 1 }}>سهیل کیانی</Typography>
-        <Avatar sx={{ width: 24, height: 24, ml: 1 }} />
-        <IconButton size="small" onClick={onClose} sx={{ ml: 'auto' }}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </Box>
-      <ul style={{ paddingRight: 18, margin: 0, direction: 'rtl' }}>
-        {roles.map((role, idx) => (
-          <li key={idx} style={{ fontSize: 15, marginBottom: 8, wordBreak: 'break-word' }}>
-            {role}
-          </li>
-        ))}
-      </ul>
-    </Popover>
+      content={
+        <div style={{ minWidth: 320, maxWidth: 350, direction: 'rtl', padding: 16, borderRadius: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            <Typography.Text style={{ fontWeight: 500, flex: 1 }}>سهیل کیانی</Typography.Text>
+            <Avatar style={{ width: 24, height: 24, marginLeft: 8 }} />
+            <Button type="text" size="small" icon={<CloseOutlined />} onClick={onClose} style={{ marginLeft: 'auto' }} />
+          </div>
+          <ul style={{ paddingRight: 18, margin: 0, direction: 'rtl' }}>
+            {roles.map((role, idx) => (
+              <li key={idx} style={{ fontSize: 15, marginBottom: 8, wordBreak: 'break-word' }}>
+                {role}
+              </li>
+            ))}
+          </ul>
+        </div>
+      }
+      title={null}
+      trigger="click"
+      getPopupContainer={() => anchorEl || document.body}
+      onOpenChange={visible => { if (!visible) onClose(); }}
+      overlayStyle={{ padding: 0 }}
+    />
   );
 }

@@ -1,14 +1,14 @@
-import { createTheme } from '@mui/material/styles';
+import type { ThemeConfig } from 'antd';
+import { theme as antdTheme } from 'antd';
 
-const theme = createTheme({
-  direction: 'rtl',
-  palette: {
-    primary: { main: '#337ab7' },
-    background: { default: '#f4f6f8' },
-  },
-  typography: {
+const theme: ThemeConfig = {
+  token: {
+    colorPrimary: '#337ab7',
+    borderRadius: 8,
     fontFamily: 'Vazirmatn, Arial, sans-serif',
   },
-});
+  algorithm: antdTheme.defaultAlgorithm,
+  // direction: 'rtl', // Direction is set in ConfigProvider
+};
 
-export default theme;
+export default theme; 

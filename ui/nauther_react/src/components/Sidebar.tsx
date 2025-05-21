@@ -1,26 +1,28 @@
-import { Box, IconButton, Tooltip } from '@mui/material';
-import PeopleIcon from '@mui/icons-material/People';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import SettingsIcon from '@mui/icons-material/Settings';
-import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Tooltip, Button } from 'antd';
+import {
+  UserOutlined,
+  CameraOutlined,
+  SettingOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  EllipsisOutlined,
+} from '@ant-design/icons';
 
 const menu = [
-  { icon: <PeopleIcon />, label: 'ادمین' },
-  { icon: <CameraAltIcon />, label: 'دوربین' },
-  { icon: <SearchIcon />, label: 'جستجو' },
-  { icon: <FilterListIcon />, label: 'فیلتر' },
-  { icon: <MoreVertIcon />, label: 'بیشتر' },
-  { icon: <SettingsIcon />, label: 'تنظیمات' },
+  { icon: <UserOutlined />, label: 'ادمین' },
+  { icon: <CameraOutlined />, label: 'دوربین' },
+  { icon: <SearchOutlined />, label: 'جستجو' },
+  { icon: <FilterOutlined />, label: 'فیلتر' },
+  { icon: <EllipsisOutlined />, label: 'بیشتر' },
+  { icon: <SettingOutlined />, label: 'تنظیمات' },
 ];
 
 export default function Sidebar() {
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         width: 56,
-        bgcolor: '#337ab7',
+        background: '#337ab7',
         height: '100%',
         position: 'absolute',
         right: 0,
@@ -29,15 +31,17 @@ export default function Sidebar() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        pt: 6,
+        paddingTop: 48,
         zIndex: 2,
       }}
     >
       {menu.map((item, idx) => (
         <Tooltip title={item.label} placement="left" key={idx}>
-          <IconButton sx={{ color: '#fff', mb: 2 }}>{item.icon}</IconButton>
+          <Button type="text" shape="circle" style={{ color: '#fff', marginBottom: 16, fontSize: 20 }}>
+            {item.icon}
+          </Button>
         </Tooltip>
       ))}
-    </Box>
+    </div>
   );
 }

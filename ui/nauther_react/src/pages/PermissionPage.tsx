@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  IconButton, TextField, Button, Box, CircularProgress
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import AddIcon from '@mui/icons-material/Add';
-import CancelIcon from '@mui/icons-material/Close';
+import { Table, Input, Button, Spin, Card } from 'antd';
+import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel } from '../services/permissionService';
-import Sidebar from '../components/Sidebar';
-import Topbar from '../components/Topbar';
 import type { ApiError } from '../services/api';
 
 export default function PermissionPage() {
@@ -41,16 +33,18 @@ export default function PermissionPage() {
       .finally(() => setLoading(false));
   };
 
-  const handleEdit = (id: string, name: string) => {
+  const handleEdit = (id: string, name: string, displayName: string) => {
     setEditId(id);
     setEditValue(name);
+    setEditValueDisplayName(displayName);
   };
 
   const handleEditSave = async (id: string) => {
     setSaving(true);
-    await editPermission(id, { name: editValue,displayName:editValueDisplayName });
+    await editPermission(id, { name: editValue, displayName: editValueDisplayName });
     setEditId(null);
     setEditValue('');
+    setEditValueDisplayName('');
     fetchPermissions();
     setSaving(false);
   };
@@ -58,137 +52,153 @@ export default function PermissionPage() {
   const handleAdd = () => {
     setAddMode(true);
     setAddValue('');
+    setAddValueDisplayName('');
   };
 
   const handleAddSave = async () => {
     if (!addValue.trim()) return;
     setSaving(true);
-    await createPermission({ name: addValue ,displayName:addValueDisplayName});
+    await createPermission({ name: addValue, displayName: addValueDisplayName });
     setAddMode(false);
     setAddValue('');
+    setAddValueDisplayName('');
     fetchPermissions();
     setSaving(false);
   };
 
+  const columns = [
+    {
+      title: 'نام دسترسی',
+      dataIndex: 'name',
+      key: 'name',
+      align: 'right' as const,
+      render: (text: string, record: any) =>
+        editId === record.id ? (
+          <Input
+            size="small"
+            value={editValue}
+            onChange={e => setEditValue(e.target.value)}
+            autoFocus
+            style={{ minWidth: 120 }}
+          />
+        ) : (
+          text
+        ),
+    },
+    {
+      title: 'نام نمایشی',
+      dataIndex: 'displayName',
+      key: 'displayName',
+      align: 'right' as const,
+      render: (text: string, record: any) =>
+        editId === record.id ? (
+          <Input
+            size="small"
+            value={editValueDisplayName}
+            onChange={e => setEditValueDisplayName(e.target.value)}
+            autoFocus
+            style={{ minWidth: 120 }}
+          />
+        ) : (
+          text
+        ),
+    },
+    {
+      title: '',
+      key: 'actions',
+      align: 'right' as const,
+      render: (_: any, record: any) =>
+        editId === record.id ? (
+          <>
+            <Button
+              icon={<SaveOutlined />}
+              type="primary"
+              size="small"
+              onClick={() => handleEditSave(record.id)}
+              loading={saving}
+              style={{ marginLeft: 8 }}
+            />
+            <Button
+              icon={<CloseOutlined />}
+              type="default"
+              size="small"
+              danger
+              onClick={() => setEditId(null)}
+              disabled={saving}
+            />
+          </>
+        ) : (
+          <Button
+            icon={<EditOutlined />}
+            type="primary"
+            size="small"
+            onClick={() => handleEdit(record.id, record.name, record.displayName)}
+          />
+        ),
+    },
+  ];
+
   return (
-    <Box sx={{ bgcolor: '#f4f6f8', minHeight: '100vh', width: '100vw', p: 0, m: 0 }}>
-      <Box sx={{ width: '100vw', minHeight: '100vh', position: 'relative' }}>
-        <Sidebar />
-        <Box sx={{ pr: 7 }}>
-          <Topbar />
-          <Box sx={{ p: 4, pt: 5, maxWidth: 900, mx: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 2 }}>
+
+          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', borderRadius: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
               <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
               <Button
-                variant="contained"
-                startIcon={<AddIcon />}
+                type="primary"
+                icon={<PlusOutlined />}
                 onClick={handleAdd}
                 disabled={addMode}
+                style={{ borderRadius: 8 }}
               >
                 افزودن دسترسی
               </Button>
-            </Box>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="right">نام دسترسی</TableCell>
-                    <TableCell align="right" width={120}></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {addMode && (
-                    <TableRow>
-                      <TableCell align="right">
-                        <TextField
-                          size="small"
-                          value={addValue}
-                          onChange={e => setAddValue(e.target.value)}
-                          autoFocus
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <TextField
-                          size="small"
-                          value={addValueDisplayName}
-                          onChange={e => setAddValueDisplayName(e.target.value)}
-                          autoFocus
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton color="primary" onClick={handleAddSave} disabled={saving}>
-                          <SaveIcon />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => setAddMode(false)} disabled={saving}>
-                          <CancelIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={2} align="center">
-                        <CircularProgress size={24} />
-                      </TableCell>
-                    </TableRow>
-                  ) : permissions?.data.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={2} align="center">
-                        داده‌ای وجود ندارد.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    permissions?.data.map((perm) => (
-                      <TableRow key={perm.id}>
-                        <TableCell align="right">
-                          {editId === perm.id ? (
-                            <TextField
-                              size="small"
-                              value={editValue}
-                              onChange={e => setEditValue(e.target.value)}
-                              autoFocus
-                            />
-                          ) : (
-                            perm.name
-                          )}
-                        </TableCell>
-                        <TableCell align="right">
-                          {editId === perm.id ? (
-                            <TextField
-                              size="small"
-                              value={editValueDisplayName}
-                              onChange={e => setEditValueDisplayName(e.target.value)}
-                              autoFocus
-                            />
-                          ) : (
-                            perm.displayName
-                          )}
-                        </TableCell>
-                        <TableCell align="right">
-                          {editId === perm.id ? (
-                            <>
-                              <IconButton color="primary" onClick={() => handleEditSave(perm.id)} disabled={saving}>
-                                <SaveIcon />
-                              </IconButton>
-                              <IconButton color="error" onClick={() => setEditId(null)} disabled={saving}>
-                                <CancelIcon />
-                              </IconButton>
-                            </>
-                          ) : (
-                            <IconButton color="primary" onClick={() => handleEdit(perm.id, perm.name)}>
-                              <EditIcon />
-                            </IconButton>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+            </div>
+            {addMode && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                <Input
+                  size="small"
+                  value={addValue}
+                  onChange={e => setAddValue(e.target.value)}
+                  placeholder="نام دسترسی"
+                  autoFocus
+                  style={{ minWidth: 120 }}
+                />
+                <Input
+                  size="small"
+                  value={addValueDisplayName}
+                  onChange={e => setAddValueDisplayName(e.target.value)}
+                  placeholder="نام نمایشی"
+                  style={{ minWidth: 120 }}
+                />
+                <Button
+                  icon={<SaveOutlined />}
+                  type="primary"
+                  size="small"
+                  onClick={handleAddSave}
+                  loading={saving}
+                  style={{ marginLeft: 8 }}
+                />
+                <Button
+                  icon={<CloseOutlined />}
+                  type="default"
+                  size="small"
+                  danger
+                  onClick={() => setAddMode(false)}
+                  disabled={saving}
+                />
+              </div>
+            )}
+            <Spin spinning={loading} tip="در حال بارگذاری...">
+              <Table
+                rowKey="id"
+                columns={columns}
+                dataSource={permissions?.data || []}
+                pagination={false}
+                style={{ direction: 'rtl' }}
+                locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
+              />
+            </Spin>
+          </Card>
+
   );
 }

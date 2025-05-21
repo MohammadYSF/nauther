@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdmins } from '../services/adminService';
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, IconButton, Box,
-  TablePagination, TextField, InputAdornment, MenuItem, FormControl, Select, Checkbox, Button
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Table, Input, Select, Checkbox, Avatar } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import RolePopover from './RolePopover';
 
 const rolesList = ['سوپر ادمین', 'ادمین', 'کاربر عادی'];
 
-export default function UserTable({selected, setSelected}: {selected: string[], setSelected: React.Dispatch<React.SetStateAction<string[]>>}) {
+export default function UserTable({ selected, setSelected }: { selected: string[], setSelected: React.Dispatch<React.SetStateAction<string[]>> }) {
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -19,7 +16,6 @@ export default function UserTable({selected, setSelected}: {selected: string[], 
   const [loading, setLoading] = useState(true);
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
   const [roleFilter, setRoleFilter] = useState('');
-  // const [selected, setSelected] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -27,14 +23,22 @@ export default function UserTable({selected, setSelected}: {selected: string[], 
     setLoading(true);
     getAdmins(page + 1, rowsPerPage, search)
       .then(res => {
-        setUsers(res.data.items || res.data);
-        setTotal(res.data.total || 0);
+        if (Array.isArray(res.data)) {
+          setUsers(res.data);
+          setTotal(res.data.length);
+        } else if (res.data && typeof res.data === 'object') {
+          setUsers((res.data as any).items || []);
+          setTotal((res.data as any).total || 0);
+        } else {
+          setUsers([]);
+          setTotal(0);
+        }
       })
       .finally(() => setLoading(false));
   }, [page, rowsPerPage, search]);
 
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
       setSelected(users.map((u: any) => u.id));
     } else {
       setSelected([]);
@@ -47,13 +51,11 @@ export default function UserTable({selected, setSelected}: {selected: string[], 
     );
   };
 
-
   const isSelected = (id: string) => selected.includes(id);
 
-  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
-  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(e.target.value, 10));
-    setPage(0);
+  const handleChangePage = (page: number, pageSize: number) => {
+    setPage(page - 1);
+    setRowsPerPage(pageSize);
   };
 
   const handleRoleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -64,149 +66,139 @@ export default function UserTable({selected, setSelected}: {selected: string[], 
     setPopoverAnchor(null);
   };
 
+  const columns = [
+    {
+      title: (
+        <Checkbox
+          checked={users.length > 0 && selected.length === users.length}
+          indeterminate={selected.length > 0 && selected.length < users.length}
+          onChange={e => handleSelectAll(e.target.checked)}
+        />
+      ),
+      dataIndex: 'id',
+      key: 'checkbox',
+      width: 50,
+      render: (_: any, record: any) => (
+        <Checkbox
+          checked={isSelected(record.id)}
+          onChange={() => handleSelectRow(record.id)}
+        />
+      ),
+    },
+    {
+      title: 'وضعیت',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (status: string) => (
+        <div style={{ display: 'flex', alignItems: 'center', height: 48 }}>
+          <div style={{ width: 4, height: 34, borderRadius: 2, background: '#21C362', marginRight: 0 }} />
+          <span dir="rtl" style={{ fontWeight: 500, marginRight: 20 }}>{status}</span>
+        </div>
+      ),
+    },
+    {
+      title: 'شناسه',
+      dataIndex: 'code',
+      key: 'code',
+      align: 'right' as const,
+    },
+    {
+      title: 'نام و نام خانوادگی',
+      dataIndex: 'name',
+      key: 'name',
+      align: 'right' as const,
+      render: (name: string, record: any) => (
+        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'end' }}>
+          <Avatar style={{ marginLeft: 8, width: 24, height: 24 }} />
+          {name}
+        </div>
+      ),
+    },
+    {
+      title: 'نقش',
+      dataIndex: 'role',
+      key: 'role',
+      align: 'right' as const,
+      render: (role: string, record: any, idx: number) => (
+        <span
+          style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
+          onClick={handleRoleClick}
+        >
+          {role}
+          {idx === 1 && (
+            <span
+              style={{
+                background: '#e3f2fd',
+                color: '#1976d2',
+                fontSize: 10,
+                borderRadius: 4,
+                padding: '0 4px',
+                marginLeft: 8,
+                height: 20,
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              شما
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      title: 'آخرین لاگین',
+      dataIndex: 'lastLogin',
+      key: 'lastLogin',
+      align: 'right' as const,
+    },
+  ];
+
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap', direction: 'rtl' }}>
-        <TextField
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', direction: 'rtl' }}>
+        <Input
           size="small"
           placeholder="جستجو نام یا کد"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          sx={{ width: 200 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
+          style={{ width: 200 }}
+          prefix={<SearchOutlined style={{ fontSize: 16 }} />}
         />
-        <FormControl size="small" sx={{ minWidth: 140 }}>
-          <Select
-            displayEmpty
-            value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
-          >
-            <MenuItem value="">
-              <em>همه نقش‌ها</em>
-            </MenuItem>
-            {rolesList.map((role, idx) => (
-              <MenuItem key={idx} value={role}>{role}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-
-      </Box>
-      <TableContainer component={Paper} sx={{ boxShadow: 0, direction: 'rtl' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={users.length > 0 && selected.length === users.length}
-                  indeterminate={selected.length > 0 && selected.length < users.length}
-                  onChange={handleSelectAll}
-                  inputProps={{ 'aria-label': 'select all users' }}
-                />
-              </TableCell>
-              <TableCell align="right" sx={{ width: 120 }}>وضعیت</TableCell>
-              <TableCell align="right">شناسه</TableCell>
-              <TableCell align="right">نام و نام خانوادگی</TableCell>
-              <TableCell align="right">نقش</TableCell>
-              <TableCell align="right">آخرین لاگین</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((user, idx) => (
-              <TableRow
-                key={user.id}
-                hover
-                onDoubleClick={() => navigate(`/admin/edit/${user.id}`)}
-                sx={{
-                  position: 'relative',
-                  backgroundColor: idx % 2 === 0 ? '#fafbfc' : '#fff',
-                  cursor: 'pointer',
-                }}
-                selected={isSelected(user.id)}
-              >
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={isSelected(user.id)}
-                    onChange={() => handleSelectRow(user.id)}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', height: 48 }}>
-                    <Box
-                      sx={{
-                        width: 4,
-                        height: 34,
-                        borderRadius: 2,
-                        bgcolor: '#21C362',
-                        mr: 0,
-                      }}
-                    />
-                    <span dir="rtl" style={{ fontWeight: 500, marginRight: 20 }}>
-                      {user.status}
-                    </span>
-                    </Box>
-                  </TableCell>
-                <TableCell align="right">{user.code}</TableCell>
-                <TableCell align="right">
-                  <Box sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'end' }}>
-                    <Avatar sx={{ ml: 1, width: 24, height: 24 }} />
-                    {user.name}
-                  </Box>
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
-                  onClick={handleRoleClick}
-                >
-                  {user.role}
-                  {idx === 1 && (
-                    <Box
-                      component="span"
-                      sx={{
-                        bgcolor: '#e3f2fd',
-                        color: '#1976d2',
-                        fontSize: 10,
-                        borderRadius: 1,
-                        px: 1,
-                        ml: 1,
-                        height: 20,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      شما
-                    </Box>
-                  )}
-                </TableCell>
-                <TableCell align="right">{user.lastLogin}</TableCell>
-              </TableRow>
-            ))}
-            {users.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  داده‌ای یافت نشد.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={total}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="تعداد در صفحه"
-        rowsPerPageOptions={[5, 10, 20, 50]}
-        sx={{ direction: 'rtl' }}
+        <Select
+          size="small"
+          style={{ minWidth: 140 }}
+          value={roleFilter}
+          onChange={setRoleFilter}
+          placeholder="همه نقش‌ها"
+          allowClear
+        >
+          <Select.Option value="">همه نقش‌ها</Select.Option>
+          {rolesList.map((role, idx) => (
+            <Select.Option key={idx} value={role}>{role}</Select.Option>
+          ))}
+        </Select>
+      </div>
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={users}
+        loading={loading}
+        pagination={{
+          current: page + 1,
+          pageSize: rowsPerPage,
+          total: total,
+          showSizeChanger: true,
+          pageSizeOptions: [5, 10, 20, 50],
+          onChange: handleChangePage,
+          showTotal: (total) => `تعداد کل: ${total}`,
+          position: ['bottomCenter'],
+        }}
+        onRow={record => ({
+          onDoubleClick: () => navigate(`/admin/edit/${record.id}`),
+        })}
+        style={{ direction: 'rtl' }}
+        rowClassName={record => (isSelected(record.id) ? 'ant-table-row-selected' : '')}
       />
       <RolePopover
         anchorEl={popoverAnchor}

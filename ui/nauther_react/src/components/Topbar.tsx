@@ -1,40 +1,41 @@
-import { AppBar, Toolbar, Typography, Box, Avatar } from '@mui/material';
+import { Typography, Avatar } from 'antd';
 
 export default function Topbar() {
   return (
-    <AppBar
-      position="static"
-      sx={{
-        bgcolor: '#337ab7',
+    <div
+      style={{
+        background: '#337ab7',
         boxShadow: 'none',
+        display: 'flex',
         justifyContent: 'center',
       }}
     >
-      <Toolbar
-        sx={{
+      <div
+        style={{
           minHeight: 56,
-          py: 1.5,
-          px: 2,
+          padding: '12px 16px',
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'space-between',
-          direction: 'rtl', // <-- Only this line changed
+          alignItems: 'center',
+          direction: 'rtl',
+          width: '100%',
         }}
       >
         {/* Right: DIMA logo */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ color: '#fff', fontWeight: 700, fontSize: 18, letterSpacing: 2 }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Typography.Text style={{ color: '#fff', fontWeight: 700, fontSize: 18, letterSpacing: 2 }}>
             DIMA
-          </Typography>
-        </Box>
+          </Typography.Text>
+        </div>
         {/* Left: User full name and avatar */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ color: '#fff', fontWeight: 500, ml: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Typography.Text style={{ color: '#fff', fontWeight: 500, marginLeft: 8 }}>
             سهند افشردی
-          </Typography>
-          <Avatar sx={{ width: 24, height: 24 }} />
-        </Box>
-      </Toolbar>
-    </AppBar>
+          </Typography.Text>
+          <Avatar style={{ width: 24, height: 24 }} />
+        </div>
+      </div>
+    </div>
   );
 }

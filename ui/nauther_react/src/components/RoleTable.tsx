@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRoles } from '../services/roleService';
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, IconButton, Box,
-  TablePagination, TextField, InputAdornment, MenuItem, FormControl, Select, TableSortLabel
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Table, Input, Typography } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import AdminPopover from './AdminPopover';
 import PermissionPopover from './PermissionPopover';
-
-
 
 export default function RoleTable() {
   const [roles, setRoles] = useState<any[]>([]);
@@ -21,20 +16,25 @@ export default function RoleTable() {
   const [adminPopoverAnchor, setAdminPopoverAnchor] = useState<HTMLElement | null>(null);
   const [permissionPopoverAnchor, setPermissionPopoverAnchor] = useState<HTMLElement | null>(null);
 
-
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
     getRoles(page + 1, rowsPerPage, search)
       .then(res => {
-        setRoles(res.data.items || res.data); // Adjust according to your API response
-        setTotal(res.data.total || 0);
+        if (Array.isArray(res.data)) {
+          setRoles(res.data);
+          setTotal(res.data.length);
+        } else if (res.data && typeof res.data === 'object') {
+          setRoles((res.data as any).items || []);
+          setTotal((res.data as any).total || 0);
+        } else {
+          setRoles([]);
+          setTotal(0);
+        }
       })
       .finally(() => setLoading(false));
   }, [page, rowsPerPage, search]);
-
- 
 
   const handlePermissionClick = (event: React.MouseEvent<HTMLElement>) => {
     setPermissionPopoverAnchor(event.currentTarget);
@@ -52,142 +52,111 @@ export default function RoleTable() {
     setAdminPopoverAnchor(null);
   };
 
-  // Filter and search logic
-  const filteredUsers = roles.filter(
-    r =>
-      (r.name.includes(search))
-  );
-
-
-  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const columns = [
+    {
+      title: 'نقش',
+      dataIndex: 'name',
+      key: 'name',
+      align: 'right' as const,
+    },
+    {
+      title: 'دسترسی ها',
+      dataIndex: 'permissions',
+      key: 'permissions',
+      align: 'right' as const,
+      render: (permissions: string[], record: any) => (
+        <span
+          style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
+          onClick={handlePermissionClick}
+        >
+          {permissions && permissions.length > 0 ? permissions[0] : ''}
+          {permissions && permissions.length > 1 && (
+            <span
+              style={{
+                background: '#e3f2fd',
+                color: '#1976d2',
+                fontSize: 10,
+                borderRadius: 4,
+                padding: '0 4px',
+                marginLeft: 8,
+                height: 20,
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              + {permissions.length - 1}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      title: 'ادمین های نقش',
+      dataIndex: 'admins',
+      key: 'admins',
+      align: 'right' as const,
+      render: (admins: string[], record: any) => (
+        <span
+          style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
+          onClick={handleAdminClick}
+        >
+          {admins && admins.length > 0 ? admins[0] : ''}
+          {admins && admins.length > 1 && (
+            <span
+              style={{
+                background: '#e3f2fd',
+                color: '#1976d2',
+                fontSize: 10,
+                borderRadius: 4,
+                padding: '0 4px',
+                marginLeft: 8,
+                height: 20,
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              + {admins.length - 1}
+            </span>
+          )}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap', direction: 'rtl' }}>
-        <TextField
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', direction: 'rtl' }}>
+        <Input
           size="small"
           placeholder="جستجو نقش"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          sx={{ width: 200 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
+          style={{ width: 200 }}
+          prefix={<SearchOutlined style={{ fontSize: 16 }} />}
         />
-      </Box>
-      <TableContainer component={Paper} sx={{ boxShadow: 0, direction: 'rtl' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell align="right" >
-
-                  نقش
-              </TableCell>
-              <TableCell align="right" >
-
-
-                    دسترسی ها
-
-              </TableCell>
-              <TableCell align="right">
-
-                  ادمین های نقش
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {roles.map((role, idx) => (
-              <TableRow
-                key={role.id}
-                hover
-                onDoubleClick={() => navigate(`/role/edit/${role.id}`)}
-                sx={{
-                  position: 'relative',
-                  backgroundColor: idx % 2 === 0 ? '#fafbfc' : '#fff',
-                  cursor: 'pointer',
-                }}
-              >
-                <TableCell align="right">{role.name}</TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
-                  onClick={handlePermissionClick}
-                >
-                  {role.permissions[0]??""}
-                  {1 && (
-                    <Box
-                      component="span"
-                      sx={{
-                        bgcolor: '#e3f2fd',
-                        color: '#1976d2',
-                        fontSize: 10,
-                        borderRadius: 1,
-                        px: 1,
-                        ml: 1,
-                        height: 20,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      + {role.permissions.length - 1}
-                    </Box>
-                  )}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
-                  onClick={handleAdminClick}
-                >
-                  {role.admins[0]??""}
-                  {1 && (
-                    <Box
-                      component="span"
-                      sx={{
-                        bgcolor: '#e3f2fd',
-                        color: '#1976d2',
-                        fontSize: 10,
-                        borderRadius: 1,
-                        px: 1,
-                        ml: 1,
-                        height: 20,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      + {role.admins.length - 1}
-                    </Box>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-            {roles.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  داده‌ای یافت نشد.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        component="div"
-        count={filteredUsers.length}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="تعداد در صفحه"
-        rowsPerPageOptions={[5, 10, 20, 50]}
-        sx={{ direction: 'rtl' }}
+      </div>
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={roles}
+        loading={loading}
+        pagination={{
+          current: page + 1,
+          pageSize: rowsPerPage,
+          total: total,
+          showSizeChanger: true,
+          pageSizeOptions: [5, 10, 20, 50],
+          onChange: (page, pageSize) => {
+            setPage((page as number) - 1);
+            setRowsPerPage(pageSize as number);
+          },
+          showTotal: (total) => `تعداد کل: ${total}`,
+          position: ['bottomCenter'],
+        }}
+        onRow={record => ({
+          onDoubleClick: () => navigate(`/role/edit/${record.id}`),
+        })}
+        style={{ direction: 'rtl' }}
       />
       <AdminPopover
         anchorEl={adminPopoverAnchor}
