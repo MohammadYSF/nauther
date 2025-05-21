@@ -12,12 +12,16 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         entity.Property(r => r.Name)
             .HasMaxLength(50)
             .IsRequired();
-        
+        entity.Property(r => r.DisplayName)
+    .HasMaxLength(50)
+    .IsRequired();
+
+
         entity.HasMany(r => r.RolePermissions)
             .WithOne(rp => rp.Role)
             .HasForeignKey(rp => rp.RoleId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         entity.HasMany(r => r.UserRoles)
             .WithOne(ur => ur.Role)
             .HasForeignKey(ur => ur.RoleId)

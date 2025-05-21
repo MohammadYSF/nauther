@@ -10,8 +10,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         entity.HasKey(u => u.Id);
         
-        entity.Property(u => u.NationalCode).HasMaxLength(11).IsRequired();
-        entity.Property(u => u.PhoneNumber).HasMaxLength(15).IsRequired();
         entity.Property(u => u.IsActive).IsRequired();
         
         entity.HasOne(u => u.UserCredential)

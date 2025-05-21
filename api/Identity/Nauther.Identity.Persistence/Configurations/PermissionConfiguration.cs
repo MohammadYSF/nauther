@@ -10,6 +10,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
     {
         entity.HasKey(p => p.Id);
         entity.Property(p => p.Name).HasMaxLength(50).IsRequired();
+        entity.Property(p => p.DisplayName).HasMaxLength(50).IsRequired();
         
         entity.HasMany(p => p.UserPermissions)
             .WithOne(p => p.Permission)

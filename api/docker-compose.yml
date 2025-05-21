@@ -10,8 +10,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=NautherDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - Redis__Configuration=redis:6379 # Assuming you're using Microsoft.Extensions.Caching.StackExchangeRedis
     depends_on:
       - db
+      - redis
     networks:
       - app-network
 
@@ -26,6 +28,15 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    command: ["redis-server", "--requirepass", "SuperSecret123"]
+    ports:
+      - "6379:6379"
     networks:
       - app-network
 
