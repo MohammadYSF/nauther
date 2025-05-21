@@ -13,7 +13,7 @@ internal class UserRoleRepository(AppDbContext context) : BaseRepository<UserRol
     {
         return await _context.UserRoles
             .AsNoTracking()
-            .Where(w => w.UserId == userId)
+            .Where(w => w.UserId == userId.ToString())
             .ToListAsync(cancellationToken);
     }
 
@@ -21,7 +21,7 @@ internal class UserRoleRepository(AppDbContext context) : BaseRepository<UserRol
     {
         return await _context.UserRoles
             .AsNoTracking()
-            .Where(ur => ur.UserId == userId)
+            .Where(ur => ur.UserId== userId.ToString())
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

@@ -22,19 +22,11 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
     public async Task<User?> GetUserByPropertiesAsync(Guid? id, string? phoneNumber, 
         string? nationalCode, CancellationToken cancellationToken)
     {
-        return await _context.Users
-            .AsNoTracking()
-            .Include(u => u.UserCredential)
-            .Include(u => u.UserRoles)
-            .FirstOrDefaultAsync(u => u.Id == id ||
-                                        u.PhoneNumber == phoneNumber ||
-                                        u.NationalCode == nationalCode, cancellationToken: cancellationToken);
+        throw new NotImplementedException();
     }
 
     public async Task<User?> GetUserByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken)
     {
-        return await _context.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => nationalCode == u.NationalCode, cancellationToken);
+        throw new NotImplementedException();
     }
 }

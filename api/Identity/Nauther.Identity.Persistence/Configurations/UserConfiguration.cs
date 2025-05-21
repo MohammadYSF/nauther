@@ -10,8 +10,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         entity.HasKey(u => u.Id);
         
-        entity.Property(u => u.IsActive).IsRequired();
-        
         entity.HasOne(u => u.UserCredential)
             .WithOne(uc => uc.User)
             .HasForeignKey<UserCredential>(uc => uc.UserId)

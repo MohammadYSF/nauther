@@ -12,8 +12,8 @@ using Nauther.Identity.Persistence.Data;
 namespace Nauther.Identity.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250503120444_changeIsActiveDefaultVakueToFalse")]
-    partial class changeIsActiveDefaultVakueToFalse
+    [Migration("20250521114614_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,6 +77,11 @@ namespace Nauther.Identity.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -85,6 +90,32 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("67b1e085-d1ff-496a-9adb-5c57a2c0bb3d"),
+                            DisplayName = "مشاهده دسترسی ها",
+                            Name = "ViewPermission"
+                        },
+                        new
+                        {
+                            Id = new Guid("2379b9d4-ca76-467b-bea7-6be08bcef55c"),
+                            DisplayName = "ایجاد دسترسی",
+                            Name = "CreatePermission"
+                        },
+                        new
+                        {
+                            Id = new Guid("2479b9d4-ca76-467b-bea7-6be08bcef55c"),
+                            DisplayName = "ویرایش دسترسی",
+                            Name = "EditPermission"
+                        },
+                        new
+                        {
+                            Id = new Guid("2579b9d4-ca76-467b-bea7-6be08bcef55c"),
+                            DisplayName = "حذف دسترسی",
+                            Name = "DeletePermission"
+                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.Role", b =>
@@ -92,6 +123,11 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -101,6 +137,20 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("bd7a5b0b-3059-4fab-8c36-b385b8baa9c9"),
+                            DisplayName = "ادمین",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("717d7a4a-d864-4774-8ae0-5010e745d87e"),
+                            DisplayName = "کاربر",
+                            Name = "User"
+                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.RolePermission", b =>
@@ -135,34 +185,8 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("NationalCode")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -171,8 +195,8 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserCredential", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -201,8 +225,8 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserGroup", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uniqueidentifier");
@@ -231,8 +255,8 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserPermission", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("PermissionId")
                         .HasColumnType("uniqueidentifier");
@@ -261,8 +285,8 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserRole", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");

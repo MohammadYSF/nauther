@@ -20,7 +20,7 @@ internal class BaseRepository<T>(AppDbContext context) : IBaseRepository<T>
             .FindAsync(id, cancellationToken);
     }
 
-    public virtual async Task<IList<T>?> GetAllListAsync(PaginationListDto paginationListDto,CancellationToken cancellationToken)
+    public virtual async Task<IList<T>?> GetAllListAsync(PaginationListDto paginationListDto, CancellationToken cancellationToken)
     {
         return await context.Set<T>()
             .AsNoTracking()
@@ -60,5 +60,10 @@ internal class BaseRepository<T>(AppDbContext context) : IBaseRepository<T>
     public Task SaveChangesAsync()
     {
         return context.SaveChangesAsync();
+    }
+
+    public async Task<int> GetCountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Set<T>().CountAsync();
     }
 }

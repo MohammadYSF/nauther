@@ -5,6 +5,7 @@ namespace Nauther.Framework.Application.Interfaces.IRepositories;
 public interface IBaseRepository<T> where T : class
 {
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<int> GetCountAsync(CancellationToken cancellationToken);
     Task<T?> GetByIntIdAsync(int id, CancellationToken cancellationToken);
     Task<IList<T>?> GetAllListAsync(PaginationListDto paginationListDto, CancellationToken cancellationToken);
     Task<T> AddAsync(T entity, CancellationToken cancellationToken);

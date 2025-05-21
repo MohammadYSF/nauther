@@ -14,28 +14,32 @@ using Nauther.Identity.Infrastructure.Utilities.Constants;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
-public class PermissionService(IMapper mapper, IPermissionRepository permissionRepository, 
+public class PermissionService(IMapper mapper, IPermissionRepository permissionRepository,
     IRedisCacheService redisCacheService)
     : IPermissionService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRedisCacheService _redisCacheService = redisCacheService;
-    
-    public async Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionsList(PaginationListDto paginationListDto,CancellationToken cancellationToken)
+
+    public async Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionsList(PaginationListDto paginationListDto, CancellationToken cancellationToken)
     {
-        var permissions =  await _permissionRepository.GetAllListAsync(paginationListDto,cancellationToken);
+        var total = await _permissionRepository.GetCountAsync(cancellationToken);
+
+        var permissions = await _permissionRepository.GetAllListAsync(paginationListDto, cancellationToken);
         if (permissions == null || permissions.Any() == false)
             return new BaseResponse<IList<GetPermissionsQueryResponse>?>()
             {
                 StatusCode = StatusCodes.Status203NonAuthoritative,
                 Message = Messages.PermissionNotFound
             };
-        
+
         return new BaseResponse<IList<GetPermissionsQueryResponse>?>()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = _mapper.Map<IList<GetPermissionsQueryResponse>?>(permissions)
+            Data = _mapper.Map<IList<GetPermissionsQueryResponse>?>(permissions),
+            Metadata = new Dictionary<string, object>() { { "total", total } }
+
         };
     }
 
@@ -58,7 +62,7 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
 
     public async Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionByName(string name, CancellationToken cancellationToken)
     {
-        var permission =  await _permissionRepository.GetByNameAsync(name, cancellationToken);
+        var permission = await _permissionRepository.GetByNameAsync(name, cancellationToken);
         if (permission == null || permission.Any() == false)
             return new BaseResponse<IList<GetPermissionsQueryResponse>?>()
             {
@@ -76,17 +80,17 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
     public async Task<BaseResponse<CreatePermissionCommandResponse>> AddPermission(CreatePermissionCommand dto, CancellationToken cancellationToken)
     {
         var existingPermission = await _permissionRepository.ExistsByNameAsync(dto.Name, cancellationToken);
-        if(existingPermission)
+        if (existingPermission)
             return new BaseResponse<CreatePermissionCommandResponse>()
             {
                 StatusCode = StatusCodes.Status409Conflict,
                 Message = Messages.PermissionAlreadyExisted
             };
         var permission = _mapper.Map<Permission>(dto);
-        
+
         await _permissionRepository.AddAsync(permission, cancellationToken);
         await _permissionRepository.SaveChangesAsync();
-        
+
         return new BaseResponse<CreatePermissionCommandResponse>()
         {
             StatusCode = StatusCodes.Status201Created,
@@ -112,7 +116,7 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
         {
             StatusCode = StatusCodes.Status200OK,
             Message = Messages.PermissionCreated,
-            Data = _mapper.Map<EditPermissionCommandResponse>(permission)
+            Data = _mapper.Map<EditPermissionCommandResponse>(permission),
         };
     }
 }

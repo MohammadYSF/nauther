@@ -26,7 +26,8 @@ internal class GroupPermissionRepository(AppDbContext context)
                     userPermission => userPermission.PermissionId,
                     (permission, userPermission) => new Permission()
                     {
-                        Name = permission.Name
+                        Name = permission.Name,
+                        DisplayName = permission.DisplayName
                     }
                 )
                 .Select(s => s.Name)

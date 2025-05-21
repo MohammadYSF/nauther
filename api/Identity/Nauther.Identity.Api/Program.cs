@@ -32,6 +32,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    //db.Users.ExecuteDelete();
+    //db.UserCredentials.ExecuteDelete();
+    //db.UserRoles.ExecuteDelete();
+    //db.UserPermissions.ExecuteDelete();
     db.Database.Migrate();
 }
 

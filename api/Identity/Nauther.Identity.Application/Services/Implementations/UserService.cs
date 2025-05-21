@@ -107,146 +107,25 @@ public class UserService(
     public async Task<BaseResponse<RegisterUserCommandResponse>> Register(RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        var existingUser = await IsUserExist(null, request.PhoneNumber,
-            request.NationalCode, cancellationToken);
-        if (existingUser)
-            return new BaseResponse<RegisterUserCommandResponse>()
-            {
-                StatusCode = StatusCodes.Status409Conflict,
-                Message = Messages.UserAlreadyExisted
-            };
-
-    
-
-        var user = _mapper.Map<Domain.Entities.User>(request);
-        user.UserCredential = new UserCredential()
-        {
-            UserId = user.Id,
-            PasswordHash = _passwordHasher.HashPassword(request.Password),
-        };
-
-        await _userRepository.AddAsync(user, cancellationToken);
-        await _userRepository.SaveChangesAsync();
-        
-        await _otpService.SendOtpAsync(user.PhoneNumber);
-
-        return new BaseResponse<RegisterUserCommandResponse>()
-        {
-            StatusCode = StatusCodes.Status201Created,
-            Message = Messages.UserRegistered,
-            Data = _mapper.Map<RegisterUserCommandResponse>(user)
-        };
+        throw new NotImplementedException();
     }
 
     public async Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserByPropertiesAsync(
-            request.UserId,
-            null,
-            null,
-            cancellationToken
-        );
-        if (user == null)
-            return new BaseResponse<SendOtpCommandResponse>
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = Messages.InvalidUsername
-            };
-
-        await _otpService.SendOtpAsync(user.PhoneNumber);
-        
-        return new BaseResponse<SendOtpCommandResponse>()
-        {
-            StatusCode = StatusCodes.Status200OK,
-        };
+        throw new NotImplementedException();
     }
 
     public async Task<BaseResponse<VerifyOtpCommandResponse>> VerifyOtp(VerifyOtpCommand request,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserByPropertiesAsync(
-            request.UserId,
-            null,
-            null,
-            cancellationToken
-        );
-        if (user == null)
-            return new BaseResponse<VerifyOtpCommandResponse>
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = Messages.InvalidUsername
-            };
-
-        var isOtpVerified = await _otpService.VerifyOtpAsync(user.PhoneNumber, request.Otp);
-        if (isOtpVerified == false)
-            return new BaseResponse<VerifyOtpCommandResponse>()
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = Messages.InvalidOtp
-            };
-
-        if (request.OtpType == OtpType.RegistrationOtp)
-        {
-            user.IsActive = true;
-            user.UserRoles.Add(new UserRole()
-            {
-                UserId = user.Id,
-                RoleId = UserRoleId
-            });
-            await _userRoleRepository.AddRangeAsync(user.UserRoles.ToList(), cancellationToken);
-            await _userRepository.UpdateAsync(user, cancellationToken);
-            await _userRepository.SaveChangesAsync();
-        }
-
-        if (request.OtpType == OtpType.LoginOtp)
-        {
-            var token = await GenerateUserToken(user, user.Id, cancellationToken);
-            return new BaseResponse<VerifyOtpCommandResponse>()
-            {
-                StatusCode = StatusCodes.Status200OK,
-                Message = Messages.LoginSuccessfully,
-                Data = _mapper.Map<VerifyOtpCommandResponse>(token)
-            };
-        }
-        
-        return new BaseResponse<VerifyOtpCommandResponse>()
-        {
-            StatusCode = StatusCodes.Status200OK,
-        };
+        throw new NotImplementedException();
     }
 
     public async Task<BaseResponse<LoginWithPasswordCommandResponse>> LoginWithPassword(
         LoginWithPasswordCommand request,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserByPropertiesAsync(
-            request.UserId,
-            null,
-            null,
-            cancellationToken
-        );
-        if (user == null)
-            return new BaseResponse<LoginWithPasswordCommandResponse>
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = Messages.InvalidUsername
-            };
-
-        var passwordVerification = _passwordHasher.VerifyPassword(request.Password, user.UserCredential.PasswordHash);
-        if (passwordVerification == false)
-            return new BaseResponse<LoginWithPasswordCommandResponse>
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = Messages.InvalidPassword
-            };
-
-        var token = await GenerateUserToken(user, user.Id, cancellationToken);
-        return new BaseResponse<LoginWithPasswordCommandResponse>
-        {
-            StatusCode = StatusCodes.Status200OK,
-            Message = Messages.LoginSuccessfully,
-            Data = _mapper.Map<LoginWithPasswordCommandResponse>(token)
-        };
+        throw new NotImplementedException();
     }
 
     private async Task<bool> IsUserExist(Guid? id, string? phoneNumber,

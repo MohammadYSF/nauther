@@ -4,7 +4,7 @@ namespace Nauther.Identity.Domain.Entities;
 
 public class UserGroup : AuditableEntity
 {
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
     public User User { get; set; }
 
     public Guid GroupId { get; set; }

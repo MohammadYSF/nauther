@@ -13,19 +13,20 @@ internal class UserPermissionRepository(AppDbContext context)
     {
         return await _context.UserPermissions
             .AsNoTracking()
-            .Where(p => p.UserId == userId)
+            .Where(p => p.UserId == userId.ToString())
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<string>> GetUserPermissionsNameAsync(Guid userId, CancellationToken cancellationToken)
     {
         var permissions = await _context.Permissions
-            .Join(_context.UserPermissions.Where(w => w.UserId == userId),
+            .Join(_context.UserPermissions.Where(w => w.UserId == userId.ToString()),
                 permission => permission.Id,
                 userPermission => userPermission.PermissionId,
                 (permission, userPermission) => new Permission
                 {
-                    Name = permission.Name
+                    Name = permission.Name,
+                    DisplayName = permission.DisplayName
                 }
             )
             .Select(s => s.Name)

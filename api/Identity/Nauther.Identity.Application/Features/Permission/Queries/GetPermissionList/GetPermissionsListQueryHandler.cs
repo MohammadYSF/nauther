@@ -15,11 +15,6 @@ public class GetPermissionsListQueryHandler(IPermissionService permissionService
         CancellationToken cancellationToken)
     {
         var permissions = await _permissionService.GetPermissionsList(request,cancellationToken);
-        return new BaseResponse<IList<GetPermissionsQueryResponse>>()
-        {
-            StatusCode = permissions.StatusCode,
-            Message = permissions.Message,
-            Data = permissions.Data
-        };
+        return permissions;
     }
 }

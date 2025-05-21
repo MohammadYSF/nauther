@@ -6,6 +6,7 @@ public class BaseResponse
     public string Message { get; set; } = string.Empty;
     public List<ValidationError>? ValidationErrors { get; set; }
     public object? Data { get; set; }
+    public Dictionary<string, object> Metadata { get; set; } = [];
 }
 
 public class BaseResponse<T> : BaseResponse

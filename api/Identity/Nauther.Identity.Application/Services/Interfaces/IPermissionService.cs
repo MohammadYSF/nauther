@@ -8,6 +8,7 @@ namespace Nauther.Identity.Application.Services.Interfaces;
 
 public interface IPermissionService
 {
+
     Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionsList(PaginationListDto paginationListDto,CancellationToken cancellationToken);
     Task<BaseResponse<GetPermissionsQueryResponse?>> GetPermissionById(Guid id, CancellationToken cancellationToken);
     Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionByName(string name, CancellationToken cancellationToken);

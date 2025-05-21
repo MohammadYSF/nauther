@@ -21,9 +21,6 @@ public class JwtTokenService(IOptionsMonitor<JwtSettings> jwtSettings) : IJwtTok
         var claims = new List<Claim>
         {
             new Claim(CustomClaimTypes.UserId, user.Id.ToString()),
-            new Claim(CustomClaimTypes.NationalCode, user.NationalCode),
-            new Claim(CustomClaimTypes.PhoneNumber, user.PhoneNumber),
-            new Claim(CustomClaimTypes.IsActive, user.IsActive.ToString())
         };
         claims.Add(new Claim(CustomClaimTypes.Permissions, string.Join(",", permissions)));
         
