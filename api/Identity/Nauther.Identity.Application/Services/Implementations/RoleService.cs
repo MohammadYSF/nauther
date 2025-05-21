@@ -27,6 +27,7 @@ public class RoleService(
     public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRolesList(PaginationListDto paginationListDto,
         CancellationToken cancellationToken)
     {
+        var total = await _roleRepository.GetCountAsync(cancellationToken);
         var roles = await _roleRepository.GetAllListAsync(paginationListDto, cancellationToken);
         if (roles == null || roles.Any() == false)
             return new BaseResponse<IList<GetRolesQueryResponse>?>()
@@ -36,11 +37,12 @@ public class RoleService(
             };
 
         await _redisCacheService.AddListAsync(CacheKeys.RolesList, roles);
-        
+
         return new BaseResponse<IList<GetRolesQueryResponse>?>()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = _mapper.Map<IList<GetRolesQueryResponse>?>(roles)
+            Data = _mapper.Map<IList<GetRolesQueryResponse>?>(roles),
+            Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }
 

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Nauther.Framework.Shared.Responses;
 
 namespace Nauther.Identity.Application.Features.Permission.Commands.EditPermission;
