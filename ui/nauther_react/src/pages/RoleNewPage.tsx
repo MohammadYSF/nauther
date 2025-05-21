@@ -11,7 +11,7 @@ export default function RoleNewPage() {
   const isEdit = Boolean(id);
 
   const [roles, setRoles] = useState<any[]>([]);
-  const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], total: 0 });
+  const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
   const [roleName, setRoleName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);

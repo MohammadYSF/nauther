@@ -11,10 +11,10 @@ type CreatePermissionResponseDataModel = {
   id: string
 };
 type EditPermissionResponseDataModel = {
-  id: string
+  id: string 
 }
 type GetPermissionsResponseDataModel = {
-  total: number,
+  metadata:{total:number}
   data: {
     id: string,
     name: string,
@@ -28,13 +28,13 @@ type GetPermissionByIdResponseDataModel = {
 };
 
 export const getPermissions = async (
-  page: number = 1,
+  pageNumber: number = 1,
   pageSize: number = 10,
   search: string = ''
 ) => {
-  let res = await api.get<GetPermissionsResponseDataModel>('/permissions', {
+  let res = await api.get<GetPermissionsResponseDataModel>('/permission/all', {
     params: {
-      page,
+      pageNumber,
       pageSize,
       search,
     },

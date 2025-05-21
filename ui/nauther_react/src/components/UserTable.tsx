@@ -184,11 +184,14 @@ export default function UserTable({ selected, setSelected }: { selected: string[
         columns={columns}
         dataSource={users}
         loading={loading}
+        locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
+
         pagination={{
           current: page + 1,
           pageSize: rowsPerPage,
           total: total,
           showSizeChanger: true,
+          
           pageSizeOptions: [5, 10, 20, 50],
           onChange: handleChangePage,
           showTotal: (total) => `تعداد کل: ${total}`,

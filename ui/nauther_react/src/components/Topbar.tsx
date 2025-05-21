@@ -1,6 +1,29 @@
-import { Typography, Avatar } from 'antd';
+import { Typography, Avatar, Popover, Button, Divider } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 
 export default function Topbar() {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const userName = 'سهند افشردی';
+
+  const handleLogout = () => {
+    // TODO: Implement logout logic
+    setPopoverOpen(false);
+  };
+
+  const popoverContent = (
+    <div style={{ minWidth: 200, padding: 16, background: '#f7f8fa', borderRadius: 12, boxShadow: '0 2px 8px #00000014', textAlign: 'center' }}>
+      <Avatar size={48} style={{ backgroundColor: '#7265e6', fontWeight: 700, marginBottom: 8 }} icon={<UserOutlined />} />
+      <Typography.Text style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 16 }}>
+        {userName}
+      </Typography.Text>
+      <Divider style={{ margin: '12px 0' }} />
+      <Button type="primary" danger block style={{ fontWeight: 500, borderRadius: 8 }} onClick={handleLogout}>
+        خروج
+      </Button>
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -30,10 +53,16 @@ export default function Topbar() {
         </div>
         {/* Left: User full name and avatar */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Typography.Text style={{ color: '#fff', fontWeight: 500, marginLeft: 8 }}>
-            سهند افشردی
-          </Typography.Text>
-          <Avatar style={{ width: 24, height: 24 }} />
+          <Popover
+            content={popoverContent}
+            trigger="click"
+            open={popoverOpen}
+            onOpenChange={setPopoverOpen}
+            placement="bottomRight"
+            overlayStyle={{ padding: 0 }}
+          >
+            <Avatar style={{ width: 32, height: 32, backgroundColor: '#7265e6', fontWeight: 700, cursor: 'pointer' }} icon={<UserOutlined />} />
+          </Popover>
         </div>
       </div>
     </div>

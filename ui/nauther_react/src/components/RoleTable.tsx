@@ -140,6 +140,8 @@ export default function RoleTable() {
         columns={columns}
         dataSource={roles}
         loading={loading}
+        locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
+
         pagination={{
           current: page + 1,
           pageSize: rowsPerPage,

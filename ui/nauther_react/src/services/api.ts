@@ -16,7 +16,7 @@ export const extractApiError = (error: unknown): ApiError => {
   return { message: 'Unexpected error', data: error };
 };
 const api = axios.create({
-  baseURL: '', // Change to your backend base URL
+  baseURL: 'https://localhost:5001/api', // Change to your backend base URL
   headers: {
     'Content-Type': 'application/json',
   },

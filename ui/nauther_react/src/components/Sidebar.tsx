@@ -1,20 +1,15 @@
 import { Tooltip, Button } from 'antd';
 import {
   UserOutlined,
-  CameraOutlined,
-  SettingOutlined,
-  SearchOutlined,
-  FilterOutlined,
-  EllipsisOutlined,
+  TeamOutlined,
+  SafetyCertificateOutlined
 } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 
 const menu = [
-  { icon: <UserOutlined />, label: 'ادمین' },
-  { icon: <CameraOutlined />, label: 'دوربین' },
-  { icon: <SearchOutlined />, label: 'جستجو' },
-  { icon: <FilterOutlined />, label: 'فیلتر' },
-  { icon: <EllipsisOutlined />, label: 'بیشتر' },
-  { icon: <SettingOutlined />, label: 'تنظیمات' },
+  { icon: <SafetyCertificateOutlined />, label: 'دسترسی', route: '/permission' },
+  { icon: <TeamOutlined />, label: 'نقش', route: '/role' },
+  { icon: <UserOutlined />, label: 'ادمین', route: '/' },
 ];
 
 export default function Sidebar() {
@@ -31,15 +26,17 @@ export default function Sidebar() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 48,
+        paddingTop: 88,
         zIndex: 2,
       }}
     >
       {menu.map((item, idx) => (
         <Tooltip title={item.label} placement="left" key={idx}>
-          <Button type="text" shape="circle" style={{ color: '#fff', marginBottom: 16, fontSize: 20 }}>
-            {item.icon}
-          </Button>
+          <Link to={item.route} style={{ display: 'block' }}>
+            <Button type="text" shape="circle" style={{ color: '#fff', marginBottom: 16, fontSize: 20 }}>
+              {item.icon}
+            </Button>
+          </Link>
         </Tooltip>
       ))}
     </div>

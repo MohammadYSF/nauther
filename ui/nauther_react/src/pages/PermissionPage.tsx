@@ -114,6 +114,8 @@ export default function PermissionPage() {
               icon={<SaveOutlined />}
               type="primary"
               size="small"
+              shape="circle"
+              aria-label="ذخیره"
               onClick={() => handleEditSave(record.id)}
               loading={saving}
               style={{ marginLeft: 8 }}
@@ -122,6 +124,8 @@ export default function PermissionPage() {
               icon={<CloseOutlined />}
               type="default"
               size="small"
+              shape="circle"
+              aria-label="انصراف"
               danger
               onClick={() => setEditId(null)}
               disabled={saving}
@@ -132,6 +136,8 @@ export default function PermissionPage() {
             icon={<EditOutlined />}
             type="primary"
             size="small"
+            shape="circle"
+            aria-label="ویرایش"
             onClick={() => handleEdit(record.id, record.name, record.displayName)}
           />
         ),
@@ -140,18 +146,18 @@ export default function PermissionPage() {
 
   return (
 
-          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', borderRadius: 16 }}>
+          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto',border:'none' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
               <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
+                shape="circle"
+                aria-label="افزودن دسترسی"
                 onClick={handleAdd}
                 disabled={addMode}
                 style={{ borderRadius: 8 }}
-              >
-                افزودن دسترسی
-              </Button>
+              />
             </div>
             {addMode && (
               <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
@@ -174,6 +180,8 @@ export default function PermissionPage() {
                   icon={<SaveOutlined />}
                   type="primary"
                   size="small"
+                  shape="circle"
+                  aria-label="ذخیره"
                   onClick={handleAddSave}
                   loading={saving}
                   style={{ marginLeft: 8 }}
@@ -182,6 +190,8 @@ export default function PermissionPage() {
                   icon={<CloseOutlined />}
                   type="default"
                   size="small"
+                  shape="circle"
+                  aria-label="انصراف"
                   danger
                   onClick={() => setAddMode(false)}
                   disabled={saving}
