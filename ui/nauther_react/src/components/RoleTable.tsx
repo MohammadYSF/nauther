@@ -60,6 +60,12 @@ export default function RoleTable() {
       align: 'right' as const,
     },
     {
+      title: 'نام نمایشی',
+      dataIndex: 'displayName',
+      key: 'displayName',
+      align: 'right' as const,
+    },
+    {
       title: 'دسترسی ها',
       dataIndex: 'permissions',
       key: 'permissions',
@@ -154,6 +160,7 @@ export default function RoleTable() {
           },
           showTotal: (total) => `تعداد کل: ${total}`,
           position: ['bottomCenter'],
+          locale: { items_per_page: 'در صفحه' },
         }}
         onRow={record => ({
           onDoubleClick: () => navigate(`/role/edit/${record.id}`),

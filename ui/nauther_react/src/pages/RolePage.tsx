@@ -50,11 +50,6 @@ export default function RolePage() {
               </Button>
             </div>
             <RoleTable />
-            <div>
-              {roles?.map(role => (
-                <div key={role.id}>{role.name}</div>
-              ))}
-            </div>
           </Card>
   );
 }

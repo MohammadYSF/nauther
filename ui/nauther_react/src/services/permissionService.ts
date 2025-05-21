@@ -4,6 +4,7 @@ type CreatePermissionPayload = {
   displayName: string
 };
 type EditPermissionPayload = {
+  id:string,
   name: string,
   displayName: string
 };
@@ -47,11 +48,11 @@ export const getPermissionById = async (id: string) => {
 }
 export const createPermission = async (data: CreatePermissionPayload) => {
 
-  let res = await api.post<CreatePermissionResponseDataModel>('/permissions', data);
+  let res = await api.post<CreatePermissionResponseDataModel>('/permission', data);
   res.data;
 }
-export const editPermission = async (id: string, data: EditPermissionPayload) => {
-  let res = await api.put<EditPermissionResponseDataModel>(`/permissions/${id}`, data);
+export const editPermission = async (data: EditPermissionPayload) => {
+  let res = await api.put<EditPermissionResponseDataModel>(`/permission/${data.id}`, data);
   return res.data;
 } 
 export type {EditPermissionResponseDataModel,CreatePermissionResponseDataModel,CreatePermissionPayload,

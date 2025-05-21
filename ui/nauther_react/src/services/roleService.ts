@@ -34,7 +34,7 @@ export const getRoles = async (
   pageSize: number = 10,
   search: string = ''
 ): Promise<GetRolesResponseDataModel> => {
-  let res = await api.get<GetRolesResponseDataModel>('/roles', {
+  let res = await api.get<GetRolesResponseDataModel>('/role/all', {
     params: {
       page,
       pageSize,

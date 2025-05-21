@@ -14,14 +14,16 @@ export default function PermissionPage() {
   const [addValue, setAddValue] = useState('');
   const [addValueDisplayName, setAddValueDisplayName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
-    fetchPermissions();
-  }, []);
+    fetchPermissions(page, pageSize);
+  }, [page, pageSize]);
 
-  const fetchPermissions = async () => {
+  const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10) => {
     setLoading(true);
-    getPermissions().then(res => {
+    getPermissions(pageNumber, pageSizeNumber).then(res => {
       setPermissions(res);
     })
       .catch(err => {
@@ -33,6 +35,11 @@ export default function PermissionPage() {
       .finally(() => setLoading(false));
   };
 
+  const handleTableChange = (pagination: any) => {
+    setPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   const handleEdit = (id: string, name: string, displayName: string) => {
     setEditId(id);
     setEditValue(name);
@@ -41,11 +48,11 @@ export default function PermissionPage() {
 
   const handleEditSave = async (id: string) => {
     setSaving(true);
-    await editPermission(id, { name: editValue, displayName: editValueDisplayName });
+    await editPermission({id:id, name: editValue, displayName: editValueDisplayName });
     setEditId(null);
     setEditValue('');
     setEditValueDisplayName('');
-    fetchPermissions();
+    fetchPermissions(page, pageSize);
     setSaving(false);
   };
 
@@ -62,7 +69,7 @@ export default function PermissionPage() {
     setAddMode(false);
     setAddValue('');
     setAddValueDisplayName('');
-    fetchPermissions();
+    fetchPermissions(page, pageSize);
     setSaving(false);
   };
 
@@ -72,66 +79,122 @@ export default function PermissionPage() {
       dataIndex: 'name',
       key: 'name',
       align: 'right' as const,
-      render: (text: string, record: any) =>
-        editId === record.id ? (
-          <Input
-            size="small"
-            value={editValue}
-            onChange={e => setEditValue(e.target.value)}
-            autoFocus
-            style={{ minWidth: 120 }}
-          />
-        ) : (
-          text
-        ),
+      render: (text: string, record: any) => {
+        if (addMode && record.id === '__new') {
+          return (
+            <Input
+              size="small"
+              value={addValue}
+              onChange={e => setAddValue(e.target.value)}
+              placeholder="نام دسترسی"
+              autoFocus
+              style={{ minWidth: 120 }}
+            />
+          );
+        }
+        if (editId === record.id) {
+          return (
+            <Input
+              size="small"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              autoFocus
+              style={{ minWidth: 120 }}
+            />
+          );
+        }
+        return text;
+      },
     },
     {
       title: 'نام نمایشی',
       dataIndex: 'displayName',
       key: 'displayName',
       align: 'right' as const,
-      render: (text: string, record: any) =>
-        editId === record.id ? (
-          <Input
-            size="small"
-            value={editValueDisplayName}
-            onChange={e => setEditValueDisplayName(e.target.value)}
-            autoFocus
-            style={{ minWidth: 120 }}
-          />
-        ) : (
-          text
-        ),
+      render: (text: string, record: any) => {
+        if (addMode && record.id === '__new') {
+          return (
+            <Input
+              size="small"
+              value={addValueDisplayName}
+              onChange={e => setAddValueDisplayName(e.target.value)}
+              placeholder="نام نمایشی"
+              style={{ minWidth: 120 }}
+            />
+          );
+        }
+        if (editId === record.id) {
+          return (
+            <Input
+              size="small"
+              value={editValueDisplayName}
+              onChange={e => setEditValueDisplayName(e.target.value)}
+              autoFocus
+              style={{ minWidth: 120 }}
+            />
+          );
+        }
+        return text;
+      },
     },
     {
       title: '',
       key: 'actions',
       align: 'right' as const,
-      render: (_: any, record: any) =>
-        editId === record.id ? (
-          <>
-            <Button
-              icon={<SaveOutlined />}
-              type="primary"
-              size="small"
-              shape="circle"
-              aria-label="ذخیره"
-              onClick={() => handleEditSave(record.id)}
-              loading={saving}
-              style={{ marginLeft: 8 }}
-            />
-            <Button
-              icon={<CloseOutlined />}
-              type="default"
-              size="small"
-              shape="circle"
-              aria-label="انصراف"
-              danger
-              onClick={() => setEditId(null)}
-              disabled={saving}
-            />
-          </>
-        ) : (
+      render: (_: any, record: any) => {
+        if (addMode && record.id === '__new') {
+          return (
+            <>
+              <Button
+                icon={<SaveOutlined />}
+                type="primary"
+                size="small"
+                shape="circle"
+                aria-label="ذخیره"
+                onClick={handleAddSave}
+                loading={saving}
+                style={{ marginLeft: 8 }}
+              />
+              <Button
+                icon={<CloseOutlined />}
+                type="default"
+                size="small"
+                shape="circle"
+                aria-label="انصراف"
+                danger
+                onClick={() => setAddMode(false)}
+                disabled={saving}
+              />
+            </>
+          );
+        }
+        if (editId === record.id) {
+          return (
+            <>
+              <Button
+                icon={<SaveOutlined />}
+                type="primary"
+                size="small"
+                shape="circle"
+                aria-label="ذخیره"
+                onClick={() => handleEditSave(record.id)}
+                loading={saving}
+                style={{ marginLeft: 8 }}
+              />
+              <Button
+                icon={<CloseOutlined />}
+                type="default"
+                size="small"
+                shape="circle"
+                aria-label="انصراف"
+                danger
+                onClick={() => setEditId(null)}
+                disabled={saving}
+              />
+            </>
+          );
+        }
+        return (
           <Button
             icon={<EditOutlined />}
             type="primary"
@@ -140,75 +203,50 @@ export default function PermissionPage() {
             aria-label="ویرایش"
             onClick={() => handleEdit(record.id, record.name, record.displayName)}
           />
-        ),
+        );
+      },
     },
   ];
 
+  // Compose dataSource with new row if addMode
+  const dataSource = addMode
+    ? [{ id: '__new', name: addValue, displayName: addValueDisplayName }, ...(permissions?.data || [])]
+    : permissions?.data || [];
+
   return (
-
-          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto',border:'none' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
-              <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                shape="circle"
-                aria-label="افزودن دسترسی"
-                onClick={handleAdd}
-                disabled={addMode}
-                style={{ borderRadius: 8 }}
-              />
-            </div>
-            {addMode && (
-              <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                <Input
-                  size="small"
-                  value={addValue}
-                  onChange={e => setAddValue(e.target.value)}
-                  placeholder="نام دسترسی"
-                  autoFocus
-                  style={{ minWidth: 120 }}
-                />
-                <Input
-                  size="small"
-                  value={addValueDisplayName}
-                  onChange={e => setAddValueDisplayName(e.target.value)}
-                  placeholder="نام نمایشی"
-                  style={{ minWidth: 120 }}
-                />
-                <Button
-                  icon={<SaveOutlined />}
-                  type="primary"
-                  size="small"
-                  shape="circle"
-                  aria-label="ذخیره"
-                  onClick={handleAddSave}
-                  loading={saving}
-                  style={{ marginLeft: 8 }}
-                />
-                <Button
-                  icon={<CloseOutlined />}
-                  type="default"
-                  size="small"
-                  shape="circle"
-                  aria-label="انصراف"
-                  danger
-                  onClick={() => setAddMode(false)}
-                  disabled={saving}
-                />
-              </div>
-            )}
-            <Spin spinning={loading} tip="در حال بارگذاری...">
-              <Table
-                rowKey="id"
-                columns={columns}
-                dataSource={permissions?.data || []}
-                pagination={false}
-                style={{ direction: 'rtl' }}
-                locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
-              />
-            </Spin>
-          </Card>
-
+    <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          shape="circle"
+          aria-label="افزودن دسترسی"
+          onClick={handleAdd}
+          disabled={addMode}
+          style={{ borderRadius: 8 }}
+        />
+      </div>
+      <Spin spinning={loading} tip="در حال بارگذاری...">
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: permissions?.metadata?.total || 0,
+            showSizeChanger: true,
+            pageSizeOptions: [5, 10, 20, 50],
+            showTotal: (total) => `تعداد کل: ${total}`,
+            position: ['bottomCenter'],
+            locale: { items_per_page: 'در صفحه' },
+          }}
+          style={{ direction: 'rtl' }}
+          locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
+          onChange={handleTableChange}
+        />
+      </Spin>
+    </Card>
   );
 }
