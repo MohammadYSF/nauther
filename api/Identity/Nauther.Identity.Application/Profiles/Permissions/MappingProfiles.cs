@@ -15,7 +15,7 @@ public partial class MappingProfiles : Profile
 
         CreateMap<Permission, GetPermissionsQueryResponse>();
         CreateMap<Permission, CreatePermissionCommandResponse>()
-            .ForMember(des => des.PermissionId, opt 
+            .ForMember(des => des.Id, opt 
                 => opt.MapFrom(src => src.Id));
     }
 }

@@ -35,8 +35,11 @@ public static class Messages
     
     public const string PermissionAlreadyExisted = "در حال حاضر دسترسی ای با این مشخصات وجود دارد.";
     public const string PermissionCreated = "ایجاد دسترسی با موفقیت انجام شد.";
+    public const string PermissionEditted = "ویرایش دسترسی با موفقیت انجام شد.";
     public const string PermissionNameRequired = "نام دسترسی نمی‌تواند خالی باشد.";
+    public const string PermissionDisplayNameRequired = "نام نمایشی  دسترسی نمی‌تواند خالی باشد.";
     public const string PermissionMaxLenght = "نام نقش نمی‌تواند بیشتر از ۲۵ کاراکتر باشد.";
+    public const string PermissionDisplayNameMaxLenght = "نام نمایشی  دسترسی نمی‌تواند بیشتر از ۲۵ کاراکتر باشد.";
     public const string PermissionNotFound = "دسترسی ای یافت نشد.";
     
     public const string UserRoleCreated = "نقش مورد نظر با موفقیت اعمال شد.";

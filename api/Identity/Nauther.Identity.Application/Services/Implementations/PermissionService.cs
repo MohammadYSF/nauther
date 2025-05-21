@@ -4,6 +4,7 @@ using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Infrastructure.Caching.RedisCache;
 using Nauther.Framework.Shared.Responses;
 using Nauther.Identity.Application.Features.Permission.Commands.CreatePermission;
+using Nauther.Identity.Application.Features.Permission.Commands.EditPermission;
 using Nauther.Identity.Application.Features.Permission.Queries;
 using Nauther.Identity.Application.Resources;
 using Nauther.Identity.Application.Services.Interfaces;
@@ -91,6 +92,27 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
             StatusCode = StatusCodes.Status201Created,
             Message = Messages.PermissionCreated,
             Data = _mapper.Map<CreatePermissionCommandResponse>(permission)
+        };
+    }
+    public async Task<BaseResponse<EditPermissionCommandResponse>> EditPermission(EditPermissionCommand dto, CancellationToken cancellationToken)
+    {
+        var existingPermission = await _permissionRepository.GetByIdAsync(dto.Id, cancellationToken);
+        if (existingPermission == null)
+            return new BaseResponse<EditPermissionCommandResponse>()
+            {
+                StatusCode = StatusCodes.Status404NotFound,
+                Message = Messages.PermissionNotFound
+            };
+        var permission = _mapper.Map<Permission>(dto);
+
+        await _permissionRepository.UpdateAsync(permission, cancellationToken);
+        await _permissionRepository.SaveChangesAsync();
+
+        return new BaseResponse<EditPermissionCommandResponse>()
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Message = Messages.PermissionCreated,
+            Data = _mapper.Map<EditPermissionCommandResponse>(permission)
         };
     }
 }

@@ -1,11 +1,11 @@
 using FluentValidation;
 using Nauther.Identity.Application.Resources;
 
-namespace Nauther.Identity.Application.Features.Permission.Commands.CreatePermission;
+namespace Nauther.Identity.Application.Features.Permission.Commands.EditPermission;
 
-public class CreatePermissionCommandValidator : AbstractValidator<CreatePermissionCommand>
+public class EditPermissionCommandValidator : AbstractValidator<EditPermissionCommand>
 {
-    public CreatePermissionCommandValidator()
+    public EditPermissionCommandValidator()
     {
         RuleFor(r => r.Name)
             .NotNull().NotEmpty().WithMessage(Messages.PermissionNameRequired)

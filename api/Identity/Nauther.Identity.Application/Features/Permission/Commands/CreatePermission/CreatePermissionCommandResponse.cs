@@ -1,6 +1,6 @@
 namespace Nauther.Identity.Application.Features.Permission.Commands.CreatePermission;
 
-public class CreatePermissionCommandResponse
+public record CreatePermissionCommandResponse
 {
-    public Guid PermissionId { get; set; }
+    public Guid Id { get; set; }
 }

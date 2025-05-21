@@ -6,4 +6,5 @@ namespace Nauther.Identity.Application.Features.Permission.Commands.CreatePermis
 public class CreatePermissionCommand :IRequest<BaseResponse<CreatePermissionCommandResponse>>
 {
     public string Name { get; set; }
+    public string DisplayName { get; set; }
 }
