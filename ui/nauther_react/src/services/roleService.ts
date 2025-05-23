@@ -51,11 +51,16 @@ export const getRoleById = async (id: string): Promise<GetRoleByIdResponseDataMo
 }
 
 export const createRole = async (data: CreateRolePayload): Promise<CreateRoleResponseModel> => {
-  let res = await api.post<CreateRoleResponseModel>('/roles', data);
+  let res = await api.post<CreateRoleResponseModel>('/role', data);
   return res.data;
 }
 
 export const editRole = async (id: string, data: EditRolePayload): Promise<EditRoleResponseModel> => {
-  let res = await api.put<EditRoleResponseModel>(`/roles/${id}`, data);
+  let res = await api.put<EditRoleResponseModel>(`/role/${id}`, data);
   return res.data;
-} 
+}
+
+export const updateRole = async (id: string, data: CreateRolePayload): Promise<CreateRoleResponseModel> => {
+  let res = await api.put<CreateRoleResponseModel>(`/role/${id}`, data);
+  return res.data;
+}; 

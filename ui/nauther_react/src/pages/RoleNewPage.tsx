@@ -3,21 +3,19 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getRoleById, getRoles } from '../services/roleService';
+import { getRoleById, getRoles, createRole, updateRole } from '../services/roleService';
 import { getPermissions, type GetPermissionsResponseDataModel } from '../services/permissionService';
 
 export default function RoleNewPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
 
-  const [roles, setRoles] = useState<any[]>([]);
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
   const [roleName, setRoleName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   useEffect(() => {
-    getRoles().then(res => setRoles(res.data || []));
     getPermissions().then(res => setPermissions(res));
   }, []);
 
@@ -30,20 +28,34 @@ export default function RoleNewPage() {
     }
   }, [id, isEdit]);
 
+  const handleSubmit = async () => {
+    const roleData = {
+      name: roleName,
+      displayName: displayName,
+      permissions: selectedPermissions,
+    };
+
+    try {
+      if (isEdit && id) {
+        // Update existing role
+        await updateRole(id, { ...roleData, permissionIds: selectedPermissions });
+      } else {
+        await createRole({ ...roleData, permissionIds: selectedPermissions });
+      }
+    } catch (error) {
+      console.error('Error saving role:', error);
+    }
+  };
+
   return (
-    <div style={{ background: '#f4f6f8', minHeight: '100vh', width: '100vw', padding: 0, margin: 0 }}>
-      <div style={{ width: '100vw', minHeight: '100vh', position: 'relative' }}>
-        <Sidebar />
-        <div style={{ paddingRight: 56 }}>
-          <Topbar />
-          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', borderRadius: 16 }}>
+          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto',border:'none' }}>
             <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
               <span style={{ color: '#337ab7', fontWeight: 700 }}>
                 {isEdit ? `ویرایش نقش ${id}` : 'نقش جدید'}
               </span>
               <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
             </Typography.Title>
-            <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
+            <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }} onFinish={handleSubmit}>
               <Form.Item label="نام نقش">
                 <Input
                   value={roleName}
@@ -69,20 +81,17 @@ export default function RoleNewPage() {
                 >
                   {permissions.data.map((perm, idx) => (
                     <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
-                      {perm.name}
+                      {perm.displayName}
                     </Select.Option>
                   ))}
                 </Select>
               </Form.Item>
               <Form.Item>
-                <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
+                <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }} htmlType="submit">
                   ذخیره
                 </Button>
               </Form.Item>
             </Form>
           </Card>
-        </div>
-      </div>
-    </div>
   );
 }

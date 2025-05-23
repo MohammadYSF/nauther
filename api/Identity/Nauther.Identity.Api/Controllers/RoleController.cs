@@ -40,7 +40,7 @@ public class RoleController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [PermissionAuthorization("CreateRole")]
+    //[PermissionAuthorization("CreateRole")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateRoleCommand request)
     {

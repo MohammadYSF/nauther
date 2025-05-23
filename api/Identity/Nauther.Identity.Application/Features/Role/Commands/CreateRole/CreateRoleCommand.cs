@@ -6,4 +6,5 @@ namespace Nauther.Identity.Application.Features.Role.Commands.CreateRole;
 public class CreateRoleCommand : IRequest<BaseResponse<CreateRoleCommandResponse>>
 {
     public string Name { get; set; }
+    public string DisplayName { get; set; }
 }

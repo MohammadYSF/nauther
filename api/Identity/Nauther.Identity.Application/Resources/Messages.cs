@@ -22,7 +22,9 @@ public static class Messages
     public const string RoleAlreadyExisted = "در حال حاضر نقشی با این مشخصات وجود دارد.";
     public const string RoleCreated = "ایجاد نقش با موفقیت انجام شد.";
     public const string RoleNameRequired = "نام نقش نمی‌تواند خالی باشد.";
+    public const string RoleDisplayNameRequired = "نام نمایشی نمی‌تواند خالی باشد.";
     public const string RoleMaxLenght = "نام نقش نمی‌تواند بیشتر از ۲۵ کاراکتر باشد.";
+    public const string RoleDisplayNameMaxLenght = "نام نمایشی نقش نمی‌تواند بیشتر از ۲۵ کاراکتر باشد.";
     public const string RoleNotFound = "نقشی یافت نشد.";
 
     public const string GroupAlreadyExisted = "در حال حاضر گروهی با این مشخصات وجود دارد.";

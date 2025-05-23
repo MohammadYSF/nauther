@@ -10,5 +10,10 @@ public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
         RuleFor(r => r.Name)
             .NotNull().NotEmpty().WithMessage(Messages.RoleNameRequired)
             .MaximumLength(25).WithMessage(Messages.RoleMaxLenght);
+
+
+        RuleFor(r => r.DisplayName)
+          .NotNull().NotEmpty().WithMessage(Messages.RoleDisplayNameRequired)
+          .MaximumLength(25).WithMessage(Messages.RoleDisplayNameMaxLenght);
     }
 }
