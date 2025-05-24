@@ -54,7 +54,10 @@ export const createPermission = async (data: CreatePermissionPayload) => {
 export const editPermission = async (data: EditPermissionPayload) => {
   let res = await api.put<EditPermissionResponseDataModel>(`/permission/${data.id}`, data);
   return res.data;
-} 
+}
+export const deletePermission = async (id: string): Promise<void> => {
+  await api.delete(`/permissions/${id}`);
+};
 export type {EditPermissionResponseDataModel,CreatePermissionResponseDataModel,CreatePermissionPayload,
   EditPermissionPayload,
   GetPermissionByIdResponseDataModel,GetPermissionsResponseDataModel

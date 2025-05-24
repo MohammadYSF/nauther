@@ -63,4 +63,8 @@ export const editRole = async (id: string, data: EditRolePayload): Promise<EditR
 export const updateRole = async (id: string, data: CreateRolePayload): Promise<CreateRoleResponseModel> => {
   let res = await api.put<CreateRoleResponseModel>(`/role/${id}`, data);
   return res.data;
+};
+
+export const deleteRole = async (id: string): Promise<void> => {
+  await api.delete(`/roles/${id}`);
 }; 

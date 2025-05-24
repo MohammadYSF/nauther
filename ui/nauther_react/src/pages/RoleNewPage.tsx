@@ -1,6 +1,4 @@
 import { Typography, Input, Button, Select, Card, Form } from 'antd';
-import Sidebar from '../components/Sidebar';
-import Topbar from '../components/Topbar';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getRoleById, getRoles, createRole, updateRole } from '../services/roleService';

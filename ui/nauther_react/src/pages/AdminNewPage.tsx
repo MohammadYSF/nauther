@@ -1,4 +1,4 @@
-import { Typography, Input, Button, Select, Card, Form, Avatar, List, Popover } from 'antd';
+import { Typography, Input, Button, Select, Card, Form, Avatar, List, Popover, Row, Col } from 'antd';
 import { SearchOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getAdminById, getAdmins } from '../services/adminService';
 import { getRoles } from '../services/roleService';
+import { getPermissions } from '../services/permissionService';
 
 export default function AdminNewPage() {
   const { id } = useParams();
@@ -13,16 +14,21 @@ export default function AdminNewPage() {
 
   const [users, setUsers] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [permissions, setPermissions] = useState<string[]>([]);
+  const [permissions, setPermissions] = useState<any[]>([]);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userDropdown, setUserDropdown] = useState(false);
   const [userSearch, setUserSearch] = useState('');
   const anchorRef = useRef<HTMLDivElement>(null);
   const [roles, setRoles] = useState<any[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   useEffect(() => {
     getAdmins().then(res => setUsers(res.data || []));
+    getRoles().then(res => setRoles(res.data || []));
+    getPermissions().then(res => setPermissions(res.data || []));
+
   }, []);
 
   useEffect(() => {
@@ -36,9 +42,6 @@ export default function AdminNewPage() {
     }
   }, [id, isEdit]);
 
-  useEffect(() => {
-    getRoles().then(res => setRoles(res.data || []));
-  }, []);
 
   const filteredUsers = users.filter(
     u =>
@@ -48,7 +51,7 @@ export default function AdminNewPage() {
 
   return (
 
-          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', borderRadius: 16 }}>
+          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border:'none' }}>
             <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
               <span style={{ color: '#337ab7', fontWeight: 700 }}>
                 {isEdit ? `ویرایش ادمین ${id}` : 'ادمین جدید'}
@@ -122,36 +125,64 @@ export default function AdminNewPage() {
                   </div>
                 </Popover>
               </Form.Item>
-              <Form.Item label="دسترسی‌ها">
-                <Select
-                  mode="multiple"
-                  value={permissions}
-                  onChange={setPermissions}
-                  placeholder="انتخاب کنید"
-                  style={{ width: '100%' }}
-                  optionLabelProp="label"
-                >
-                  {roles.map((role, idx) => (
-                    <Select.Option key={role.id} value={role.id} label={role.displayName}>
-                      {role.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item label="رمز عبور جدید">
-                <Input.Password
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="رمز عبور جدید را وارد کنید"
-                />
-              </Form.Item>
-              <Form.Item label="تکرار رمز عبور جدید">
-                <Input.Password
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="تکرار رمز عبور جدید را وارد کنید"
-                />
-              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="نقش‌ها">
+                    <Select
+                      mode="multiple"
+                      value={selectedRoles}
+                      onChange={setSelectedRoles}
+                      placeholder="انتخاب کنید"
+                      style={{ width: '100%' }}
+                      optionLabelProp="label"
+                    >
+                      {roles.map((role, idx) => (
+                        <Select.Option key={role.id} value={role.id} label={role.displayName}>
+                          {role.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="دسترسی‌ها">
+                    <Select
+                      mode="multiple"
+                      value={selectedPermissions}
+                      onChange={setSelectedPermissions}
+                      placeholder="انتخاب کنید"
+                      style={{ width: '100%' }}
+                      optionLabelProp="label"
+                    >
+                      {permissions.map((perm, idx) => (
+                        <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
+                          {perm.displayName}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="رمز عبور جدید">
+                    <Input.Password
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="رمز عبور جدید را وارد کنید"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="تکرار رمز عبور جدید">
+                    <Input.Password
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder="تکرار رمز عبور جدید را وارد کنید"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
               <Form.Item>
                 <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
                   ذخیره

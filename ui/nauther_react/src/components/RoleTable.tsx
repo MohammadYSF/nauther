@@ -5,8 +5,17 @@ import { Table, Input, Typography } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import AdminPopover from './AdminPopover';
 import PermissionPopover from './PermissionPopover';
+import type { TableRowSelection } from 'antd/lib/table/interface';
 
-export default function RoleTable() {
+interface RoleTableProps {
+  rowSelection?: TableRowSelection<any>;
+  pagination?: {
+    current: number;
+    pageSize: number;
+  };
+}
+
+export default function   RoleTable({ rowSelection, pagination }: RoleTableProps) {
   const [roles, setRoles] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -147,8 +156,8 @@ export default function RoleTable() {
         dataSource={roles}
         loading={loading}
         locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
-
-        pagination={{
+        rowSelection={rowSelection}
+        pagination={pagination || {
           current: page + 1,
           pageSize: rowsPerPage,
           total: total,

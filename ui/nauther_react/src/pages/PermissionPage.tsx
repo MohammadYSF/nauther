@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Button, Spin, Card } from 'antd';
+import { Table, Input, Button, Spin, Card, Affix } from 'antd';
 import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
-import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel } from '../services/permissionService';
+import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel, deletePermission } from '../services/permissionService';
 import type { ApiError } from '../services/api';
 
 export default function PermissionPage() {
@@ -16,6 +16,7 @@ export default function PermissionPage() {
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   useEffect(() => {
     fetchPermissions(page, pageSize);
@@ -71,6 +72,25 @@ export default function PermissionPage() {
     setAddValueDisplayName('');
     fetchPermissions(page, pageSize);
     setSaving(false);
+  };
+
+  const handleDeletePermission = async (id: string) => {
+    try {
+      await deletePermission(id);
+      fetchPermissions(page, pageSize);
+    } catch (error) {
+      console.error('Error deleting permission:', error);
+    }
+  };
+
+  const handleDeleteSelectedPermissions = async () => {
+    try {
+      await Promise.all(selectedPermissions.map(permissionId => deletePermission(permissionId)));
+      setSelectedPermissions([]);
+      fetchPermissions(page, pageSize);
+    } catch (error) {
+      console.error('Error deleting permissions:', error);
+    }
   };
 
   const columns = [
@@ -137,75 +157,6 @@ export default function PermissionPage() {
         return text;
       },
     },
-    {
-      title: '',
-      key: 'actions',
-      align: 'right' as const,
-      render: (_: any, record: any) => {
-        if (addMode && record.id === '__new') {
-          return (
-            <>
-              <Button
-                icon={<SaveOutlined />}
-                type="primary"
-                size="small"
-                shape="circle"
-                aria-label="ذخیره"
-                onClick={handleAddSave}
-                loading={saving}
-                style={{ marginLeft: 8 }}
-              />
-              <Button
-                icon={<CloseOutlined />}
-                type="default"
-                size="small"
-                shape="circle"
-                aria-label="انصراف"
-                danger
-                onClick={() => setAddMode(false)}
-                disabled={saving}
-              />
-            </>
-          );
-        }
-        if (editId === record.id) {
-          return (
-            <>
-              <Button
-                icon={<SaveOutlined />}
-                type="primary"
-                size="small"
-                shape="circle"
-                aria-label="ذخیره"
-                onClick={() => handleEditSave(record.id)}
-                loading={saving}
-                style={{ marginLeft: 8 }}
-              />
-              <Button
-                icon={<CloseOutlined />}
-                type="default"
-                size="small"
-                shape="circle"
-                aria-label="انصراف"
-                danger
-                onClick={() => setEditId(null)}
-                disabled={saving}
-              />
-            </>
-          );
-        }
-        return (
-          <Button
-            icon={<EditOutlined />}
-            type="primary"
-            size="small"
-            shape="circle"
-            aria-label="ویرایش"
-            onClick={() => handleEdit(record.id, record.name, record.displayName)}
-          />
-        );
-      },
-    },
   ];
 
   // Compose dataSource with new row if addMode
@@ -214,8 +165,8 @@ export default function PermissionPage() {
     : permissions?.data || [];
 
   return (
-    <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
+    <Card style={{ padding: 32, maxWidth: 900, margin: '0px auto', border: 'none' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
         <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
         <Button
           type="primary"
@@ -230,6 +181,10 @@ export default function PermissionPage() {
       <Spin spinning={loading} tip="در حال بارگذاری...">
         <Table
           rowKey="id"
+          rowSelection={{
+            selectedRowKeys: selectedPermissions,
+            onChange: (selectedRowKeys) => setSelectedPermissions(selectedRowKeys as string[]),
+          }}
           columns={columns}
           dataSource={dataSource}
           pagination={{
@@ -237,7 +192,6 @@ export default function PermissionPage() {
             pageSize: pageSize,
             total: permissions?.metadata?.total || 0,
             showSizeChanger: true,
-            pageSizeOptions: [5, 10, 20, 50],
             showTotal: (total) => `تعداد کل: ${total}`,
             position: ['bottomCenter'],
             locale: { items_per_page: 'در صفحه' },
@@ -246,6 +200,16 @@ export default function PermissionPage() {
           locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
           onChange={handleTableChange}
         />
+        <Affix offsetBottom={20}>
+          <Button
+            type="primary"
+            danger
+            disabled={selectedPermissions.length === 0}
+            onClick={handleDeleteSelectedPermissions}
+          >
+            حذف انتخاب شده‌ها
+          </Button>
+        </Affix>
       </Spin>
     </Card>
   );
