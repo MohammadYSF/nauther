@@ -17,7 +17,7 @@ public interface IUserService
     Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(Guid? id, string? username, string? phoneNumber,
         CancellationToken cancellationToken);
     Task<BaseResponse<VerifyNationalCodeCommandResponse?>> GetUserByNationalCode(string nationalCode, CancellationToken cancellationToken);
-    Task<BaseResponse<RegisterUserCommandResponse>> Register(RegisterUserCommand request, CancellationToken cancellationToken);
+    Task<BaseResponse> Register(Dima_RegisterUserCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<VerifyOtpCommandResponse>> VerifyOtp(VerifyOtpCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<LoginWithPasswordCommandResponse>> LoginWithPassword(LoginWithPasswordCommand request, CancellationToken cancellationToken);

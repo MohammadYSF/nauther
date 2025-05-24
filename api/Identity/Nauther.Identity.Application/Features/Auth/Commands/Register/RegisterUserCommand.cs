@@ -10,3 +10,12 @@ public class RegisterUserCommand : IRequest<BaseResponse<RegisterUserCommandResp
     public string Password { get; set; }
     public string ConfirmPassword { get; set; }
 }
+public class Dima_RegisterUserCommand : IRequest<BaseResponse>
+{
+    public Guid Id { get; set; }
+    public string Password { get; set; }
+    public string ConfirmPassword { get; set; }
+
+    public List<Guid> RoleIds { get; set; } = [];
+    public List<Guid> PermissionIds { get; set; } = [];
+}

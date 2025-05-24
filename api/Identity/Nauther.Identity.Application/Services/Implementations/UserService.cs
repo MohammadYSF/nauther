@@ -108,10 +108,44 @@ public class UserService(
         };
     }
 
-    public async Task<BaseResponse<RegisterUserCommandResponse>> Register(RegisterUserCommand request,
+    public async Task<BaseResponse> Register(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", request.Id.ToString());
+        if (string.IsNullOrEmpty(user_in_cache))
+        {
+            return new BaseResponse<BaseResponse>()
+            {
+                StatusCode = StatusCodes.Status203NonAuthoritative,
+                Message = Messages.UserNotFound
+            };
+        }
+        var u = new User
+        {
+            Id = request.Id.ToString(),
+            UserRoles = request.RoleIds.Select(a => new UserRole
+            {
+                RoleId = a,
+                UserId = request.Id.ToString()
+            }).ToList(),
+            UserPermissions = request.PermissionIds.Select(a => new UserPermission
+            {
+                PermissionId = a,
+                UserId = request.Id.ToString()
+            }).ToList(),
+            UserCredential = new UserCredential
+            {
+                PasswordHash = _passwordHasher.HashPassword(request.Password),
+                UserId = request.Id.ToString()
+            }
+        };
+        _ = await _userRepository.AddAsync(u, cancellationToken);
+        await _userRepository.SaveChangesAsync();
+        return new BaseResponse<RegisterUserCommandResponse>()
+        {
+            StatusCode = StatusCodes.Status201Created,
+            Data = new RegisterUserCommandResponse { UserId = request.Id }
+        };
     }
 
     public async Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request, CancellationToken cancellationToken)

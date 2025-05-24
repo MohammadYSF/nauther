@@ -17,13 +17,6 @@ public class AuthController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
     
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUserCommand request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode,result);
-    }
-    
     [HttpPost("send-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] SendOtpCommand request)
     {

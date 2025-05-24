@@ -12,19 +12,19 @@ public class RegisterUserCommandHandler(
     IUserService userService,
     IRequestValidator requestValidator,
     IMapper mapper) :
-    IRequestHandler<RegisterUserCommand, BaseResponse<RegisterUserCommandResponse>>
+    IRequestHandler<Dima_RegisterUserCommand, BaseResponse>
 {
     private readonly IUserService _userService = userService;
     private readonly IRequestValidator _requestValidator = requestValidator;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<BaseResponse<RegisterUserCommandResponse>> Handle(RegisterUserCommand request,
+    public async Task<BaseResponse> Handle(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
         var validationResponse =
-            await _requestValidator.ValidateAsync<RegisterUserCommand, RegisterUserCommandValidator>(request);
+            await _requestValidator.ValidateAsync<Dima_RegisterUserCommand, Dima_RegisterUserCommandValidator>(request);
         if (validationResponse != null)
-            return new BaseResponse<RegisterUserCommandResponse>
+            return new BaseResponse
             {
                 StatusCode = validationResponse.StatusCode,
                 Message = validationResponse.Message,
@@ -32,11 +32,6 @@ public class RegisterUserCommandHandler(
             };
 
         var newUser = await _userService.Register(request, cancellationToken);
-        return new BaseResponse<RegisterUserCommandResponse>()
-        {
-            StatusCode = newUser.StatusCode,
-            Message = newUser.Message,
-            Data = newUser.Data
-        };
+        return newUser;
     }
 }

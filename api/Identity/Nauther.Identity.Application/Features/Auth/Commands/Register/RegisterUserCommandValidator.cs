@@ -35,4 +35,24 @@ namespace Nauther.Identity.Application.Features.Auth.Commands.Register
                 .WithMessage(Messages.ConfirmPasswordMismatch);
         }
     }
+    public class Dima_RegisterUserCommandValidator : AbstractValidator<Dima_RegisterUserCommand>
+    {
+        public Dima_RegisterUserCommandValidator()
+        {
+            RuleFor(x => x.Password)
+                .NotNull().WithMessage(Messages.PasswordRequired)
+                .NotEmpty().WithMessage(Messages.PasswordRequired)
+                .MinimumLength(8).WithMessage(Messages.PasswordMinLength)
+                .Matches("[A-Z]").WithMessage(Messages.PasswordUpperCase)
+                .Matches("[a-z]").WithMessage(Messages.PasswordLowerCase)
+                .Matches(@"\d").WithMessage(Messages.PasswordDigit)
+                .Matches("[^a-zA-Z0-9]").WithMessage(Messages.PasswordSpecialChar);
+
+            RuleFor(x => x.ConfirmPassword)
+                .NotNull().WithMessage(Messages.ConfirmPasswordRequired)
+                .NotEmpty().WithMessage(Messages.ConfirmPasswordRequired)
+                .Equal(x => x.Password)
+                .WithMessage(Messages.ConfirmPasswordMismatch);
+        }
+    }
 }
