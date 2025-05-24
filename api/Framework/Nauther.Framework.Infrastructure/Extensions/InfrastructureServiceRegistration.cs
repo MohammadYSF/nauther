@@ -12,6 +12,8 @@ using Nauther.Framework.Infrastructure.Common.Constants;
 using Nauther.Framework.Infrastructure.Common.Models;
 using Nauther.Framework.Infrastructure.Middlewares.CorrelationId;
 using Nauther.Framework.Infrastructure.Services.FileService;
+using EasyCaching.Core.Configurations;
+using StackExchange.Redis;
 
 namespace Nauther.Framework.Infrastructure.Extensions;
 
@@ -25,27 +27,44 @@ public static class InfrastructureServiceRegistration
         services.AddHttpClient(HttpClientNames.ThirdPartyService);
         return services;
     }
-    
+
     public static void AddConfiguration(this IConfigurationBuilder configurationBuilder, IHostEnvironment environment)
     {
         configurationBuilder
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-        
+
         if (environment.EnvironmentName == "Local")
         {
             configurationBuilder.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
         }
     }
-    
+
     public static IServiceCollection AddAuthUserService(this IServiceCollection services)
     {
         services.AddScoped<IAuthUserService, AuthUserRepository>();
-            
+
         return services;
     }
+    public static IServiceCollection AddEasyCachingService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("RedisConnectionString");
+        var configurationOptions = ConfigurationOptions.Parse(connectionString);
 
+        return services.AddEasyCaching(options =>
+        {
+            options.UseRedis(config =>
+            {
+                config.DBConfig.ConfigurationOptions = configurationOptions;
+                config.DBConfig.Database = 0;
+                config.SerializerName = "DefaultRedis"; // this demands a serializer named "DefaultRedis"
+
+            });
+            options.WithJson("DefaultRedis"); // register Json serializer under that name
+
+        });
+    }
     public static IServiceCollection AddRedisCacheService(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("RedisConnectionString");
@@ -53,7 +72,7 @@ public static class InfrastructureServiceRegistration
 
         return services;
     }
-    
+
     public static IServiceCollection AddSerilogLogging(this IServiceCollection services, IConfiguration configuration)
     {
         Log.Logger = new LoggerConfiguration()
@@ -63,9 +82,9 @@ public static class InfrastructureServiceRegistration
             .Enrich.WithThreadId()
             .WriteTo.Console()
             .CreateLogger();
-        
-        services.AddLogging(builder => builder.AddSerilog(dispose:true));
-        
+
+        services.AddLogging(builder => builder.AddSerilog(dispose: true));
+
         return services;
     }
 
@@ -97,7 +116,7 @@ public static class InfrastructureServiceRegistration
                 };
             });
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-        
+
         services.AddAuthorization();
 
         return services;
@@ -107,16 +126,16 @@ public static class InfrastructureServiceRegistration
         IConfiguration configuration)
     {
 
-        
+
         return services;
     }
-    
+
     public static IServiceCollection AddFileService(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<FileSettings>(configuration.GetSection("FileSettings"));
 
         services.AddScoped<IFileService, Services.FileService.FileService>();
-        
+
         return services;
     }
 }

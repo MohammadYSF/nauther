@@ -1,4 +1,5 @@
 using AutoMapper;
+using EasyCaching.Core;
 using Microsoft.AspNetCore.Http;
 using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Shared.Responses;
@@ -16,6 +17,7 @@ using Nauther.Identity.Domain.Entities;
 using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Services.JwtToken;
 using Nauther.Identity.Infrastructure.Utilities.PasswordHash;
+using Newtonsoft.Json;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
@@ -29,7 +31,8 @@ public class UserService(
     IGroupPermissionRepository groupPermissionRepository,
     IPasswordHasherService passwordHasherService,
     IOtpService otpService,
-    IJwtTokenService jwtTokenService) : IUserService
+    IJwtTokenService jwtTokenService,
+    IRedisCachingProvider _easyCachingProvider) : IUserService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
@@ -43,28 +46,29 @@ public class UserService(
     private readonly IOtpService _otpService = otpService;
     private static readonly Guid UserRoleId = Guid.Parse("717D7A4A-D864-4774-8AE0-5010E745D87E");
 
-    public async Task<BaseResponse<IList<GetUsersListQueryResponse>?>> GetUsersList(PaginationListDto paginationListDto,
+
+    public async Task<BaseResponse> GetUsersList(PaginationListDto paginationListDto,
         CancellationToken cancellationToken)
     {
-        var users = await _userRepository.GetAllListAsync(paginationListDto, cancellationToken);
-        if (users == null || users.Any() == false)
-            return new BaseResponse<IList<GetUsersListQueryResponse>?>()
-            {
-                StatusCode = StatusCodes.Status203NonAuthoritative,
-                Message = Messages.UserNotFound
-            };
-        var usersVm = _mapper.Map<IList<GetUsersListQueryResponse>>(users);
+        var allFields = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
+        var total = allFields.Count;
 
-        return new BaseResponse<IList<GetUsersListQueryResponse>?>()
+        var paged_fields = allFields
+            .Skip((paginationListDto.PageNumber - 1) * paginationListDto.PageSize)
+            .Take(paginationListDto.PageSize)
+;
+        return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = usersVm
+            Data = paged_fields,
+            Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }
 
     public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(Guid? id, string? username, string? phoneNumber,
         CancellationToken cancellationToken)
     {
+
         var user = await _userRepository.GetUserByPropertiesAsync(
             id,
             string.IsNullOrEmpty(phoneNumber) ? null : phoneNumber,

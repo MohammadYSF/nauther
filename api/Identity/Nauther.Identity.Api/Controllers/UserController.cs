@@ -12,7 +12,7 @@ public class UserController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    [PermissionAuthorization("GetAllUsers")]
+    //[PermissionAuthorization("GetAllUsers")]
     [HttpGet("all")]
     public async Task<IActionResult> Get([FromQuery] GetUsersListQuery request)
     {

@@ -4,7 +4,7 @@ using Nauther.Framework.Shared.Responses;
 
 namespace Nauther.Identity.Application.Features.User.Queries.GetUsersList;
 
-public class GetUsersListQuery : PaginationListDto, IRequest<BaseResponse<IList<GetUsersListQueryResponse>>>
+public class GetUsersListQuery : PaginationListDto, IRequest<BaseResponse>
 {
     
 }

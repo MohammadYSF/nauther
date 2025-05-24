@@ -18,6 +18,7 @@ builder.Services
     .AddSerilogLogging(builder.Configuration)
     .AddFileService(builder.Configuration)
     .AddRedisCacheService(builder.Configuration)
+    .AddEasyCachingService(builder.Configuration)
     .AddInfrastructureServices(builder.Configuration)
     .AddPersistenceServices(builder.Configuration)
     .AddApiServices(builder.Configuration)
