@@ -7,7 +7,6 @@ export interface User {
     username: string;
     phoneNumber: string;
     isActive: boolean;
-    key: string;
 }
 
 interface GetAllUsersResponseDataModel_Raw {

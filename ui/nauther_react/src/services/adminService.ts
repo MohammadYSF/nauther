@@ -20,8 +20,14 @@ type EditAdminPayload = {
   confirmPassword?: string
 }
 type CreateAdminResponseDataModel = {
-  id: string
+  statusCode: number;
+  message: string;
+  validationErrors: any;
+  data: {
+    id: string
+  }
 };
+
 type EditAdminResponseDataModel = {
   id: string
 };
@@ -54,7 +60,7 @@ export const getAdminById = async (id: string): Promise<GetAdminByIdResponseData
   return res.data;
 }
 export const createAdmin = async (data: CreateAdminPayload): Promise<CreateAdminResponseDataModel> => {
-  let res = await api.post<CreateAdminResponseDataModel>('/admins', data);
+  let res = await api.post<CreateAdminResponseDataModel>('/user/register', data);
   return res.data;
 }
 export const editAdmin = async (id: string, data: EditAdminPayload): Promise<EditAdminResponseDataModel> => {

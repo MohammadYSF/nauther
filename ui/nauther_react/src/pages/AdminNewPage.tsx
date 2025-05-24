@@ -1,10 +1,7 @@
-import { Typography, Input, Button, Select, Card, Form, Avatar, List, Popover, Row, Col } from 'antd';
-import { SearchOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import Sidebar from '../components/Sidebar';
-import Topbar from '../components/Topbar';
+import { Typography, Input, Button, Select, Card, Form, Avatar, List, Popover, Row, Col, message } from 'antd';
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { getAdminById, getAdmins } from '../services/adminService';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getAdminById, getAdmins, editAdmin, createAdmin } from '../services/adminService';
 import { getRoles } from '../services/roleService';
 import { getPermissions } from '../services/permissionService';
 import { getAllUsers, type User } from '../services/userService';
@@ -26,6 +23,10 @@ export default function AdminNewPage() {
   const [roles, setRoles] = useState<any[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+
+  const navigate = useNavigate();
+
+  const [form] = Form.useForm();
 
   // Debounced user search
   const debouncedUserSearch = useRef(
@@ -74,6 +75,72 @@ export default function AdminNewPage() {
     getPermissions().then(res => setPermissions(res.data || []));
   }, []);
 
+
+  const handleFinish = (values: any) => {
+    // Validate passwords
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+
+    // Prepare data
+    const data = values;
+
+    // Submit data
+    if (isEdit && id) {
+      // Update existing admin
+      editAdmin(id, data).then((response: any) => {
+        if (response.statusCode === 201) {
+          message.success('Admin updated successfully!');
+          navigate('/admin');
+        } else if (response.statusCode === 203) {
+          message.error(response.message);
+        }
+      }).catch((err: any) => {
+        console.error(err);
+        if (err.response && err.response.data && err.response.data.validationErrors) {
+          const validationErrors = err.response.data.validationErrors;
+          validationErrors.forEach((error: { key: string; value: string }) => {
+            form.setFields([{
+              name: error.key,
+              errors: [error.value],
+            }]);
+          });
+        } else {
+          message.error('Failed to update admin.');
+        }
+      });
+    } else if (!isEdit) {
+      // Create new admin
+      createAdmin(data).then((response: any) => {
+        console.log("response is : ",response);
+        if (response.statusCode === 201) {
+          message.success('Admin created successfully!');
+          setTimeout(() => {
+            navigate('/');
+          }, 1000);
+        } else if (response.statusCode === 203) {
+          message.error(response.message);
+        }
+      }).catch((err: any) => {
+        console.log("err is : ",err);
+        if (err && err.data && err.data.validationErrors) {
+          console.log("err.data.validationErrors is : ",err.data.validationErrors);
+          const validationErrors = err.data.validationErrors;
+          validationErrors.forEach((error: { key: string; value: string }) => {
+            console.log("error is : ",error);
+            form.setFields([{
+              name: error.key,
+              errors: [error.value],
+            }]);
+          });
+        } else {
+          message.error('Failed to create admin.');
+        }
+      });
+    }
+  }
+
   useEffect(() => {
     if (isEdit && id) {
       getAdminById(id).then(res => {
@@ -93,8 +160,8 @@ export default function AdminNewPage() {
         </span>
         <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
       </Typography.Title>
-      <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
-        <Form.Item label="نام کاربر">
+      <Form form={form} onFinish={handleFinish} layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
+        <Form.Item label="نام کاربر" name="Id">
           <Select
             showSearch
             value={selectedUser ? selectedUser.id : undefined}
@@ -130,7 +197,7 @@ export default function AdminNewPage() {
         </Form.Item>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="نقش‌ها">
+            <Form.Item label="نقش‌ها" name="RoleIds">
               <Select
                 mode="multiple"
                 value={selectedRoles}
@@ -148,7 +215,7 @@ export default function AdminNewPage() {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="دسترسی‌ها">
+            <Form.Item label="دسترسی‌ها" name="PermissionIds">
               <Select
                 mode="multiple"
                 value={selectedPermissions}
@@ -168,7 +235,7 @@ export default function AdminNewPage() {
         </Row>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="رمز عبور جدید">
+            <Form.Item label="رمز عبور جدید" name="Password">
               <Input.Password
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -177,7 +244,7 @@ export default function AdminNewPage() {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="تکرار رمز عبور جدید">
+            <Form.Item label="تکرار رمز عبور جدید" name="ConfirmPassword">
               <Input.Password
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
@@ -187,7 +254,7 @@ export default function AdminNewPage() {
           </Col>
         </Row>
         <Form.Item>
-          <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
+          <Button htmlType='submit' type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
             ذخیره
           </Button>
         </Form.Item>
