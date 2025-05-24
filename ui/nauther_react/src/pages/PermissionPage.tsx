@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Table, Input, Button, Spin, Card, Affix } from 'antd';
 import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel, deletePermission } from '../services/permissionService';
 import type { ApiError } from '../services/api';
+import { useClickAway } from 'react-use';
 
 export default function PermissionPage() {
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>();
@@ -17,10 +18,28 @@ export default function PermissionPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const editRowRef = useRef<HTMLDivElement>(null);
+  const addRowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchPermissions(page, pageSize);
   }, [page, pageSize]);
+
+  useClickAway(editRowRef, () => {
+    if (editId) {
+      setEditId(null);
+      setEditValue('');
+      setEditValueDisplayName('');
+    }
+  });
+
+  useClickAway(addRowRef, () => {
+    if (addMode) {
+      setAddMode(false);
+      setAddValue('');
+      setAddValueDisplayName('');
+    }
+  });
 
   const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10) => {
     setLoading(true);
@@ -102,25 +121,43 @@ export default function PermissionPage() {
       render: (text: string, record: any) => {
         if (addMode && record.id === '__new') {
           return (
-            <Input
-              size="small"
-              value={addValue}
-              onChange={e => setAddValue(e.target.value)}
-              placeholder="نام دسترسی"
-              autoFocus
-              style={{ minWidth: 120 }}
-            />
+            <div ref={addRowRef} style={{ display: 'flex', gap: 8 }}>
+              <Input
+                size="small"
+                value={addValue}
+                onChange={e => setAddValue(e.target.value)}
+                placeholder="نام دسترسی"
+                autoFocus
+                style={{ minWidth: 120 }}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') {
+                    setAddMode(false);
+                    setAddValue('');
+                    setAddValueDisplayName('');
+                  }
+                }}
+              />
+            </div>
           );
         }
         if (editId === record.id) {
           return (
-            <Input
-              size="small"
-              value={editValue}
-              onChange={e => setEditValue(e.target.value)}
-              autoFocus
-              style={{ minWidth: 120 }}
-            />
+            <div ref={editRowRef} style={{ display: 'flex', gap: 8 }}>
+              <Input
+                size="small"
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                autoFocus
+                style={{ minWidth: 120 }}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') {
+                    setEditId(null);
+                    setEditValue('');
+                    setEditValueDisplayName('');
+                  }
+                }}
+              />
+            </div>
           );
         }
         return text;
@@ -140,6 +177,13 @@ export default function PermissionPage() {
               onChange={e => setAddValueDisplayName(e.target.value)}
               placeholder="نام نمایشی"
               style={{ minWidth: 120 }}
+              onKeyDown={e => {
+                if (e.key === 'Escape') {
+                  setAddMode(false);
+                  setAddValue('');
+                  setAddValueDisplayName('');
+                }
+              }}
             />
           );
         }
@@ -151,6 +195,13 @@ export default function PermissionPage() {
               onChange={e => setEditValueDisplayName(e.target.value)}
               autoFocus
               style={{ minWidth: 120 }}
+              onKeyDown={e => {
+                if (e.key === 'Escape') {
+                  setEditId(null);
+                  setEditValue('');
+                  setEditValueDisplayName('');
+                }
+              }}
             />
           );
         }
@@ -169,13 +220,21 @@ export default function PermissionPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
         <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
         <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          shape="circle"
-          aria-label="افزودن دسترسی"
-          onClick={handleAdd}
-          disabled={addMode}
+          type={addMode ? "primary" : "primary"}
+          danger={addMode ? true : false}
           style={{ borderRadius: 8 }}
+          icon={addMode ? <CloseOutlined /> : <PlusOutlined />}
+          shape="circle"
+          aria-label={addMode ? "انصراف" : "افزودن دسترسی"}
+          onClick={() => {
+            if (addMode) {
+              setAddMode(false);
+              setAddValue("");
+              setAddValueDisplayName("");
+            } else {
+              handleAdd();
+            }
+          }}
         />
       </div>
       <Spin spinning={loading} tip="در حال بارگذاری...">
@@ -199,6 +258,15 @@ export default function PermissionPage() {
           style={{ direction: 'rtl' }}
           locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
           onChange={handleTableChange}
+          onRow={record => ({
+            onDoubleClick: () => {
+              if (record.id !== '__new') {
+                setEditId(record.id);
+                setEditValue(record.name);
+                setEditValueDisplayName(record.displayName);
+              }
+            }
+          })}
         />
         <Affix offsetBottom={20}>
           <Button

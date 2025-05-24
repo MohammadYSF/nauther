@@ -1,7 +1,8 @@
 import { Button, Typography, Card } from 'antd';
 import UserTable from '../components/UserTable';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getAllUsers } from '../services/userService';
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function AdminPage() {
   const handleDeleteSelected = () => {
     setSelected([]);
   };
+
   return (
 
           <Card

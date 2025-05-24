@@ -4,6 +4,7 @@ import { getAdmins } from '../services/adminService';
 import { Table, Input, Select, Checkbox, Avatar } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import RolePopover from './RolePopover';
+import { getAllUsers, type User } from '../services/userService';
 
 const rolesList = ['سوپر ادمین', 'ادمین', 'کاربر عادی'];
 
@@ -19,9 +20,11 @@ export default function UserTable({ selected, setSelected }: { selected: string[
 
   const navigate = useNavigate();
 
+
+  
   useEffect(() => {
     setLoading(true);
-    getAdmins(page + 1, rowsPerPage, search)
+    getAllUsers(page + 1, rowsPerPage)
       .then(res => {
         if (Array.isArray(res.data)) {
           setUsers(res.data);
@@ -87,26 +90,36 @@ export default function UserTable({ selected, setSelected }: { selected: string[
     },
     {
       title: 'وضعیت',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'isActive',
+      key: 'isActive',
       width: 120,
-      render: (status: string) => (
+      render: (isActive: boolean) => (
         <div style={{ display: 'flex', alignItems: 'center', height: 48 }}>
-          <div style={{ width: 4, height: 34, borderRadius: 2, background: '#21C362', marginRight: 0 }} />
-          <span dir="rtl" style={{ fontWeight: 500, marginRight: 20 }}>{status}</span>
+          <div
+            style={{
+              width: 4,
+              height: 34,
+              borderRadius: 2,
+              background: isActive ? '#21C362' : '#F44336',
+              marginRight: 0,
+            }}
+          />
+          <span dir="rtl" style={{ fontWeight: 500, marginRight: 20 }}>
+            {isActive ? 'فعال' : 'غیرفعال'}
+          </span>
         </div>
       ),
     },
     {
       title: 'شناسه',
-      dataIndex: 'code',
-      key: 'code',
+      dataIndex: 'userCode',
+      key: 'userCode',
       align: 'right' as const,
     },
     {
       title: 'نام و نام خانوادگی',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'username',
+      key: 'username',
       align: 'right' as const,
       render: (name: string, record: any) => (
         <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'end' }}>
@@ -114,6 +127,12 @@ export default function UserTable({ selected, setSelected }: { selected: string[
           {name}
         </div>
       ),
+    },
+    {
+      title: 'شماره موبایل',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
+      align: 'right' as const,
     },
     {
       title: 'نقش',

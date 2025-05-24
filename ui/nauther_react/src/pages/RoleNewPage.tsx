@@ -46,50 +46,50 @@ export default function RoleNewPage() {
   };
 
   return (
-          <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto',border:'none' }}>
-            <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
-              <span style={{ color: '#337ab7', fontWeight: 700 }}>
-                {isEdit ? `ویرایش نقش ${id}` : 'نقش جدید'}
-              </span>
-              <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
-            </Typography.Title>
-            <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }} onFinish={handleSubmit}>
-              <Form.Item label="نام نقش">
-                <Input
-                  value={roleName}
-                  onChange={e => setRoleName(e.target.value)}
-                  placeholder="نام نقش را وارد کنید"
-                />
-              </Form.Item>
-              <Form.Item label="نام نمایشی نقش">
-                <Input
-                  value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
-                  placeholder="نام نمایشی را وارد کنید"
-                />
-              </Form.Item>
-              <Form.Item label="دسترسی‌ها">
-                <Select
-                  mode="multiple"
-                  value={selectedPermissions}
-                  onChange={setSelectedPermissions}
-                  placeholder="انتخاب کنید"
-                  style={{ width: '100%' }}
-                  optionLabelProp="label"
-                >
-                  {permissions.data.map((perm, idx) => (
-                    <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
-                      {perm.displayName}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }} htmlType="submit">
-                  ذخیره
-                </Button>
-              </Form.Item>
-            </Form>
-          </Card>
+    <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
+      <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
+        <span style={{ color: '#337ab7', fontWeight: 700 }}>
+          {isEdit ? `ویرایش نقش ${id}` : 'نقش جدید'}
+        </span>
+        <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
+      </Typography.Title>
+      <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }} onFinish={handleSubmit}>
+        <Form.Item label="نام نقش">
+          <Input
+            value={roleName}
+            onChange={e => setRoleName(e.target.value)}
+            placeholder="نام نقش را وارد کنید"
+          />
+        </Form.Item>
+        <Form.Item label="نام نمایشی نقش">
+          <Input
+            value={displayName}
+            onChange={e => setDisplayName(e.target.value)}
+            placeholder="نام نمایشی را وارد کنید"
+          />
+        </Form.Item>
+        <Form.Item label="دسترسی‌ها">
+          <Select
+            mode="multiple"
+            value={selectedPermissions}
+            onChange={setSelectedPermissions}
+            placeholder="انتخاب کنید"
+            style={{ width: '100%' }}
+            optionLabelProp="label"
+          >
+            {permissions.data.map((perm, idx) => (
+              <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
+                {perm.displayName}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }} htmlType="submit">
+            ذخیره
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
   );
 }

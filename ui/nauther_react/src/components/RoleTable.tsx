@@ -9,13 +9,9 @@ import type { TableRowSelection } from 'antd/lib/table/interface';
 
 interface RoleTableProps {
   rowSelection?: TableRowSelection<any>;
-  pagination?: {
-    current: number;
-    pageSize: number;
-  };
 }
 
-export default function   RoleTable({ rowSelection, pagination }: RoleTableProps) {
+export default function   RoleTable({ rowSelection }: RoleTableProps) {
   const [roles, setRoles] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -31,9 +27,11 @@ export default function   RoleTable({ rowSelection, pagination }: RoleTableProps
     setLoading(true);
     getRoles(page + 1, rowsPerPage, search)
       .then(res => {
+        console.log("res is : ",res);
         if (Array.isArray(res.data)) {
           setRoles(res.data);
           setTotal(res.data.length);
+          console.log("here is the total : ",res.data.length);
         } else if (res.data && typeof res.data === 'object') {
           setRoles((res.data as any).items || []);
           setTotal((res.data as any).total || 0);
@@ -157,7 +155,7 @@ export default function   RoleTable({ rowSelection, pagination }: RoleTableProps
         loading={loading}
         locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
         rowSelection={rowSelection}
-        pagination={pagination || {
+        pagination={{
           current: page + 1,
           pageSize: rowsPerPage,
           total: total,
