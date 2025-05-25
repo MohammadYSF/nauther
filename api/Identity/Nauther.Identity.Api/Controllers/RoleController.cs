@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nauther.Framework.RestApi.Attributes;
 using Nauther.Identity.Application.Features.Role.Commands.CreateRole;
+using Nauther.Identity.Application.Features.Role.Commands.DeleteRole;
 using Nauther.Identity.Application.Features.Role.Queries.GetRoleById;
 using Nauther.Identity.Application.Features.Role.Queries.GetRoleByName;
 using Nauther.Identity.Application.Features.Role.Queries.GetRolesList;
@@ -43,6 +44,12 @@ public class RoleController(IMediator mediator) : ControllerBase
     //[PermissionAuthorization("CreateRole")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateRoleCommand request)
+    {
+        var result = await _mediator.Send(request);
+        return StatusCode(result.StatusCode, result);
+    }
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromBody] DeleteRoleCommand request)
     {
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);

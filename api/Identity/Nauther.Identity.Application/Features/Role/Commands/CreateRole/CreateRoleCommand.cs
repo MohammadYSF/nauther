@@ -7,5 +7,5 @@ public class CreateRoleCommand : IRequest<BaseResponse<CreateRoleCommandResponse
 {
     public string Name { get; set; }
     public string DisplayName { get; set; }
-    public List<Guid> PermissionIds { get; set; } = [];
+    public List<Guid> Permissions { get; set; } = [];
 }

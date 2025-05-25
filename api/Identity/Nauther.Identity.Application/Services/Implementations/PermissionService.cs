@@ -126,6 +126,7 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
     {
         var permissions = await _permissionRepository.GetByIdsAsync(dto.Ids, cancellationToken);
         await _permissionRepository.RemoveRange(permissions, cancellationToken);
+        await _permissionRepository.SaveChangesAsync();
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,

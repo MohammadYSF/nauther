@@ -5,6 +5,7 @@ using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Infrastructure.Caching.RedisCache;
 using Nauther.Framework.Shared.Responses;
 using Nauther.Identity.Application.Features.Role.Commands.CreateRole;
+using Nauther.Identity.Application.Features.Role.Commands.DeleteRole;
 using Nauther.Identity.Application.Features.Role.Queries;
 using Nauther.Identity.Application.Resources;
 using Nauther.Identity.Application.Services.Interfaces;
@@ -166,12 +167,11 @@ public class RoleService(
         {
             Name = dto.Name,
             DisplayName = dto.DisplayName,
-            RolePermissions = dto.PermissionIds.Select(a => new RolePermission
+            RolePermissions = dto.Permissions.Select(a => new RolePermission
             {
-                PermissionId = a,
+                PermissionId = a
             }).ToList()
         };
-        //var role = _mapper.Map<Role>(dto);
 
         await _roleRepository.AddAsync(role, cancellationToken);
         await _roleRepository.SaveChangesAsync();
@@ -181,6 +181,18 @@ public class RoleService(
             StatusCode = StatusCodes.Status201Created,
             Message = Messages.RoleCreated,
             Data = _mapper.Map<CreateRoleCommandResponse>(role)
+        };
+    }
+
+    public async Task<BaseResponse> DeleteRoles(DeleteRoleCommand dto, CancellationToken cancellationToken)
+    {
+        var roles = await _roleRepository.GetByIds(dto.Ids, cancellationToken);
+        await _roleRepository.RemoveRange(roles, cancellationToken);
+        await _roleRepository.SaveChangesAsync();
+        return new BaseResponse
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Data = new DeleteRoleCommandResponse { Ids = roles.Select(a => a.Id).ToList() }
         };
     }
 }
