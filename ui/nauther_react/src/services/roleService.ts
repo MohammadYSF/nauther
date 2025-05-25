@@ -1,9 +1,14 @@
 import api from './api';
 type GetRoleByIdResponseDataModel = {
-  id: string,
-  name: string,
-  displayName: string,
-  permissions: { id: string, name: string, displayName: string }[],
+  statusCode: number;
+  message: string;
+  validationErrors: any;
+  data: {
+    id: string,
+    name: string,
+    displayName: string,
+    permissions: { id: string, name: string, displayName: string }[]
+  }
 };
 type GetRolesResponseDataModel = {
   total: number,

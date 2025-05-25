@@ -16,13 +16,8 @@ export default function AdminNewPage() {
   const [userPage, setUserPage] = useState(1);
   const [userHasMore, setUserHasMore] = useState(true);
   const [userLoading, setUserLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [permissions, setPermissions] = useState<any[]>([]);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [roles, setRoles] = useState<any[]>([]);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -79,6 +74,8 @@ export default function AdminNewPage() {
 
 
   const handleFinish = (values: any) => {
+    let password = values["password"];
+    let confirmPassword = values["confirmPassword"];
     // Validate passwords
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
@@ -146,10 +143,12 @@ export default function AdminNewPage() {
   useEffect(() => {
     if (isEdit && id) {
       getAdminById(id).then(res => {
-        setSelectedUser(res);
-        setPermissions(res.permissions?.map((p: any) => p.id) || []);
-        setPassword('');
-        setConfirmPassword('');
+        form.setFieldsValue({
+          ...res.data,
+          permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
+          roles: res.data.roles ? res.data.roles.map((p: any) => p.id) : [],
+          id: res.data.id 
+         });
       });
     }
   }, [id, isEdit]);
@@ -165,16 +164,11 @@ export default function AdminNewPage() {
           <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
         </Typography.Title>
         <Form form={form} onFinish={handleFinish} layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
-          <Form.Item label="نام کاربر" name="Id">
+          <Form.Item label="نام کاربر" name="id">
             <Select
               showSearch
-              value={selectedUser ? selectedUser.id : undefined}
               placeholder="انتخاب کنید"
               optionFilterProp="children"
-              onChange={id => {
-                const user = users.find(u => u.id === id);
-                setSelectedUser(user);
-              }}
               onSearch={handleUserSearch}
               filterOption={false}
               disabled={isEdit}
@@ -201,29 +195,25 @@ export default function AdminNewPage() {
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item label="نقش‌ها" name="RoleIds">
+              <Form.Item label="نقش‌ها" name="roles">
                 <Select
                   mode="multiple"
-                  value={selectedRoles}
-                  onChange={setSelectedRoles}
                   placeholder="انتخاب کنید"
                   style={{ width: '100%' }}
                   optionLabelProp="label"
                 >
                   {roles.map((role, idx) => (
                     <Select.Option key={role.id} value={role.id} label={role.displayName}>
-                      {role.name}
+                      {role.displayName}
                     </Select.Option>
                   ))}
                 </Select>
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="دسترسی‌ها" name="PermissionIds">
+              <Form.Item label="دسترسی‌ها" name="permissions">
                 <Select
                   mode="multiple"
-                  value={selectedPermissions}
-                  onChange={setSelectedPermissions}
                   placeholder="انتخاب کنید"
                   style={{ width: '100%' }}
                   optionLabelProp="label"
@@ -239,19 +229,15 @@ export default function AdminNewPage() {
           </Row>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item label="رمز عبور جدید" name="Password">
+              <Form.Item label="رمز عبور جدید" name="password">
                 <Input.Password
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
                   placeholder="رمز عبور جدید را وارد کنید"
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="تکرار رمز عبور جدید" name="ConfirmPassword">
+              <Form.Item label="تکرار رمز عبور جدید" name="confirmPassword">
                 <Input.Password
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="تکرار رمز عبور جدید را وارد کنید"
                 />
               </Form.Item>

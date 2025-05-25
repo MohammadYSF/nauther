@@ -1,7 +1,7 @@
 import { Typography, Input, Button, Select, Card, Form, message } from 'antd';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getRoleById, getRoles, createRole, updateRole } from '../services/roleService';
+import { getRoleById, createRole, updateRole } from '../services/roleService';
 import { getPermissions, type GetPermissionsResponseDataModel } from '../services/permissionService';
 
 export default function RoleNewPage() {
@@ -10,9 +10,6 @@ export default function RoleNewPage() {
   const navigate = useNavigate();
 
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
-  const [roleName, setRoleName] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -23,25 +20,28 @@ export default function RoleNewPage() {
   useEffect(() => {
     if (isEdit && id) {
       getRoleById(id).then(res => {
-        setRoleName(res.name);
-        setSelectedPermissions(res.permissions.map((p: any) => p.id));
+        form.setFieldsValue({
+         ...res.data,
+         permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
+
+        });
       });
     }
   }, [id, isEdit]);
 
-  const handleSubmit = async () => {
+  const onFinish = async (values:any) => {
     const roleData = {
-      name: roleName,
-      displayName: displayName,
-      permissions: selectedPermissions,
+      name: values["roleName"],
+      displayName: values["displayName"],
+      permissionIds: values["selectedPermissions"]
     };
 
     try {
       if (isEdit && id) {
         // Update existing role
-        await updateRole(id, { ...roleData, permissionIds: selectedPermissions });
+        await updateRole(id, { ...roleData });
       } else {
-        const res = await createRole({ ...roleData, permissionIds: selectedPermissions });
+        const res = await createRole({ ...roleData });
         if (res && res.statusCode === 201) {
           messageApi.success('نقش با موفقیت ایجاد شد');
           setTimeout(() => {
@@ -87,26 +87,20 @@ export default function RoleNewPage() {
           </span>
           <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
         </Typography.Title>
-        <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }} onFinish={handleSubmit} form={form}>
-          <Form.Item name="Name" label="نام نقش">
+        <Form layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }} onFinish={onFinish} form={form}>
+          <Form.Item name="name" label="نام نقش">
             <Input
-              value={roleName}
-              onChange={e => setRoleName(e.target.value)}
               placeholder="نام نقش را وارد کنید"
             />
           </Form.Item>
-          <Form.Item name="DisplayName" label="نام نمایشی نقش">
+          <Form.Item name="displayName" label="نام نمایشی نقش">
             <Input
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
               placeholder="نام نمایشی را وارد کنید"
             />
           </Form.Item>
-          <Form.Item name="PermissionIds" label="دسترسی‌ها">
+          <Form.Item name="permissions" label="دسترسی‌ها">
             <Select
               mode="multiple"
-              value={selectedPermissions}
-              onChange={setSelectedPermissions}
               placeholder="انتخاب کنید"
               style={{ width: '100%' }}
               optionLabelProp="label"
