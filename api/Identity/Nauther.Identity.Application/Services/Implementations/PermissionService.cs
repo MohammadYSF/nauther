@@ -4,6 +4,8 @@ using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Infrastructure.Caching.RedisCache;
 using Nauther.Framework.Shared.Responses;
 using Nauther.Identity.Application.Features.Permission.Commands.CreatePermission;
+using Nauther.Identity.Application.Features.Permission.Commands.De_etePermission;
+using Nauther.Identity.Application.Features.Permission.Commands.DeletePermission;
 using Nauther.Identity.Application.Features.Permission.Commands.EditPermission;
 using Nauther.Identity.Application.Features.Permission.Queries;
 using Nauther.Identity.Application.Resources;
@@ -117,6 +119,18 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
             StatusCode = StatusCodes.Status200OK,
             Message = Messages.PermissionCreated,
             Data = _mapper.Map<EditPermissionCommandResponse>(permission),
+        };
+    }
+
+    public async Task<BaseResponse> DeletePermission(DeletePermissionCommand dto, CancellationToken cancellationToken)
+    {
+        var permissions = await _permissionRepository.GetByIdsAsync(dto.Ids, cancellationToken);
+        await _permissionRepository.RemoveRange(permissions, cancellationToken);
+        return new BaseResponse
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Data = new DeletePermissionCommandResponse { Ids = permissions.Select(a => a.Id).ToList() }
+
         };
     }
 }

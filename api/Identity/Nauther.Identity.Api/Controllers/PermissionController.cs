@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nauther.Framework.RestApi.Attributes;
 using Nauther.Identity.Application.Features.Permission.Commands.CreatePermission;
+using Nauther.Identity.Application.Features.Permission.Commands.De_etePermission;
 using Nauther.Identity.Application.Features.Permission.Commands.EditPermission;
 using Nauther.Identity.Application.Features.Permission.Queries.GetPermissionById;
 using Nauther.Identity.Application.Features.Permission.Queries.GetPermissionByName;
@@ -52,6 +53,13 @@ public class PermissionController(IMediator mediator) : ControllerBase
     [Route("{id}")]
     public async Task<IActionResult> Post([FromRoute] Guid id, [FromBody] EditPermissionCommand request)
     {
+        var result = await _mediator.Send(request);
+        return StatusCode(result.StatusCode, result);
+    }
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromBody] DeletePermissionCommand request)
+    {
+
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);
     }
