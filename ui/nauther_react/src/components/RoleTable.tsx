@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRoles } from '../services/roleService';
 import { Table, Input, Typography, Popover, List, Button } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons';
 import AdminPopover from './AdminPopover';
 import PermissionPopover from './PermissionPopover';
 import type { TableRowSelection } from 'antd/lib/table/interface';
@@ -79,24 +79,22 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
       align: 'right' as const,
       render: (permissions: { id: string, name?: string, displayName: string }[] = [], record: any) => {
         const content = (
-          <div style={{ minWidth: 220, padding: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography.Text strong>دسترسی‌ها</Typography.Text>
-            </div>
+          <div style={{ minWidth: 200, padding: 8, direction: 'rtl' }}>
             <List
               size="small"
               dataSource={permissions}
               renderItem={perm => (
-                <List.Item>
-                  <Typography.Text>{perm.displayName}</Typography.Text>
+                <List.Item style={{ padding: '6px 0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'row-reverse', textAlign: 'right' }}>
+                  <Typography.Text style={{ fontWeight: 500 }}>{perm.displayName}</Typography.Text>
+                  <SafetyCertificateOutlined style={{ color: '#1976d2', fontSize: 16, marginRight: 8 }} />
                 </List.Item>
               )}
-              style={{ marginTop: 8 }}
+              style={{ margin: 0, background: '#f7fafd', borderRadius: 8, boxShadow: '0 2px 8px #e3e3e3', textAlign: 'right' }}
             />
           </div>
         );
         return (
-          <Popover content={content} trigger="click">
+          <Popover content={content} trigger="click" placement="bottomRight">
             <span
               style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
             >
@@ -125,34 +123,32 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
     },
     {
       title: 'ادمین های نقش',
-      dataIndex: 'users',
-      key: 'users',
+      dataIndex: 'admins',
+      key: 'admins',
       align: 'right' as const,
-      render: (users: { id: string, name: string }[] = [], record: any) => {
+      render: (admins: string[] = [], record: any) => {
         const content = (
-          <div style={{ minWidth: 220, padding: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography.Text strong>ادمین‌های نقش</Typography.Text>
-            </div>
+          <div style={{ minWidth: 200, padding: 8, direction: 'rtl' }}>
             <List
               size="small"
-              dataSource={users}
-              renderItem={u => (
-                <List.Item>
-                  <Typography.Text>{u.name}</Typography.Text>
+              dataSource={admins}
+              renderItem={admin => (
+                <List.Item style={{ padding: '6px 0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'row-reverse', textAlign: 'right' }}>
+                  <Typography.Text style={{ fontWeight: 500 }}>{admin}</Typography.Text>
+                  <UserOutlined style={{ color: '#1976d2', fontSize: 16, marginRight: 8 }} />
                 </List.Item>
               )}
-              style={{ marginTop: 8 }}
+              style={{ margin: 0, background: '#f7fafd', borderRadius: 8, boxShadow: '0 2px 8px #e3e3e3', textAlign: 'right' }}
             />
           </div>
         );
         return (
-          <Popover content={content} trigger="click">
+          <Popover content={content} trigger="click" placement="bottomRight">
             <span
               style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
             >
-              {users && users.length > 0 ? users[0].name : ''}
-              {users && users.length > 1 && (
+              {admins && admins.length > 0 ? admins[0] : ''}
+              {admins && admins.length > 1 && (
                 <span
                   style={{
                     background: '#e3f2fd',
@@ -166,7 +162,7 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
                     alignItems: 'center',
                   }}
                 >
-                  + {users.length - 1}
+                  + {admins.length - 1}
                 </span>
               )}
             </span>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdmins } from '../services/adminService';
-import { Table, Input, Select, Checkbox, Avatar, Popover, List, Typography } from 'antd';
+import { Table, Input, Select, Checkbox, Avatar, Popover, List, Typography, Divider } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import { SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons';
 import RolePopover from './RolePopover';
 import { getAllUsers, type User } from '../services/userService';
 
@@ -141,24 +142,22 @@ export default function UserTable({ selected, setSelected }: { selected: string[
       align: 'right' as const,
       render: (roles: { displayName: string }[] = []) => {
         const content = (
-          <div style={{ minWidth: 220, padding: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography.Text strong>نقش‌ها</Typography.Text>
-            </div>
+          <div style={{ minWidth: 200, padding: 8, direction: 'rtl' }}>
             <List
               size="small"
               dataSource={roles}
               renderItem={role => (
-                <List.Item>
-                  <Typography.Text>{role.displayName}</Typography.Text>
+                <List.Item style={{ padding: '6px 0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'row-reverse', textAlign: 'right' }}>
+                  <Typography.Text style={{ fontWeight: 500 }}>{role.displayName}</Typography.Text>
+                  <TeamOutlined style={{ color: '#1976d2', fontSize: 16, marginRight: 8 }} />
                 </List.Item>
               )}
-              style={{ marginTop: 8 }}
+              style={{ margin: 0, background: '#f7fafd', borderRadius: 8, boxShadow: '0 2px 8px #e3e3e3', textAlign: 'right' }}
             />
           </div>
         );
         return (
-          <Popover content={content} trigger="click">
+          <Popover content={content} trigger="click" placement="bottomRight">
             <span style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}>
               {roles && roles.length > 0 ? roles[0].displayName : ''}
               {roles && roles.length > 1 && (
@@ -190,24 +189,22 @@ export default function UserTable({ selected, setSelected }: { selected: string[
       align: 'right' as const,
       render: (permissions: { displayName: string }[] = []) => {
         const content = (
-          <div style={{ minWidth: 220, padding: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography.Text strong>دسترسی‌ها</Typography.Text>
-            </div>
+          <div style={{ minWidth: 200, padding: 8, direction: 'rtl' }}>
             <List
               size="small"
               dataSource={permissions}
               renderItem={perm => (
-                <List.Item>
-                  <Typography.Text>{perm.displayName}</Typography.Text>
+                <List.Item style={{ padding: '6px 0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'row-reverse', textAlign: 'right' }}>
+                  <Typography.Text style={{ fontWeight: 500 }}>{perm.displayName}</Typography.Text>
+                  <SafetyCertificateOutlined style={{ color: '#1976d2', fontSize: 16, marginRight: 8 }} />
                 </List.Item>
               )}
-              style={{ marginTop: 8 }}
+              style={{ margin: 0, background: '#f7fafd', borderRadius: 8, boxShadow: '0 2px 8px #e3e3e3', textAlign: 'right' }}
             />
           </div>
         );
         return (
-          <Popover content={content} trigger="click">
+          <Popover content={content} trigger="click" placement="bottomRight">
             <span style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}>
               {permissions && permissions.length > 0 ? permissions[0].displayName : ''}
               {permissions && permissions.length > 1 && (
