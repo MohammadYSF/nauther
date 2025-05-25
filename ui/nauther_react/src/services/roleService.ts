@@ -3,7 +3,7 @@ type GetRoleByIdResponseDataModel = {
   id: string,
   name: string,
   displayName: string,
-  permissions: { id: string, name: string,displayName:string }[],
+  permissions: { id: string, name: string, displayName: string }[],
 };
 type GetRolesResponseDataModel = {
   total: number,
@@ -11,8 +11,8 @@ type GetRolesResponseDataModel = {
     id: string,
     name: string,
     displayName: string,
-  permissions: { id: string, name: string,displayName:string }[],
-  users: { id: string, name: string }[],
+    permissions: { id: string, name: string, displayName: string }[],
+    users: { id: string, name: string }[],
 
   }[]
 };
@@ -27,7 +27,10 @@ type EditRolePayload = {
   permissionIds: string[]
 };
 type CreateRoleResponseModel = {
-  id: string
+  statusCode: number;
+  message: string;
+  validationErrors: any;
+  data: { id: string };
 };
 type EditRoleResponseModel = {
   id: string
@@ -49,7 +52,7 @@ export const getRoles = async (
 }
 
 export const getRoleById = async (id: string): Promise<GetRoleByIdResponseDataModel> => {
-  let res = await api.get<GetRoleByIdResponseDataModel>(`/roles/${id}`);
+  let res = await api.get<GetRoleByIdResponseDataModel>(`/role/${id}`);
   return res.data;
 }
 

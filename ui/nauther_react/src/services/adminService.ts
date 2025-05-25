@@ -1,9 +1,15 @@
 import api from './api';
 type GetAdminByIdResponseDataModel = {
-  id: string,
-  name: string,
-  roles: { id: string, name: string,displayName:string }[],
-  permissions: { id: string, name: string,displayName:string }[]
+  statusCode: number;
+  message: string;
+  validationErrors: any;
+  data: { 
+    id: string,
+    name: string,
+    roles: { id: string, name: string,displayName:string }[],
+    permissions: { id: string, name: string,displayName:string }[]
+  };
+
 };
 type CreateAdminPayload = {
   name: string,
@@ -56,7 +62,7 @@ export const getAdmins = async (
 }
 
 export const getAdminById = async (id: string): Promise<GetAdminByIdResponseDataModel> => {
-  let res = await api.get<GetAdminByIdResponseDataModel>(`/admins/${id}`);
+  let res = await api.get<GetAdminByIdResponseDataModel>(`/user/detail?id=${id}`);
   return res.data;
 }
 export const createAdmin = async (data: CreateAdminPayload): Promise<CreateAdminResponseDataModel> => {

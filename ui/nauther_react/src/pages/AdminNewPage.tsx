@@ -28,6 +28,8 @@ export default function AdminNewPage() {
 
   const [form] = Form.useForm();
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   // Debounced user search
   const debouncedUserSearch = useRef(
     debounce((value: string) => {
@@ -91,10 +93,10 @@ export default function AdminNewPage() {
       // Update existing admin
       editAdmin(id, data).then((response: any) => {
         if (response.statusCode === 201) {
-          message.success('Admin updated successfully!');
+          messageApi.success('Admin updated successfully!');
           navigate('/admin');
         } else if (response.statusCode === 203) {
-          message.error(response.message);
+          messageApi.error(response.message);
         }
       }).catch((err: any) => {
         console.error(err);
@@ -107,7 +109,7 @@ export default function AdminNewPage() {
             }]);
           });
         } else {
-          message.error('Failed to update admin.');
+          messageApi.error('Failed to update admin.');
         }
       });
     } else if (!isEdit) {
@@ -115,12 +117,12 @@ export default function AdminNewPage() {
       createAdmin(data).then((response: any) => {
         console.log("response is : ",response);
         if (response.statusCode === 201) {
-          message.success('Admin created successfully!');
+          messageApi.success('Admin created successfully!');
           setTimeout(() => {
             navigate('/');
           }, 1000);
         } else if (response.statusCode === 203) {
-          message.error(response.message);
+          messageApi.error(response.message);
         }
       }).catch((err: any) => {
         console.log("err is : ",err);
@@ -135,7 +137,7 @@ export default function AdminNewPage() {
             }]);
           });
         } else {
-          message.error('Failed to create admin.');
+          messageApi.error('Failed to create admin.');
         }
       });
     }
@@ -153,115 +155,118 @@ export default function AdminNewPage() {
   }, [id, isEdit]);
 
   return (
-    <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border:'none' }}>
-      <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
-        <span style={{ color: '#337ab7', fontWeight: 700 }}>
-          {isEdit ? `ویرایش ادمین ${id}` : 'ادمین جدید'}
-        </span>
-        <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
-      </Typography.Title>
-      <Form form={form} onFinish={handleFinish} layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
-        <Form.Item label="نام کاربر" name="Id">
-          <Select
-            showSearch
-            value={selectedUser ? selectedUser.id : undefined}
-            placeholder="انتخاب کنید"
-            optionFilterProp="children"
-            onChange={id => {
-              const user = users.find(u => u.id === id);
-              setSelectedUser(user);
-            }}
-            onSearch={handleUserSearch}
-            filterOption={false}
-            disabled={isEdit}
-            style={{ width: '100%', minWidth: 220 }}
-            notFoundContent={userLoading ? <span>در حال بارگذاری...</span> : null}
-            onPopupScroll={handleUserScroll}
-          >
-            {users.map(user => (
-              <Select.Option
-                key={user.id}
-                value={user.id}
-                data-username={user.username}
-              >
-                <Avatar
-                  size={24}
-                  src={user.profileImage}
-                  style={{ marginLeft: 8 }}
+    <>
+      {contextHolder}
+      <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border:'none' }}>
+        <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
+          <span style={{ color: '#337ab7', fontWeight: 700 }}>
+            {isEdit ? `ویرایش ادمین ${id}` : 'ادمین جدید'}
+          </span>
+          <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
+        </Typography.Title>
+        <Form form={form} onFinish={handleFinish} layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
+          <Form.Item label="نام کاربر" name="Id">
+            <Select
+              showSearch
+              value={selectedUser ? selectedUser.id : undefined}
+              placeholder="انتخاب کنید"
+              optionFilterProp="children"
+              onChange={id => {
+                const user = users.find(u => u.id === id);
+                setSelectedUser(user);
+              }}
+              onSearch={handleUserSearch}
+              filterOption={false}
+              disabled={isEdit}
+              style={{ width: '100%', minWidth: 220 }}
+              notFoundContent={userLoading ? <span>در حال بارگذاری...</span> : null}
+              onPopupScroll={handleUserScroll}
+            >
+              {users.map(user => (
+                <Select.Option
+                  key={user.id}
+                  value={user.id}
+                  data-username={user.username}
+                >
+                  <Avatar
+                    size={24}
+                    src={user.profileImage}
+                    style={{ marginLeft: 8 }}
+                  />
+                  <span style={{ fontWeight: 500, fontSize: 15, marginLeft: 8 }}>{user.username}</span>
+                  <span style={{ color: '#888', fontSize: 13 }}>{user.userCode}</span>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="نقش‌ها" name="RoleIds">
+                <Select
+                  mode="multiple"
+                  value={selectedRoles}
+                  onChange={setSelectedRoles}
+                  placeholder="انتخاب کنید"
+                  style={{ width: '100%' }}
+                  optionLabelProp="label"
+                >
+                  {roles.map((role, idx) => (
+                    <Select.Option key={role.id} value={role.id} label={role.displayName}>
+                      {role.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="دسترسی‌ها" name="PermissionIds">
+                <Select
+                  mode="multiple"
+                  value={selectedPermissions}
+                  onChange={setSelectedPermissions}
+                  placeholder="انتخاب کنید"
+                  style={{ width: '100%' }}
+                  optionLabelProp="label"
+                >
+                  {permissions.map((perm, idx) => (
+                    <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
+                      {perm.displayName}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="رمز عبور جدید" name="Password">
+                <Input.Password
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="رمز عبور جدید را وارد کنید"
                 />
-                <span style={{ fontWeight: 500, fontSize: 15, marginLeft: 8 }}>{user.username}</span>
-                <span style={{ color: '#888', fontSize: 13 }}>{user.userCode}</span>
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="نقش‌ها" name="RoleIds">
-              <Select
-                mode="multiple"
-                value={selectedRoles}
-                onChange={setSelectedRoles}
-                placeholder="انتخاب کنید"
-                style={{ width: '100%' }}
-                optionLabelProp="label"
-              >
-                {roles.map((role, idx) => (
-                  <Select.Option key={role.id} value={role.id} label={role.displayName}>
-                    {role.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="دسترسی‌ها" name="PermissionIds">
-              <Select
-                mode="multiple"
-                value={selectedPermissions}
-                onChange={setSelectedPermissions}
-                placeholder="انتخاب کنید"
-                style={{ width: '100%' }}
-                optionLabelProp="label"
-              >
-                {permissions.map((perm, idx) => (
-                  <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
-                    {perm.displayName}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="رمز عبور جدید" name="Password">
-              <Input.Password
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="رمز عبور جدید را وارد کنید"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="تکرار رمز عبور جدید" name="ConfirmPassword">
-              <Input.Password
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                placeholder="تکرار رمز عبور جدید را وارد کنید"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item style={{ textAlign: 'center', marginTop: 24 }}>
-          <Button type="default" style={{ minWidth: 100, borderRadius: 8, marginRight: 16 }} onClick={() => navigate(-1)}>
-            لغو
-          </Button>
-          <Button htmlType='submit' type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
-            ذخیره
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="تکرار رمز عبور جدید" name="ConfirmPassword">
+                <Input.Password
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="تکرار رمز عبور جدید را وارد کنید"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item style={{ textAlign: 'center', marginTop: 24 }}>
+            <Button type="default" style={{ minWidth: 100, borderRadius: 8, marginRight: 16 }} onClick={() => navigate(-1)}>
+              لغو
+            </Button>
+            <Button htmlType='submit' type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
+              ذخیره
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </>
   );
 }
