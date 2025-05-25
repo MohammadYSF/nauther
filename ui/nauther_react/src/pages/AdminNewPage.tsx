@@ -25,6 +25,8 @@ export default function AdminNewPage() {
 
   const [messageApi, contextHolder] = message.useMessage();
 
+  const [changePassword, setChangePassword] = useState(false);
+
   // Debounced user search
   const debouncedUserSearch = useRef(
     debounce((value: string) => {
@@ -91,14 +93,15 @@ export default function AdminNewPage() {
       editAdmin(id, data).then((response: any) => {
         if (response.statusCode === 201) {
           messageApi.success('Admin updated successfully!');
-          navigate('/admin');
+          setTimeout(() => {
+            navigate('/');
+          }, 1000);
         } else if (response.statusCode === 203) {
           messageApi.error(response.message);
         }
       }).catch((err: any) => {
-        console.error(err);
-        if (err.response && err.response.data && err.response.data.validationErrors) {
-          const validationErrors = err.response.data.validationErrors;
+        if (err && err.data && err.data.validationErrors) {
+          const validationErrors = err.data.validationErrors;
           validationErrors.forEach((error: { key: string; value: string }) => {
             form.setFields([{
               name: error.key,
@@ -106,13 +109,13 @@ export default function AdminNewPage() {
             }]);
           });
         } else {
-          messageApi.error('Failed to update admin.');
+          messageApi.error('Failed to create admin.');
         }
       });
     } else if (!isEdit) {
       // Create new admin
       createAdmin(data).then((response: any) => {
-        console.log("response is : ",response);
+        console.log("response is : ", response);
         if (response.statusCode === 201) {
           messageApi.success('Admin created successfully!');
           setTimeout(() => {
@@ -122,12 +125,9 @@ export default function AdminNewPage() {
           messageApi.error(response.message);
         }
       }).catch((err: any) => {
-        console.log("err is : ",err);
         if (err && err.data && err.data.validationErrors) {
-          console.log("err.data.validationErrors is : ",err.data.validationErrors);
           const validationErrors = err.data.validationErrors;
           validationErrors.forEach((error: { key: string; value: string }) => {
-            console.log("error is : ",error);
             form.setFields([{
               name: error.key,
               errors: [error.value],
@@ -147,8 +147,8 @@ export default function AdminNewPage() {
           ...res.data,
           permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
           roles: res.data.roles ? res.data.roles.map((p: any) => p.id) : [],
-          id: res.data.id 
-         });
+          id: res.data.id
+        });
       });
     }
   }, [id, isEdit]);
@@ -156,10 +156,10 @@ export default function AdminNewPage() {
   return (
     <>
       {contextHolder}
-      <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border:'none' }}>
+      <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
         <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
           <span style={{ color: '#337ab7', fontWeight: 700 }}>
-            {isEdit ? `ویرایش ادمین ${id}` : 'ادمین جدید'}
+            {isEdit ? `ویرایش ادمین ${users.find(a => a.id == id)?.username}` : 'ادمین جدید'}
           </span>
           <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
         </Typography.Title>
@@ -227,22 +227,45 @@ export default function AdminNewPage() {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item label="رمز عبور جدید" name="password">
-                <Input.Password
-                  placeholder="رمز عبور جدید را وارد کنید"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="تکرار رمز عبور جدید" name="confirmPassword">
-                <Input.Password
-                  placeholder="تکرار رمز عبور جدید را وارد کنید"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          {isEdit && !changePassword && (
+            <Button
+              type="dashed"
+              style={{ marginBottom: 16 }}
+              onClick={() => setChangePassword(true)}
+              block
+            >
+              تغییر رمز عبور
+            </Button>
+          )}
+          {((!isEdit) || changePassword) && (
+            <>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="رمز عبور جدید" name="password">
+                    <Input.Password placeholder="رمز عبور جدید را وارد کنید" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="تکرار رمز عبور جدید" name="confirmPassword">
+                    <Input.Password placeholder="تکرار رمز عبور جدید را وارد کنید" />
+                  </Form.Item>
+                </Col>
+              </Row>
+              {isEdit && (
+                <Button
+                  type="default"
+                  style={{ marginBottom: 16 }}
+                  onClick={() => {
+                    setChangePassword(false);
+                    form.setFieldsValue({ password: '', confirmPassword: '' });
+                  }}
+                  block
+                >
+                  انصراف از تغییر رمز عبور
+                </Button>
+              )}
+            </>
+          )}
           <Form.Item style={{ textAlign: 'center', marginTop: 24 }}>
             <Button type="default" style={{ minWidth: 100, borderRadius: 8, marginRight: 16 }} onClick={() => navigate(-1)}>
               لغو

@@ -70,6 +70,6 @@ export const createAdmin = async (data: CreateAdminPayload): Promise<CreateAdmin
   return res.data;
 }
 export const editAdmin = async (id: string, data: EditAdminPayload): Promise<EditAdminResponseDataModel> => {
-  let res = await api.put<EditAdminResponseDataModel>(`/admins/${id}`, data);
+  let res = await api.put<EditAdminResponseDataModel>(`/user/edit`, data);
   return res.data;
 } 

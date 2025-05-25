@@ -12,7 +12,7 @@ export default function RoleNewPage() {
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-
+  const [apiData,setApiData] = useState<any>(null);
   useEffect(() => {
     getPermissions().then(res => setPermissions(res));
   }, []);
@@ -20,6 +20,7 @@ export default function RoleNewPage() {
   useEffect(() => {
     if (isEdit && id) {
       getRoleById(id).then(res => {
+        setApiData(res.data);
         form.setFieldsValue({
          ...res.data,
          permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
@@ -83,7 +84,7 @@ export default function RoleNewPage() {
       <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
         <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
           <span style={{ color: '#337ab7', fontWeight: 700 }}>
-            {isEdit ? `ویرایش نقش ${id}` : 'نقش جدید'}
+            {isEdit ? `ویرایش نقش :  ${apiData?.displayName??""}` : 'نقش جدید'}
           </span>
           <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
         </Typography.Title>
