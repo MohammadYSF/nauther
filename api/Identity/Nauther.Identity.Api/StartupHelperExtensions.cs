@@ -3,6 +3,7 @@ using Scalar.AspNetCore;
 using Nauther.Framework.Infrastructure.Middlewares.CorrelationId;
 using Nauther.Framework.Infrastructure.Middlewares.GlobalExceptionCache;
 using Nauther.Identity.Infrastructure.Models;
+using FluentValidation;
 
 namespace Nauther.Identity.Api;
 
@@ -17,17 +18,17 @@ public static class StartupHelperExtensions
         services.AddHealthChecks();
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", 
+            options.AddPolicy("AllowAll",
                 cp => cp.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
         });
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo 
-            { 
-                Title = "Nauther.Identity API", 
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Nauther.Identity API",
                 Version = "v1",
             });
-            
+
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
@@ -51,16 +52,23 @@ public static class StartupHelperExtensions
                 }
             });
         });
+        ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) =>
+        {
+            if (memberInfo == null) return null;
+
+            var name = memberInfo.Name;
+            return char.ToLowerInvariant(name[0]) + name.Substring(1);
+        };
         services.Configure<GateWaySettings>(configuration.GetSection("GateWaySettings"));
-        
+
 
         return services;
     }
-    
+
     public static WebApplication AddMiddlewares(this WebApplication app)
     {
         if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Local")
-        { 
+        {
             app.MapOpenApi();
             app.MapScalarApiReference(options =>
             {
@@ -73,7 +81,7 @@ public static class StartupHelperExtensions
 
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<GlobalExceptionCatchMiddleware>();
-        
+
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseCors("AllowAll");
