@@ -16,11 +16,15 @@ namespace Nauther.Identity.Application.Services.Implementations;
 public class RoleService(
     IMapper mapper,
     IRoleRepository roleRepository,
-    IRedisCacheService redisCacheService)
+    IRedisCacheService redisCacheService,
+    IPermissionRepository permissionRepository,
+    IRolePermissionRepository rolePermissionRepository)
     : IRoleService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IRoleRepository _roleRepository = roleRepository;
+    private readonly IPermissionRepository _permissionRepository = permissionRepository;
+    private readonly IRolePermissionRepository _rolePermissionRepository = rolePermissionRepository;
     private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
 
@@ -36,12 +40,30 @@ public class RoleService(
                 Message = Messages.RoleNotFound
             };
 
-        await _redisCacheService.AddListAsync(CacheKeys.RolesList, roles);
+        //await _redisCacheService.AddListAsync(CacheKeys.RolesList, roles);
+        List<GetRolesQueryResponse> data = [];
+        foreach (var role in roles)
+        {
+            var rolePermissions = await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
+            var permissionIds = rolePermissions.Select(a => a.PermissionId).ToList();
+            var permissions = await _permissionRepository.GetByIdsAsync(permissionIds, cancellationToken);
+            data.Add(new GetRolesQueryResponse
+            {
+                Id = role.Id,
+                DisplayName = role.DisplayName,
+                Name = role.Name,
+                Permissions = permissions.Select(a => new GetRolesQueryResponse_Permission
+                {
+                    DisplayName = a.DisplayName,
+                    Id = a.Id,
+                }).ToList()
+            });
+        }
 
         return new BaseResponse<IList<GetRolesQueryResponse>?>()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = _mapper.Map<IList<GetRolesQueryResponse>?>(roles),
+            Data = data,
             Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }
@@ -89,7 +111,16 @@ public class RoleService(
                 StatusCode = StatusCodes.Status409Conflict,
                 Message = Messages.RoleAlreadyExisted
             };
-        var role = _mapper.Map<Role>(dto);
+        var role = new Role
+        {
+            Name = dto.Name,
+            DisplayName = dto.DisplayName,
+            RolePermissions = dto.PermissionIds.Select(a => new RolePermission
+            {
+                PermissionId = a,
+            }).ToList()
+        };
+        //var role = _mapper.Map<Role>(dto);
 
         await _roleRepository.AddAsync(role, cancellationToken);
         await _roleRepository.SaveChangesAsync();
