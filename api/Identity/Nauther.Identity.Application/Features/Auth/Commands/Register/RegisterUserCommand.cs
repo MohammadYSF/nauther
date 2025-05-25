@@ -16,6 +16,6 @@ public class Dima_RegisterUserCommand : IRequest<BaseResponse>
     public string Password { get; set; }
     public string ConfirmPassword { get; set; }
 
-    public List<Guid> RoleIds { get; set; } = [];
-    public List<Guid> PermissionIds { get; set; } = [];
+    public List<Guid> Roles { get; set; } = [];
+    public List<Guid> Permissions { get; set; } = [];
 }

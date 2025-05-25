@@ -9,6 +9,7 @@ using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyOtp;
+using Nauther.Identity.Application.Features.User.Commands.EditUser;
 using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
 using Nauther.Identity.Application.Resources;
@@ -144,7 +145,69 @@ public class UserService(
             Data = _mapper.Map<VerifyNationalCodeCommandResponse>(user)
         };
     }
-
+    public async Task<BaseResponse> Edit(EditUserCommand request,
+    CancellationToken cancellationToken)
+    {
+        var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", request.Id.ToString());
+        if (string.IsNullOrEmpty(user_in_cache))
+        {
+            return new BaseResponse<BaseResponse>()
+            {
+                StatusCode = StatusCodes.Status203NonAuthoritative,
+                Message = Messages.UserNotFound
+            };
+        }
+        if (!string.IsNullOrEmpty(request.Password))
+        {
+            var userCredentail = await _userCredentialRepository.GetByUserIdAsync(request.Id, cancellationToken);
+            userCredentail.PasswordHash = _passwordHasher.HashPassword(request.Password);
+            await _userCredentialRepository.UpdateAsync(userCredentail, cancellationToken);
+        }
+        var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(request.Id, cancellationToken);
+        foreach (var item in userRoles)
+        {
+            if (!request.Roles.Contains(item.RoleId))
+            {
+                await _userRoleRepository.RemoveAsync(item, cancellationToken);
+            }
+        }
+        foreach (var item in request.Roles)
+        {
+            if (!userRoles.Select(a => a.RoleId).Contains(item))
+            {
+                await _userRoleRepository.AddAsync(new UserRole
+                {
+                    UserId = request.Id,
+                    RoleId = item
+                }, cancellationToken);
+            }
+        }
+        var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(request.Id, cancellationToken);
+        foreach (var item in userPermissions)
+        {
+            if (!request.Permissions.Contains(item.PermissionId))
+            {
+                await _userPermissionRepository.RemoveAsync(item, cancellationToken);
+            }
+        }
+        foreach (var item in request.Permissions)
+        {
+            if (!userPermissions.Select(a => a.PermissionId).Contains(item))
+            {
+                await _userPermissionRepository.AddAsync(new UserPermission
+                {
+                    UserId = request.Id,
+                    PermissionId = item
+                }, cancellationToken);
+            }
+        }
+        await _userRepository.SaveChangesAsync();
+        return new BaseResponse()
+        {
+            StatusCode = StatusCodes.Status201Created,
+            Data = new { Id = request.Id }
+        };
+    }
     public async Task<BaseResponse> Register(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
@@ -160,12 +223,12 @@ public class UserService(
         var u = new User
         {
             Id = request.Id.ToString(),
-            UserRoles = request.RoleIds.Select(a => new UserRole
+            UserRoles = request.Roles.Select(a => new UserRole
             {
                 RoleId = a,
                 UserId = request.Id.ToString()
             }).ToList(),
-            UserPermissions = request.PermissionIds.Select(a => new UserPermission
+            UserPermissions = request.Permissions.Select(a => new UserPermission
             {
                 PermissionId = a,
                 UserId = request.Id.ToString()
