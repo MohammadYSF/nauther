@@ -12,6 +12,7 @@ type GetRolesResponseDataModel = {
     name: string,
     displayName: string,
   permissions: { id: string, name: string,displayName:string }[],
+  users: { id: string, name: string }[],
 
   }[]
 };

@@ -125,10 +125,10 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
     },
     {
       title: 'ادمین های نقش',
-      dataIndex: 'admins',
-      key: 'admins',
+      dataIndex: 'users',
+      key: 'users',
       align: 'right' as const,
-      render: (admins: string[] = [], record: any) => {
+      render: (users: { id: string, name: string }[] = [], record: any) => {
         const content = (
           <div style={{ minWidth: 220, padding: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -136,10 +136,10 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
             </div>
             <List
               size="small"
-              dataSource={admins}
-              renderItem={admin => (
+              dataSource={users}
+              renderItem={u => (
                 <List.Item>
-                  <Typography.Text>{admin}</Typography.Text>
+                  <Typography.Text>{u.name}</Typography.Text>
                 </List.Item>
               )}
               style={{ marginTop: 8 }}
@@ -151,8 +151,8 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
             <span
               style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
             >
-              {admins && admins.length > 0 ? admins[0] : ''}
-              {admins && admins.length > 1 && (
+              {users && users.length > 0 ? users[0].name : ''}
+              {users && users.length > 1 && (
                 <span
                   style={{
                     background: '#e3f2fd',
@@ -166,7 +166,7 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
                     alignItems: 'center',
                   }}
                 >
-                  + {admins.length - 1}
+                  + {users.length - 1}
                 </span>
               )}
             </span>
