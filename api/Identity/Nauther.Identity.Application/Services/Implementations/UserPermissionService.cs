@@ -47,7 +47,7 @@ public class UserPermissionService(
 
         var userPermissions =
             await _userPermissionRepository.GetUserPermissionsByUserIdAsync(
-                dtos.FirstOrDefault()!.UserId, cancellationToken);
+                dtos.FirstOrDefault()!.UserId.ToString(), cancellationToken);
         await _userPermissionRepository.RemoveRange(userPermissions, cancellationToken);
         
         var newUserPermissions = new List<UserPermission>();

@@ -9,7 +9,7 @@ internal class UserPermissionRepository(AppDbContext context)
     : BaseRepository<UserPermission>(context), IUserPermissionRepository
 {
     private readonly AppDbContext _context = context;
-    public async Task<List<UserPermission>> GetUserPermissionsByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<List<UserPermission>> GetUserPermissionsByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.UserPermissions
             .AsNoTracking()
@@ -17,7 +17,7 @@ internal class UserPermissionRepository(AppDbContext context)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<string>> GetUserPermissionsNameAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<List<string>> GetUserPermissionsNameAsync(string userId, CancellationToken cancellationToken)
     {
         var permissions = await _context.Permissions
             .Join(_context.UserPermissions.Where(w => w.UserId == userId.ToString()),

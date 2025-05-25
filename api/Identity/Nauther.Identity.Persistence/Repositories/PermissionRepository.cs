@@ -8,7 +8,7 @@ namespace Nauther.Identity.Persistence.Repositories;
 internal class PermissionRepository(AppDbContext context) : BaseRepository<Permission>(context), IPermissionRepository
 {
     private readonly AppDbContext _context = context;
-    
+
     public async Task<IList<Permission>?> GetByNameAsync(string permissionName, CancellationToken cancellationToken)
     {
         return await _context.Permissions
@@ -16,11 +16,18 @@ internal class PermissionRepository(AppDbContext context) : BaseRepository<Permi
             .Where(p => p.Name.ToLower().Contains(permissionName.ToLower()))
             .ToListAsync(cancellationToken);
     }
-    
+
     public async Task<bool> ExistsByNameAsync(string permissionName, CancellationToken cancellationToken)
     {
         return await _context.Permissions
             .AsNoTracking()
             .AnyAsync(p => p.Name.ToLower() == permissionName.ToLower(), cancellationToken);
+    }
+
+    public async Task<IList<Permission>> GetByIdsAsync(List<Guid> ids, CancellationToken cancellationToken)
+    {
+        return await _context.Permissions
+       .AsNoTracking()
+       .Where(a => ids.Contains(a.Id)).ToListAsync();
     }
 }

@@ -5,6 +5,6 @@ namespace Nauther.Identity.Domain.IRepositories;
 
 public interface IUserRoleRepository : IBaseRepository<UserRole>
 {
-    Task<List<UserRole>> GetUserRolesListByUserIdAsync(Guid userId, CancellationToken cancellationToken);
-    Task<UserRole?> GetUserRoleByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<List<UserRole>> GetUserRolesListByUserIdAsync(string userId, CancellationToken cancellationToken);
+    Task<UserRole?> GetUserRoleByUserIdAsync(string userId, CancellationToken cancellationToken);
 }

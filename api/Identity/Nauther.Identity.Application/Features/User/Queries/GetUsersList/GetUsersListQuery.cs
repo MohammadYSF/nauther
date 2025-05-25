@@ -8,3 +8,7 @@ public class GetUsersListQuery : PaginationListDto, IRequest<BaseResponse>
 {
     
 }
+public class GetExternalUsersListQuery : PaginationListDto, IRequest<BaseResponse>
+{
+
+}

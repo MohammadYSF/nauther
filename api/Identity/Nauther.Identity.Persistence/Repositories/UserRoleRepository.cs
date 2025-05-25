@@ -9,7 +9,7 @@ internal class UserRoleRepository(AppDbContext context) : BaseRepository<UserRol
 {
     private readonly AppDbContext _context = context;
     
-    public async Task<List<UserRole>> GetUserRolesListByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<List<UserRole>> GetUserRolesListByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.UserRoles
             .AsNoTracking()
@@ -17,11 +17,11 @@ internal class UserRoleRepository(AppDbContext context) : BaseRepository<UserRol
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<UserRole?> GetUserRoleByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<UserRole?> GetUserRoleByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.UserRoles
             .AsNoTracking()
-            .Where(ur => ur.UserId== userId.ToString())
+            .Where(ur => ur.UserId== userId)
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

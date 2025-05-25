@@ -9,7 +9,8 @@ internal class RolePermissionRepository(AppDbContext context)
     : BaseRepository<RolePermission>(context), IRolePermissionRepository
 {
     private readonly AppDbContext _context = context;
-    
+
+
     public async Task<List<RolePermission>> GetRolePermissionsByRoleIdAsync(Guid roleId, CancellationToken cancellationToken)
     {
         return await _context.RolePermissions
@@ -33,6 +34,6 @@ internal class RolePermissionRepository(AppDbContext context)
                 .Select(s => s.Name)
                 .ToListAsync(cancellationToken);
 
-            return permissions;
+        return permissions;
     }
 }

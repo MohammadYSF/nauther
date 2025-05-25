@@ -19,6 +19,12 @@ public class UserController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
     //[PermissionAuthorization("GetAllUsers")]
+    [HttpGet("external")]
+    public async Task<IActionResult> Get([FromQuery] GetExternalUsersListQuery request)
+    {
+        var result = await _mediator.Send(request);
+        return StatusCode(result.StatusCode, result);
+    }
     [HttpGet("all")]
     public async Task<IActionResult> Get([FromQuery] GetUsersListQuery request)
     {

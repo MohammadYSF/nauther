@@ -13,6 +13,7 @@ namespace Nauther.Identity.Application.Services.Interfaces;
 public interface IUserService
 {
     Task<BaseResponse> GetUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
+    Task<BaseResponse> GetExternalUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
 
     Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(Guid? id, string? username, string? phoneNumber,
         CancellationToken cancellationToken);

@@ -43,7 +43,7 @@ public class UserRoleService(
             };
 
         var userRoles =
-            await _userRoleRepository.GetUserRolesListByUserIdAsync(dtos.FirstOrDefault()!.UserId,
+            await _userRoleRepository.GetUserRolesListByUserIdAsync(dtos.FirstOrDefault()!.UserId.ToString(),
                 cancellationToken);
         await _userRoleRepository.RemoveRange(userRoles, cancellationToken);
         await _userRoleRepository.SaveChangesAsync();
