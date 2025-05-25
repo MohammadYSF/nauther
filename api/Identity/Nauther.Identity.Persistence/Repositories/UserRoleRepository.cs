@@ -8,7 +8,7 @@ namespace Nauther.Identity.Persistence.Repositories;
 internal class UserRoleRepository(AppDbContext context) : BaseRepository<UserRole>(context), IUserRoleRepository
 {
     private readonly AppDbContext _context = context;
-    
+
     public async Task<List<UserRole>> GetUserRolesListByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.UserRoles
@@ -21,7 +21,15 @@ internal class UserRoleRepository(AppDbContext context) : BaseRepository<UserRol
     {
         return await _context.UserRoles
             .AsNoTracking()
-            .Where(ur => ur.UserId== userId)
+            .Where(ur => ur.UserId == userId)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<UserRole>> GetUserRolesListByRoleIdAsync(Guid roleId, CancellationToken cancellationToken)
+    {
+        return await _context.UserRoles
+    .AsNoTracking()
+    .Where(ur => ur.RoleId == roleId)
+    .ToListAsync(cancellationToken);
     }
 }

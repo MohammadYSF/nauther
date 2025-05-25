@@ -1,4 +1,5 @@
 using AutoMapper;
+using EasyCaching.Core;
 using Microsoft.AspNetCore.Http;
 using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Infrastructure.Caching.RedisCache;
@@ -10,6 +11,7 @@ using Nauther.Identity.Application.Services.Interfaces;
 using Nauther.Identity.Domain.Entities;
 using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Utilities.Constants;
+using Newtonsoft.Json.Linq;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
@@ -18,9 +20,15 @@ public class RoleService(
     IRoleRepository roleRepository,
     IRedisCacheService redisCacheService,
     IPermissionRepository permissionRepository,
-    IRolePermissionRepository rolePermissionRepository)
+    IRolePermissionRepository rolePermissionRepository,
+    IUserRepository userRepository,
+    IUserRoleRepository userRoleRepository,
+    IRedisCachingProvider easyCachingProvider)
     : IRoleService
 {
+    private readonly IRedisCachingProvider _easyCachingProvider = easyCachingProvider;
+    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
+    private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
@@ -47,6 +55,20 @@ public class RoleService(
             var rolePermissions = await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
             var permissionIds = rolePermissions.Select(a => a.PermissionId).ToList();
             var permissions = await _permissionRepository.GetByIdsAsync(permissionIds, cancellationToken);
+            var userRoles = await _userRoleRepository.GetUserRolesListByRoleIdAsync(role.Id, cancellationToken);
+            var users = await _userRepository.GetByIds(userRoles.Select(a => a.UserId).ToList(), cancellationToken);
+            List<GetRolesQueryResponse_User> response_users = [];
+            foreach (var item in users)
+            {
+                var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", item.Id);
+                var username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty;
+                response_users.Add(new GetRolesQueryResponse_User
+                {
+                    Id = item.Id,
+                    Name = username
+                });
+            }
+
             data.Add(new GetRolesQueryResponse
             {
                 Id = role.Id,
@@ -56,7 +78,8 @@ public class RoleService(
                 {
                     DisplayName = a.DisplayName,
                     Id = a.Id,
-                }).ToList()
+                }).ToList(),
+                Users = response_users
             });
         }
 

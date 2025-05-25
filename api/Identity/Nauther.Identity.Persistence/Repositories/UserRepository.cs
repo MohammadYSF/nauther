@@ -29,4 +29,9 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
     {
         throw new NotImplementedException();
     }
+
+    public async Task<List<User>> GetByIds(List<string> ids, CancellationToken cancellationToken)
+    {
+        return await _context.Users.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken);
+    }
 }
