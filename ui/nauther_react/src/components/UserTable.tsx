@@ -9,7 +9,7 @@ import { getAllUsers, type User } from '../services/userService';
 
 const rolesList = ['سوپر ادمین', 'ادمین', 'کاربر عادی'];
 
-export default function UserTable({ selected, setSelected }: { selected: string[], setSelected: React.Dispatch<React.SetStateAction<string[]>> }) {
+export default function UserTable({ selected, setSelected, refresh }: { selected: string[], setSelected: React.Dispatch<React.SetStateAction<string[]>>, refresh: boolean }) {
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -39,7 +39,7 @@ export default function UserTable({ selected, setSelected }: { selected: string[
         }
       })
       .finally(() => setLoading(false));
-  }, [page, rowsPerPage, search]);
+  }, [page, rowsPerPage, search, refresh]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -228,13 +228,7 @@ export default function UserTable({ selected, setSelected }: { selected: string[
           </Popover>
         );
       },
-    },
-    {
-      title: 'آخرین لاگین',
-      dataIndex: 'lastLogin',
-      key: 'lastLogin',
-      align: 'right' as const,
-    },
+    }    
   ];
 
   return (
