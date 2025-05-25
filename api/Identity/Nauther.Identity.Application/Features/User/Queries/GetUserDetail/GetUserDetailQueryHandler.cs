@@ -18,11 +18,6 @@ public class GetUserDetailQueryHandler(IUserService userService, IMapper mapper,
     {
         var user = await _userService.GetUserDetails(request.Id, request.Username, request.PhoneNumber,
             cancellationToken);
-        return new BaseResponse<GetUserDetailQueryResponse>()
-        {
-            StatusCode = user.StatusCode,
-            Message = user.Message,
-            Data = user.Data
-        };
+        return user;
     }
 }

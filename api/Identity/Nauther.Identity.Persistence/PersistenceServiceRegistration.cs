@@ -16,20 +16,21 @@ public static class PersistenceServiceRegistration
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseSqlServer(configuration.GetConnectionString("SqlServerConnectionString"));
-            
+
         });
 
         services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IUserCredentialRepository, UserCredentailRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
         services.AddScoped<IGroupPermissionRepository, GroupPermissionRepository>();
         services.AddScoped<IUserGroupRepository, UserGroupRepository>();
-        
+
         return services;
     }
 }

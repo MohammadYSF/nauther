@@ -15,7 +15,7 @@ public interface IUserService
     Task<BaseResponse> GetUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
     Task<BaseResponse> GetExternalUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
 
-    Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(Guid? id, string? username, string? phoneNumber,
+    Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username, string? phoneNumber,
         CancellationToken cancellationToken);
     Task<BaseResponse<VerifyNationalCodeCommandResponse?>> GetUserByNationalCode(string nationalCode, CancellationToken cancellationToken);
     Task<BaseResponse> Register(Dima_RegisterUserCommand request, CancellationToken cancellationToken);

@@ -31,10 +31,10 @@ public class RoleController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [PermissionAuthorization("GetRoleById")]
+    //[PermissionAuthorization("GetRoleById")]
     [HttpGet]
-    [Route("id")]
-    public async Task<IActionResult> Get([FromQuery] GetRoleByIdQuery request)
+    [Route("{Id}")]
+    public async Task<IActionResult> Get(GetRoleByIdQuery request)
     {
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);

@@ -100,11 +100,39 @@ public class RoleService(
                 StatusCode = StatusCodes.Status203NonAuthoritative,
                 Message = Messages.RoleNotFound
             };
+        var rolePermissions = await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
+        var permissionIds = rolePermissions.Select(a => a.PermissionId).ToList();
+        var permissions = await _permissionRepository.GetByIdsAsync(permissionIds, cancellationToken);
+        var userRoles = await _userRoleRepository.GetUserRolesListByRoleIdAsync(role.Id, cancellationToken);
+        var users = await _userRepository.GetByIds(userRoles.Select(a => a.UserId).ToList(), cancellationToken);
+        List<GetRolesQueryResponse_User> response_users = [];
+        foreach (var item in users)
+        {
+            var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", item.Id);
+            var username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty;
+            response_users.Add(new GetRolesQueryResponse_User
+            {
+                Id = item.Id,
+                Name = username
+            });
+        }
+        var data = new GetRolesQueryResponse
+        {
+            Users = response_users,
+            Permissions = permissions.Select(a => new GetRolesQueryResponse_Permission
+            {
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList(),
+            Name = role.Name,
+            Id = role.Id,
+            DisplayName = role.DisplayName
+        };
 
         return new BaseResponse<GetRolesQueryResponse?>()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = _mapper.Map<GetRolesQueryResponse?>(role)
+            Data = data
         };
     }
 

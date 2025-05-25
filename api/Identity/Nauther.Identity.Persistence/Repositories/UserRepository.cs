@@ -19,10 +19,10 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<User?> GetUserByPropertiesAsync(Guid? id, string? phoneNumber, 
+    public async Task<User?> GetUserByPropertiesAsync(string? id, string? phoneNumber,
         string? nationalCode, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await _context.Users.FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<User?> GetUserByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken)

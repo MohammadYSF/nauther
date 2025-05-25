@@ -36,7 +36,8 @@ public class UserService(
     IJwtTokenService jwtTokenService,
     IRedisCachingProvider _easyCachingProvider,
     IPermissionRepository permissionRepository,
-    IRoleRepository roleRepository) : IUserService
+    IRoleRepository roleRepository,
+    IUserCredentialRepository userCredentialRepository) : IUserService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
@@ -50,6 +51,7 @@ public class UserService(
     private readonly IOtpService _otpService = otpService;
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRoleRepository _roleRepository = roleRepository;
+    private readonly IUserCredentialRepository _userCredentialRepository = userCredentialRepository;
     private static readonly Guid UserRoleId = Guid.Parse("717D7A4A-D864-4774-8AE0-5010E745D87E");
 
 
@@ -71,7 +73,7 @@ public class UserService(
         };
     }
 
-    public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(Guid? id, string? username, string? phoneNumber,
+    public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username, string? phoneNumber,
         CancellationToken cancellationToken)
     {
 
@@ -81,6 +83,7 @@ public class UserService(
             string.IsNullOrEmpty(username) ? null : username,
             cancellationToken
         );
+
         if (user == null)
             return new BaseResponse<GetUserDetailQueryResponse?>()
             {
@@ -88,12 +91,40 @@ public class UserService(
                 Message = Messages.UserNotFound
             };
 
-        var userDetailVm = _mapper.Map<GetUserDetailQueryResponse>(user);
+        var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(user.Id, cancellationToken);
+        var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(user.Id, cancellationToken);
+        var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
+        var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
+        var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", user.Id);
+        var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
 
+        var data = new GetUserDetailQueryResponse
+        {
+            Id = user.Id,
+            IsActive = JObject.Parse(user_in_cache)["isActive"]?.ToObject<bool>() ?? false,
+            Username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty,
+            PhoneNumber = JObject.Parse(user_in_cache)["PhoneNumber"]?.ToObject<string>() ?? string.Empty,
+            UserCode = JObject.Parse(user_in_cache)["userCode"]?.ToObject<string>() ?? string.Empty,
+            ProfileImage = string.Empty, //todo
+            Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
+            {
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList(),
+            Roles = roles.Select(a => new GetUsersListQueryResponse_Role
+            {
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList(),
+            CreatedBy = userCredentail.CreatedBy,
+            CreatedAt = userCredentail.CreatedAt,
+            UpdatedAt = userCredentail.UpdatedAt,
+            UpdatedBy = userCredentail.UpdatedBy
+        };
         return new BaseResponse<GetUserDetailQueryResponse?>()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = userDetailVm
+            Data = data
         };
     }
 
@@ -211,7 +242,7 @@ public class UserService(
                 ProfileImage = string.Empty, //todo
                 Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
                 {
-                    DisplayName=a.DisplayName,
+                    DisplayName = a.DisplayName,
                     Id = a.Id
                 }).ToList(),
                 Roles = roles.Select(a => new GetUsersListQueryResponse_Role

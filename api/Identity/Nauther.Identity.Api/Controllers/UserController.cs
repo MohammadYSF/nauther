@@ -32,7 +32,7 @@ public class UserController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [PermissionAuthorization("GetUserDetail")]
+    //[PermissionAuthorization("GetUserDetail")]
     [HttpGet("detail")]
     public async Task<IActionResult> Get([FromQuery] GetUserDetailQuery request)
     {

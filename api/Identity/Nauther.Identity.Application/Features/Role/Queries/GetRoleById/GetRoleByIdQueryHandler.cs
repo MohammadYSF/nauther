@@ -15,11 +15,6 @@ public class RolesByIdQueryHandler(IRoleService roleService, IMapper mapper) :
         CancellationToken cancellationToken)
     {
         var role = await _roleService.GetRoleById(request.Id, cancellationToken);
-        return new BaseResponse<GetRolesQueryResponse>()
-        {
-            StatusCode = role.StatusCode,
-            Message = role.Message,
-            Data = role.Data
-        };
+        return role;
     }
 }
