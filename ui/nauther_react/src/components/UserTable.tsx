@@ -24,7 +24,7 @@ export default function UserTable({ selected, setSelected }: { selected: string[
   
   useEffect(() => {
     setLoading(true);
-    getAllUsers(page + 1, rowsPerPage)
+    getAllUsers(page + 1, rowsPerPage,'')
       .then(res => {
         if (Array.isArray(res.data)) {
           setUsers(res.data);
@@ -135,35 +135,18 @@ export default function UserTable({ selected, setSelected }: { selected: string[
       align: 'right' as const,
     },
     {
-      title: 'نقش',
-      dataIndex: 'role',
-      key: 'role',
+      title: 'نقش‌ها',
+      dataIndex: 'roles',
+      key: 'roles',
       align: 'right' as const,
-      render: (role: string, record: any, idx: number) => (
-        <span
-          style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
-          onClick={handleRoleClick}
-        >
-          {role}
-          {idx === 1 && (
-            <span
-              style={{
-                background: '#e3f2fd',
-                color: '#1976d2',
-                fontSize: 10,
-                borderRadius: 4,
-                padding: '0 4px',
-                marginLeft: 8,
-                height: 20,
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
-            >
-              شما
-            </span>
-          )}
-        </span>
-      ),
+      render: (roles: { displayName: string }[]) => roles.map(role => <span key={role.displayName} style={{ marginRight: 8 }}>{role.displayName}</span>),
+    },
+    {
+      title: 'دسترسی‌ها',
+      dataIndex: 'permissions',
+      key: 'permissions',
+      align: 'right' as const,
+      render: (permissions: { displayName: string }[]) => permissions.map(permission => <span key={permission.displayName} style={{ marginRight: 8 }}>{permission.displayName}</span>),
     },
     {
       title: 'آخرین لاگین',

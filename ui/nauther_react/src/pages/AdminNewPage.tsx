@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getAdminById, getAdmins, editAdmin, createAdmin } from '../services/adminService';
 import { getRoles } from '../services/roleService';
 import { getPermissions } from '../services/permissionService';
-import { getAllUsers, type User } from '../services/userService';
+import { getAllExternalUsers, type User } from '../services/userService';
 import debounce from 'lodash.debounce';
 
 export default function AdminNewPage() {
@@ -39,7 +39,7 @@ export default function AdminNewPage() {
   // Fetch users with search and pagination
   const fetchUsers = async (page = 1, search = '', append = false) => {
     setUserLoading(true);
-    const res = await getAllUsers(page, 20, search);
+    const res = await getAllExternalUsers(page, 20, search);
     if (append) {
       setUsers(prev => [...prev, ...res.data]);
     } else {
@@ -253,7 +253,10 @@ export default function AdminNewPage() {
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item>
+        <Form.Item style={{ textAlign: 'center', marginTop: 24 }}>
+          <Button type="default" style={{ minWidth: 100, borderRadius: 8, marginRight: 16 }} onClick={() => navigate(-1)}>
+            لغو
+          </Button>
           <Button htmlType='submit' type="primary" style={{ minWidth: 100, borderRadius: 8 }}>
             ذخیره
           </Button>
