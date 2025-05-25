@@ -9,9 +9,10 @@ import type { TableRowSelection } from 'antd/lib/table/interface';
 
 interface RoleTableProps {
   rowSelection?: TableRowSelection<any>;
+  refresh: boolean;
 }
 
-export default function   RoleTable({ rowSelection }: RoleTableProps) {
+export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
   const [roles, setRoles] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -41,7 +42,7 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
         }
       })
       .finally(() => setLoading(false));
-  }, [page, rowsPerPage, search]);
+  }, [page, rowsPerPage, search, refresh]);
 
   const handlePermissionClick = (event: React.MouseEvent<HTMLElement>) => {
     setPermissionPopoverAnchor(event.currentTarget);
@@ -123,18 +124,18 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
     },
     {
       title: 'ادمین های نقش',
-      dataIndex: 'admins',
-      key: 'admins',
+      dataIndex: 'users',
+      key: 'users',
       align: 'right' as const,
-      render: (admins: string[] = [], record: any) => {
+      render: (users:{id:string,name:string}[], record: any) => {
         const content = (
           <div style={{ minWidth: 200, padding: 8, direction: 'rtl' }}>
             <List
               size="small"
-              dataSource={admins}
-              renderItem={admin => (
+              dataSource={users}
+              renderItem={user => (
                 <List.Item style={{ padding: '6px 0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'row-reverse', textAlign: 'right' }}>
-                  <Typography.Text style={{ fontWeight: 500 }}>{admin}</Typography.Text>
+                  <Typography.Text style={{ fontWeight: 500 }}>{user.name}</Typography.Text>
                   <UserOutlined style={{ color: '#1976d2', fontSize: 16, marginRight: 8 }} />
                 </List.Item>
               )}
@@ -147,8 +148,8 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
             <span
               style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
             >
-              {admins && admins.length > 0 ? admins[0] : ''}
-              {admins && admins.length > 1 && (
+              {users && users.length > 0 ? users[0].name : ''}
+              {users && users.length > 1 && (
                 <span
                   style={{
                     background: '#e3f2fd',
@@ -162,7 +163,7 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
                     alignItems: 'center',
                   }}
                 >
-                  + {admins.length - 1}
+                  + {users.length - 1}
                 </span>
               )}
             </span>

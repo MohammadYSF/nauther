@@ -21,15 +21,26 @@ type GetRolesResponseDataModel = {
 
   }[]
 };
+type DeleteRolePayload = {
+  ids: string[]
+};
+type DeleteRoleResponseDataModel = {
+  statusCode: number;
+  message: string;
+  validationErrors: any;
+  data: {
+    ids: string[]
+  };
+};
 type CreateRolePayload = {
   name: string,
   displayName: string,
-  permissionIds: string[]
+  permissions: string[]
 };
 type EditRolePayload = {
   name: string,
   displayName: string,
-  permissionIds: string[]
+  permissions: string[]
 };
 type CreateRoleResponseModel = {
   statusCode: number;
@@ -76,6 +87,7 @@ export const updateRole = async (id: string, data: CreateRolePayload): Promise<C
   return res.data;
 };
 
-export const deleteRole = async (id: string): Promise<void> => {
-  await api.delete(`/roles/${id}`);
+export const deleteRole = async (data: any) => {
+  let res = await api.delete<DeleteRoleResponseDataModel>(`/role`,{data});
+  return res.data;
 }; 

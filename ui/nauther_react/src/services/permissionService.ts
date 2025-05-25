@@ -4,18 +4,29 @@ type CreatePermissionPayload = {
   displayName: string
 };
 type EditPermissionPayload = {
-  id:string,
+  id: string,
   name: string,
   displayName: string
 };
+type DeletePermissionPayload = {
+  ids: string[]
+};
+type DeletePermissionResponseDataModel = {
+  statusCode: number,
+  message: string,
+  validationErrors: any,
+  data: {
+    ids: string[]
+  }
+}
 type CreatePermissionResponseDataModel = {
   id: string
 };
 type EditPermissionResponseDataModel = {
-  id: string 
+  id: string
 }
 type GetPermissionsResponseDataModel = {
-  metadata:{total:number}
+  metadata: { total: number }
   data: {
     id: string,
     name: string,
@@ -55,10 +66,12 @@ export const editPermission = async (data: EditPermissionPayload) => {
   let res = await api.put<EditPermissionResponseDataModel>(`/permission/${data.id}`, data);
   return res.data;
 }
-export const deletePermission = async (id: string): Promise<void> => {
-  await api.delete(`/permissions/${id}`);
+export const deletePermissions = async (data: any) => {
+  let res = await api.delete<DeletePermissionResponseDataModel>(`/permission`, { data });
+  return res.data;
 };
-export type {EditPermissionResponseDataModel,CreatePermissionResponseDataModel,CreatePermissionPayload,
+export type {
+  EditPermissionResponseDataModel, CreatePermissionResponseDataModel, CreatePermissionPayload,
   EditPermissionPayload,
-  GetPermissionByIdResponseDataModel,GetPermissionsResponseDataModel
+  GetPermissionByIdResponseDataModel, GetPermissionsResponseDataModel
 }

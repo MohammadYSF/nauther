@@ -30,19 +30,14 @@ export default function RoleNewPage() {
     }
   }, [id, isEdit]);
 
-  const onFinish = async (values:any) => {
-    const roleData = {
-      name: values["roleName"],
-      displayName: values["displayName"],
-      permissionIds: values["selectedPermissions"]
-    };
+  const onFinish = async (values:any) => {    
 
     try {
       if (isEdit && id) {
         // Update existing role
-        await updateRole(id, { ...roleData });
+        await updateRole(id, values);
       } else {
-        const res = await createRole({ ...roleData });
+        const res = await createRole(values);
         if (res && res.statusCode === 201) {
           messageApi.success('نقش با موفقیت ایجاد شد');
           setTimeout(() => {

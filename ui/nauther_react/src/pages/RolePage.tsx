@@ -1,26 +1,23 @@
 import { Button, Typography, Card, Affix } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import RoleTable from '../components/RoleTable';
-import { useEffect, useState } from 'react';
-import { getRoles, deleteRole } from '../services/roleService';
+import { useState, useEffect } from 'react';
+import { deleteRole } from '../services/roleService';
 
 export default function RolePage() {
   const navigate = useNavigate();
-  const [roles, setRoles] = useState([] as any[]);
   const [selected, setSelected] = useState<string[]>([]);
+  const [refresh, setRefresh] = useState(false);
   const handleDeleteSelected = async () => {
     try {
-      await Promise.all(selected.map(roleId => deleteRole(roleId)));
+      deleteRole({"ids":selected});
       setSelected([]);
-      // Refresh roles after deletion
-      getRoles().then(res => setRoles(res.data));
+      setRefresh(prev => !prev);
     } catch (error) {
       console.error('Error deleting roles:', error);
     }
   };
-  useEffect(() => {
-    getRoles().then(res => setRoles(res.data));
-  }, []);
+
 
   return (
     <Card style={{ padding: 32, maxWidth: 900, margin: '0px auto', border: 'none' }}>
@@ -41,6 +38,7 @@ export default function RolePage() {
           selectedRowKeys: selected,
           onChange: (s) => setSelected(s as string[]),
         }}
+        refresh={refresh}
       />
       <Affix offsetBottom={20}>
         <Button

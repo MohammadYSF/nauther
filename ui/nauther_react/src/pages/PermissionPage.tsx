@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Table, Input, Button, Spin, Card, Affix } from 'antd';
 import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
-import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel, deletePermission } from '../services/permissionService';
+import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel, deletePermissions } from '../services/permissionService';
 import type { ApiError } from '../services/api';
 import { useClickAway } from 'react-use';
 
@@ -95,7 +95,8 @@ export default function PermissionPage() {
 
   const handleDeletePermission = async (id: string) => {
     try {
-      await deletePermission(id);
+      
+      await deletePermissions({"ids":[id]});
       fetchPermissions(page, pageSize);
     } catch (error) {
       console.error('Error deleting permission:', error);
@@ -104,7 +105,7 @@ export default function PermissionPage() {
 
   const handleDeleteSelectedPermissions = async () => {
     try {
-      await Promise.all(selectedPermissions.map(permissionId => deletePermission(permissionId)));
+      await deletePermissions({"ids":selectedPermissions});
       setSelectedPermissions([]);
       fetchPermissions(page, pageSize);
     } catch (error) {
