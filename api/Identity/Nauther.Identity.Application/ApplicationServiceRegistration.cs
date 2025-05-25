@@ -1,4 +1,5 @@
 using System.Reflection;
+using auther.Identity.Application.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Nauther.Identity.Application.Services.Implementations;
 using Nauther.Identity.Application.Services.Interfaces;

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nauther.Framework.RestApi.Attributes;
 using Nauther.Identity.Application.Features.Auth.Commands.Register;
+using Nauther.Identity.Application.Features.User.Commands.DeleteUser;
 using Nauther.Identity.Application.Features.User.Commands.EditUser;
 using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
@@ -21,6 +22,12 @@ public class UserController(IMediator mediator) : ControllerBase
     }
     [HttpPut("edit")]
     public async Task<IActionResult> Edit([FromBody] EditUserCommand request)
+    {
+        var result = await _mediator.Send(request);
+        return StatusCode(result.StatusCode, result);
+    }
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromBody] DeleteUserCommand request)
     {
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);

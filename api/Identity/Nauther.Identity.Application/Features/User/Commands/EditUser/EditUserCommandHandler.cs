@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using auther.Identity.Application.Services.Interfaces;
 using MediatR;
 using Nauther.Framework.Application.Services.RequestValidatorService;
 using Nauther.Framework.Shared.Responses;

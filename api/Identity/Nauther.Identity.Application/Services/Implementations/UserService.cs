@@ -1,3 +1,4 @@
+using auther.Identity.Application.Services.Interfaces;
 using AutoMapper;
 using EasyCaching.Core;
 using MediatR;
@@ -9,6 +10,7 @@ using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyOtp;
+using Nauther.Identity.Application.Features.User.Commands.DeleteUser;
 using Nauther.Identity.Application.Features.User.Commands.EditUser;
 using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
@@ -319,6 +321,21 @@ public class UserService(
         {
             StatusCode = StatusCodes.Status200OK,
             Data = data
+        };
+    }
+
+    public async Task<BaseResponse> Delete(DeleteUserCommand request, CancellationToken cancellationToken)
+    {
+        var users = await _userRepository.GetByIds(request.Ids, cancellationToken);
+        await _userRepository.RemoveRange(users, cancellationToken);
+        await _userRepository.SaveChangesAsync();
+        return new BaseResponse
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Data = new DeleteUserCommandResponse
+            {
+                Ids = users.Select(a => a.Id).ToList()
+            }
         };
     }
 }

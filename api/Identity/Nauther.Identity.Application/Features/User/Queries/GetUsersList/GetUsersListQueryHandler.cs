@@ -1,3 +1,4 @@
+using auther.Identity.Application.Services.Interfaces;
 using AutoMapper;
 using MediatR;
 using Nauther.Framework.Shared.Responses;

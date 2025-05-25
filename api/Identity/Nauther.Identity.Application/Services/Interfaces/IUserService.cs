@@ -5,14 +5,17 @@ using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyOtp;
+using Nauther.Identity.Application.Features.User.Commands.DeleteUser;
 using Nauther.Identity.Application.Features.User.Commands.EditUser;
 using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
 
-namespace Nauther.Identity.Application.Services.Interfaces;
+namespace auther.Identity.Application.Services.Interfaces;
 
 public interface IUserService
 {
+    Task<BaseResponse> Delete(DeleteUserCommand request,
+CancellationToken cancellationToken);
     Task<BaseResponse> Edit(EditUserCommand request,
  CancellationToken cancellationToken);
     Task<BaseResponse> GetUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
