@@ -18,6 +18,17 @@ type CreateAdminPayload = {
   password: string,
   confirmPassword: string
 }
+type DeleteAdminPayload = {
+  ids:string[]
+}
+type DeleteAdminResponseDataModel = {
+  statusCode: number;
+  message: string;
+  validationErrors: any;
+  data: {
+    ids: string[]
+  }
+}
 type EditAdminPayload = {
   name: string,
   roles: string[],
@@ -71,5 +82,9 @@ export const createAdmin = async (data: CreateAdminPayload): Promise<CreateAdmin
 }
 export const editAdmin = async (id: string, data: EditAdminPayload): Promise<EditAdminResponseDataModel> => {
   let res = await api.put<EditAdminResponseDataModel>(`/user/edit`, data);
+  return res.data;
+} 
+export const deleteAdmin = async ( data: DeleteAdminPayload): Promise<DeleteAdminResponseDataModel> => {
+  let res = await api.delete<DeleteAdminResponseDataModel>(`/user`,{data:data});
   return res.data;
 } 
