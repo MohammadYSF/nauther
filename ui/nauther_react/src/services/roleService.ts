@@ -10,7 +10,9 @@ type GetRolesResponseDataModel = {
   data: {
     id: string,
     name: string,
-    displayName: string
+    displayName: string,
+  permissions: { id: string, name: string,displayName:string }[],
+
   }[]
 };
 type CreateRolePayload = {

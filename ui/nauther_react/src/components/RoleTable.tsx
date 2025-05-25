@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRoles } from '../services/roleService';
-import { Table, Input, Typography } from 'antd';
+import { Table, Input, Typography, Popover, List, Button } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import AdminPopover from './AdminPopover';
 import PermissionPopover from './PermissionPopover';
@@ -77,62 +77,102 @@ export default function   RoleTable({ rowSelection }: RoleTableProps) {
       dataIndex: 'permissions',
       key: 'permissions',
       align: 'right' as const,
-      render: (permissions: string[], record: any) => (
-        <span
-          style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
-          onClick={handlePermissionClick}
-        >
-          {permissions && permissions.length > 0 ? permissions[0] : ''}
-          {permissions && permissions.length > 1 && (
+      render: (permissions: { id: string, name?: string, displayName: string }[] = [], record: any) => {
+        const content = (
+          <div style={{ minWidth: 220, padding: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography.Text strong>دسترسی‌ها</Typography.Text>
+            </div>
+            <List
+              size="small"
+              dataSource={permissions}
+              renderItem={perm => (
+                <List.Item>
+                  <Typography.Text>{perm.displayName}</Typography.Text>
+                </List.Item>
+              )}
+              style={{ marginTop: 8 }}
+            />
+          </div>
+        );
+        return (
+          <Popover content={content} trigger="click">
             <span
-              style={{
-                background: '#e3f2fd',
-                color: '#1976d2',
-                fontSize: 10,
-                borderRadius: 4,
-                padding: '0 4px',
-                marginLeft: 8,
-                height: 20,
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
+              style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
             >
-              + {permissions.length - 1}
+              {permissions && permissions.length > 0 ? permissions[0].displayName : ''}
+              {permissions && permissions.length > 1 && (
+                <span
+                  style={{
+                    background: '#e3f2fd',
+                    color: '#1976d2',
+                    fontSize: 10,
+                    borderRadius: 4,
+                    padding: '0 4px',
+                    marginLeft: 8,
+                    height: 20,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  + {permissions.length - 1}
+                </span>
+              )}
             </span>
-          )}
-        </span>
-      ),
+          </Popover>
+        );
+      },
     },
     {
       title: 'ادمین های نقش',
       dataIndex: 'admins',
       key: 'admins',
       align: 'right' as const,
-      render: (admins: string[], record: any) => (
-        <span
-          style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
-          onClick={handleAdminClick}
-        >
-          {admins && admins.length > 0 ? admins[0] : ''}
-          {admins && admins.length > 1 && (
+      render: (admins: string[] = [], record: any) => {
+        const content = (
+          <div style={{ minWidth: 220, padding: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography.Text strong>ادمین‌های نقش</Typography.Text>
+            </div>
+            <List
+              size="small"
+              dataSource={admins}
+              renderItem={admin => (
+                <List.Item>
+                  <Typography.Text>{admin}</Typography.Text>
+                </List.Item>
+              )}
+              style={{ marginTop: 8 }}
+            />
+          </div>
+        );
+        return (
+          <Popover content={content} trigger="click">
             <span
-              style={{
-                background: '#e3f2fd',
-                color: '#1976d2',
-                fontSize: 10,
-                borderRadius: 4,
-                padding: '0 4px',
-                marginLeft: 8,
-                height: 20,
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
+              style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}
             >
-              + {admins.length - 1}
+              {admins && admins.length > 0 ? admins[0] : ''}
+              {admins && admins.length > 1 && (
+                <span
+                  style={{
+                    background: '#e3f2fd',
+                    color: '#1976d2',
+                    fontSize: 10,
+                    borderRadius: 4,
+                    padding: '0 4px',
+                    marginLeft: 8,
+                    height: 20,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  + {admins.length - 1}
+                </span>
+              )}
             </span>
-          )}
-        </span>
-      ),
+          </Popover>
+        );
+      },
     },
   ];
 

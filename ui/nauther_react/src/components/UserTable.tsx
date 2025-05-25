@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdmins } from '../services/adminService';
-import { Table, Input, Select, Checkbox, Avatar } from 'antd';
+import { Table, Input, Select, Checkbox, Avatar, Popover, List, Typography } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import RolePopover from './RolePopover';
 import { getAllUsers, type User } from '../services/userService';
@@ -139,14 +139,98 @@ export default function UserTable({ selected, setSelected }: { selected: string[
       dataIndex: 'roles',
       key: 'roles',
       align: 'right' as const,
-      render: (roles: { displayName: string }[]) => roles.map(role => <span key={role.displayName} style={{ marginRight: 8 }}>{role.displayName}</span>),
+      render: (roles: { displayName: string }[] = []) => {
+        const content = (
+          <div style={{ minWidth: 220, padding: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography.Text strong>نقش‌ها</Typography.Text>
+            </div>
+            <List
+              size="small"
+              dataSource={roles}
+              renderItem={role => (
+                <List.Item>
+                  <Typography.Text>{role.displayName}</Typography.Text>
+                </List.Item>
+              )}
+              style={{ marginTop: 8 }}
+            />
+          </div>
+        );
+        return (
+          <Popover content={content} trigger="click">
+            <span style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}>
+              {roles && roles.length > 0 ? roles[0].displayName : ''}
+              {roles && roles.length > 1 && (
+                <span
+                  style={{
+                    background: '#e3f2fd',
+                    color: '#1976d2',
+                    fontSize: 10,
+                    borderRadius: 4,
+                    padding: '0 4px',
+                    marginLeft: 8,
+                    height: 20,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  + {roles.length - 1}
+                </span>
+              )}
+            </span>
+          </Popover>
+        );
+      },
     },
     {
       title: 'دسترسی‌ها',
       dataIndex: 'permissions',
       key: 'permissions',
       align: 'right' as const,
-      render: (permissions: { displayName: string }[]) => permissions.map(permission => <span key={permission.displayName} style={{ marginRight: 8 }}>{permission.displayName}</span>),
+      render: (permissions: { displayName: string }[] = []) => {
+        const content = (
+          <div style={{ minWidth: 220, padding: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography.Text strong>دسترسی‌ها</Typography.Text>
+            </div>
+            <List
+              size="small"
+              dataSource={permissions}
+              renderItem={perm => (
+                <List.Item>
+                  <Typography.Text>{perm.displayName}</Typography.Text>
+                </List.Item>
+              )}
+              style={{ marginTop: 8 }}
+            />
+          </div>
+        );
+        return (
+          <Popover content={content} trigger="click">
+            <span style={{ cursor: 'pointer', color: '#337ab7', fontWeight: 500 }}>
+              {permissions && permissions.length > 0 ? permissions[0].displayName : ''}
+              {permissions && permissions.length > 1 && (
+                <span
+                  style={{
+                    background: '#e3f2fd',
+                    color: '#1976d2',
+                    fontSize: 10,
+                    borderRadius: 4,
+                    padding: '0 4px',
+                    marginLeft: 8,
+                    height: 20,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  + {permissions.length - 1}
+                </span>
+              )}
+            </span>
+          </Popover>
+        );
+      },
     },
     {
       title: 'آخرین لاگین',

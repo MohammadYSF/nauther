@@ -1,12 +1,13 @@
 import { Typography, Input, Button, Select, Card, Form } from 'antd';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getRoleById, getRoles, createRole, updateRole } from '../services/roleService';
 import { getPermissions, type GetPermissionsResponseDataModel } from '../services/permissionService';
 
 export default function RoleNewPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
+  const navigate = useNavigate();
 
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
   const [roleName, setRoleName] = useState('');
@@ -87,6 +88,9 @@ export default function RoleNewPage() {
         <Form.Item>
           <Button type="primary" style={{ minWidth: 100, borderRadius: 8 }} htmlType="submit">
             ذخیره
+          </Button>
+          <Button style={{ minWidth: 100, borderRadius: 8, marginRight: 8 }} onClick={() => navigate(-1)}>
+            انصراف
           </Button>
         </Form.Item>
       </Form>
