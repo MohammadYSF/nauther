@@ -10,6 +10,7 @@ using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyOtp;
+using Nauther.Identity.Application.Features.User.Commands.CheckPassword;
 using Nauther.Identity.Application.Features.User.Commands.DeleteUser;
 using Nauther.Identity.Application.Features.User.Commands.EditUser;
 using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
@@ -337,5 +338,43 @@ public class UserService(
                 Ids = users.Select(a => a.Id).ToList()
             }
         };
+    }
+
+    public async Task<BaseResponse> CheckPassword(CheckPasswordCommand request, CancellationToken cancellationToken)
+    {
+        var res = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
+        var filtered = res.Values
+    .Select(x => JObject.Parse(x))
+    .Where(obj => obj["userCode"]?.ToString() == request.Username)
+    .FirstOrDefault();
+        if (filtered == null)
+        {
+            return new BaseResponse
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                Message = Messages.InvalidUsername
+            };
+        }
+
+        var user = await _userRepository.GetById(filtered["id"]?.ToString(), cancellationToken);
+        var userCredential = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
+        bool f = _passwordHasher.VerifyPassword(request.Password, userCredential.PasswordHash);
+        if ( f)
+        {
+            return new BaseResponse
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                Message = Messages.InvalidPassword
+            };
+        }
+        return new BaseResponse
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Data = new CheckPasswordResponse
+            {
+                Ok = true
+            }
+        };
+
     }
 }

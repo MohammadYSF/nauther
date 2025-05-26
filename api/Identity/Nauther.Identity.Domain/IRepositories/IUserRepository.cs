@@ -5,6 +5,7 @@ namespace Nauther.Identity.Domain.IRepositories;
 
 public interface IUserRepository : IBaseRepository<User>
 {
+    Task<User> GetById(string id, CancellationToken cancellationToken);
     Task<List<User>> GetByIds(List<string> ids, CancellationToken cancellationToken);
     Task<User?> GetUserByPropertiesAsync(string id, string? phoneNumber,
         string? nationalCode, CancellationToken cancellationToken);

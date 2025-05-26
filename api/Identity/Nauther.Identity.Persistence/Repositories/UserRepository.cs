@@ -34,4 +34,11 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
     {
         return await _context.Users.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken);
     }
+
+    public async  Task<User> GetById(string id, CancellationToken cancellationToken)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .FirstAsync(a => a.Id == id, cancellationToken);
+    }
 }
