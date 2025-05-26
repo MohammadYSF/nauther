@@ -338,7 +338,7 @@ public class UserService(
                 Ids = users.Select(a => a.Id).ToList()
             }
         };
-    }
+    }   
 
     public async Task<BaseResponse> CheckPassword(CheckPasswordCommand request, CancellationToken cancellationToken)
     {
@@ -359,7 +359,7 @@ public class UserService(
         var user = await _userRepository.GetById(filtered["id"]?.ToString(), cancellationToken);
         var userCredential = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
         bool f = _passwordHasher.VerifyPassword(request.Password, userCredential.PasswordHash);
-        if ( f)
+        if ( !f)
         {
             return new BaseResponse
             {
