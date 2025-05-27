@@ -14,6 +14,7 @@ using Nauther.Framework.Infrastructure.Middlewares.CorrelationId;
 using Nauther.Framework.Infrastructure.Services.FileService;
 using EasyCaching.Core.Configurations;
 using StackExchange.Redis;
+using Nauther.Framework.Infrastructure.Services.JwtToken;
 
 namespace Nauther.Framework.Infrastructure.Extensions;
 
@@ -116,6 +117,8 @@ public static class InfrastructureServiceRegistration
                 };
             });
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         services.AddAuthorization();
 

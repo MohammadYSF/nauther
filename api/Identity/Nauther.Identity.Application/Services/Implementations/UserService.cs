@@ -262,13 +262,6 @@ public class UserService(
         throw new NotImplementedException();
     }
 
-    public async Task<BaseResponse<LoginWithPasswordCommandResponse>> LoginWithPassword(
-        LoginWithPasswordCommand request,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
     private async Task<bool> IsUserExist(Guid? id, string? phoneNumber,
         string? username, CancellationToken cancellationToken)
     {
@@ -338,9 +331,9 @@ public class UserService(
                 Ids = users.Select(a => a.Id).ToList()
             }
         };
-    }   
+    }
 
-    public async Task<BaseResponse> CheckPassword(CheckPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<CheckPasswordResponse>> CheckPassword(CheckPasswordCommand request, CancellationToken cancellationToken)
     {
         var res = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
         var filtered = res.Values
@@ -349,7 +342,7 @@ public class UserService(
     .FirstOrDefault();
         if (filtered == null)
         {
-            return new BaseResponse
+            return new BaseResponse<CheckPasswordResponse>
             {
                 StatusCode = StatusCodes.Status400BadRequest,
                 Message = Messages.InvalidUsername
@@ -359,19 +352,20 @@ public class UserService(
         var user = await _userRepository.GetById(filtered["id"]?.ToString(), cancellationToken);
         var userCredential = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
         bool f = _passwordHasher.VerifyPassword(request.Password, userCredential.PasswordHash);
-        if ( !f)
+        if (!f)
         {
-            return new BaseResponse
+            return new BaseResponse<CheckPasswordResponse>
             {
                 StatusCode = StatusCodes.Status400BadRequest,
                 Message = Messages.InvalidPassword
             };
         }
-        return new BaseResponse
+        return new BaseResponse<CheckPasswordResponse>
         {
             StatusCode = StatusCodes.Status200OK,
             Data = new CheckPasswordResponse
             {
+                Id = user.Id.ToString(),
                 Ok = true
             }
         };

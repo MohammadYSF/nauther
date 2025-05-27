@@ -9,10 +9,10 @@ using Nauther.Framework.Shared.Responses;
 
 namespace Nauther.Identity.Application.Features.User.Commands.CheckPassword
 {
-    public class CheckPasswordCommandHandler(IUserService userService) : IRequestHandler<CheckPasswordCommand, BaseResponse>
+    public class CheckPasswordCommandHandler(IUserService userService) : IRequestHandler<CheckPasswordCommand, BaseResponse<CheckPasswordResponse>>
     {
         private readonly IUserService _userService = userService;
-        public async Task<BaseResponse> Handle(CheckPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<BaseResponse<CheckPasswordResponse>> Handle(CheckPasswordCommand request, CancellationToken cancellationToken)
         {
             return await _userService.CheckPassword(request, cancellationToken);
         }

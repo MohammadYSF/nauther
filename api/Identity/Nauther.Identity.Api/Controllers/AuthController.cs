@@ -39,7 +39,6 @@ public class AuthController(IMediator mediator) : ControllerBase
     }
     
     [HttpPost("login/password")]
-    [GatewayAuthorization]
     public async Task<IActionResult> LoginWithPassword([FromBody] LoginWithPasswordCommand request)
     {
         var result = await _mediator.Send(request);

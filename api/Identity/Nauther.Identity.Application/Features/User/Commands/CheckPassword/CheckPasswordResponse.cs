@@ -9,5 +9,6 @@ namespace Nauther.Identity.Application.Features.User.Commands.CheckPassword
     public class CheckPasswordResponse
     {
         public bool Ok { get; set; }
+        public required string Id { get; set; }
     }
 }

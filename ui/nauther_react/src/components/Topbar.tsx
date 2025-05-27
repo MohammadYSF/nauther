@@ -1,10 +1,13 @@
 import { Typography, Avatar, Popover, Button, Divider } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Topbar() {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const userName = 'سهند افشردی';
+
+  const {accessToken} = useAuth();
 
   const handleLogout = () => {
     // TODO: Implement logout logic

@@ -15,7 +15,7 @@ namespace auther.Identity.Application.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<BaseResponse> CheckPassword(CheckPasswordCommand request,
+    Task<BaseResponse<CheckPasswordResponse>> CheckPassword(CheckPasswordCommand request,
 CancellationToken cancellationToken);
 
     Task<BaseResponse> Delete(DeleteUserCommand request,
@@ -32,5 +32,4 @@ CancellationToken cancellationToken);
     Task<BaseResponse> Register(Dima_RegisterUserCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<VerifyOtpCommandResponse>> VerifyOtp(VerifyOtpCommand request, CancellationToken cancellationToken);
-    Task<BaseResponse<LoginWithPasswordCommandResponse>> LoginWithPassword(LoginWithPasswordCommand request, CancellationToken cancellationToken);
 }

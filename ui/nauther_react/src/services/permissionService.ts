@@ -60,7 +60,7 @@ export const getPermissionById = async (id: string) => {
 export const createPermission = async (data: CreatePermissionPayload) => {
 
   let res = await api.post<CreatePermissionResponseDataModel>('/permission', data);
-  res.data;
+  return res.data;
 }
 export const editPermission = async (data: EditPermissionPayload) => {
   let res = await api.put<EditPermissionResponseDataModel>(`/permission/${data.id}`, data);
