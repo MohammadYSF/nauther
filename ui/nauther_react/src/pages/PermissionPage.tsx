@@ -41,21 +41,21 @@ export default function PermissionPage() {
     };
   }, [debouncedSearch]);
 
-  useClickAway(editRowRef, () => {
-    if (editId) {
-      setEditId(null);
-      setEditValue('');
-      setEditValueDisplayName('');
-    }
-  });
+  // useClickAway(editRowRef, () => {
+  //   if (editId) {
+  //     setEditId(null);
+  //     setEditValue('');
+  //     setEditValueDisplayName('');
+  //   }
+  // });
 
-  useClickAway(addRowRef, () => {
-    if (addMode) {
-      setAddMode(false);
-      setAddValue('');
-      setAddValueDisplayName('');
-    }
-  });
+  // useClickAway(addRowRef, () => {
+  //   if (addMode) {
+  //     setAddMode(false);
+  //     setAddValue('');
+  //     setAddValueDisplayName('');
+  //   }
+  // });
 
   const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10, searchString = '') => {
     setLoading(true);
@@ -102,14 +102,20 @@ export default function PermissionPage() {
   };
 
   const handleAddSave = async () => {
+    console.log("****",addValue);
     if (!addValue.trim()) return;
     setSaving(true);
-    await createPermission({ name: addValue, displayName: addValueDisplayName });
-    setAddMode(false);
-    setAddValue('');
-    setAddValueDisplayName('');
-    fetchPermissions(page, pageSize, search);
-    setSaving(false);
+    try {
+      await createPermission({ name: addValue, displayName: addValueDisplayName });
+      setAddMode(false);
+      setAddValue('');
+      setAddValueDisplayName('');
+      fetchPermissions(page, pageSize, search);
+    } catch (error) {
+      console.error('Error creating permission:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDeletePermission = async (id: string) => {
@@ -247,23 +253,67 @@ export default function PermissionPage() {
             style={{ width: 200 }}
             prefix={<SearchOutlined style={{ fontSize: 16 }} />}
           />
-          <Button
-            type={addMode ? "primary" : "primary"}
-            danger={addMode ? true : false}
-            style={{ borderRadius: 8 }}
-            icon={addMode ? <CloseOutlined /> : <PlusOutlined />}
-            shape="circle"
-            aria-label={addMode ? "انصراف" : "افزودن دسترسی"}
-            onClick={() => {
-              if (addMode) {
-                setAddMode(false);
-                setAddValue("");
-                setAddValueDisplayName("");
-              } else {
-                handleAdd();
-              }
-            }}
-          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(addMode || editId) && (
+              <Button
+                type="default"
+                danger
+                style={{ 
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  height: 32,
+                  padding: '0 16px',
+                  borderColor: '#ff4d4f',
+                  color: '#ff4d4f'
+                }}
+                icon={<CloseOutlined />}
+                onClick={() => {
+                  if (addMode) {
+                    setAddMode(false);
+                    setAddValue("");
+                    setAddValueDisplayName("");
+                  } else if (editId) {
+                    setEditId(null);
+                    setEditValue("");
+                    setEditValueDisplayName("");
+                  }
+                }}
+              >
+                انصراف
+              </Button>
+            )}
+            <Button
+              type={editId ? "primary" : "primary"}
+              style={{ 
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                height: 32,
+                padding: '0 16px',
+                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.045)',
+                backgroundColor: editId ? '#52c41a' : '#1890ff',
+                borderColor: editId ? '#52c41a' : '#1890ff'
+              }}
+              icon={editId ? <SaveOutlined /> : <PlusOutlined />}
+              onClick={() => {
+                console.log("HERE");
+                console.log("editId",editId);
+                console.log("addMode",addMode);
+                if (editId) {
+                  handleEditSave(editId);
+                } else if (addMode) {
+                  handleAddSave();
+                } else {
+                  handleAdd();
+                }
+              }}
+            >
+              {editId ? 'ذخیره' : addMode ? 'افزودن' : 'افزودن دسترسی'}
+            </Button>
+          </div>
         </div>
       </div>
       <Spin spinning={loading} tip="در حال بارگذاری...">
