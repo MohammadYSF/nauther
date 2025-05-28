@@ -6,4 +6,5 @@ namespace Nauther.Identity.Application.Features.Role.Queries.GetRolesList;
 
 public class GetRolesListQuery : PaginationListDto, IRequest<BaseResponse<IList<GetRolesQueryResponse>>>
 {
+    public string? Search { get; set; }
 }

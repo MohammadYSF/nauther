@@ -37,11 +37,11 @@ public class RoleService(
     private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
 
-    public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRolesList(PaginationListDto paginationListDto,
+    public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRolesList(string search, PaginationListDto paginationListDto,
         CancellationToken cancellationToken)
     {
-        var total = await _roleRepository.GetCountAsync(cancellationToken);
-        var roles = await _roleRepository.GetAllListAsync(paginationListDto, cancellationToken);
+        var total = await _roleRepository.GetCountAsync(search,cancellationToken);
+        var roles = await _roleRepository.GetAllListAsync(search, paginationListDto, cancellationToken);
         if (roles == null || roles.Any() == false)
             return new BaseResponse<IList<GetRolesQueryResponse>?>()
             {

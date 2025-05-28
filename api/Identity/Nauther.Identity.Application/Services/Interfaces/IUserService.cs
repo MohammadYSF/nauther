@@ -23,7 +23,7 @@ CancellationToken cancellationToken);
 
     Task<BaseResponse> Edit(EditUserCommand request,
  CancellationToken cancellationToken);
-    Task<BaseResponse> GetUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
+    Task<BaseResponse> GetUsersList(GetUsersListQuery query, CancellationToken cancellationToken);
     Task<BaseResponse> GetExternalUsersList(PaginationListDto paginationListDto, CancellationToken cancellationToken);
 
     Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username, string? phoneNumber,

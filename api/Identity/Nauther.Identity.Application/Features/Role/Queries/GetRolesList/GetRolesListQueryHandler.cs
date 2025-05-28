@@ -14,7 +14,7 @@ public class GetRolesListQueryHandler(IRoleService roleService,IMapper mapper) :
     public async Task<BaseResponse<IList<GetRolesQueryResponse>>> Handle(GetRolesListQuery request,
         CancellationToken cancellationToken)
     {
-        var roles = await _roleService.GetRolesList(request,cancellationToken);
+        var roles = await _roleService.GetRolesList(request.Search,request,cancellationToken);
         return roles;
     }
 }

@@ -8,6 +8,7 @@ using Nauther.Identity.Application.Features.Permission.Commands.De_etePermission
 using Nauther.Identity.Application.Features.Permission.Commands.DeletePermission;
 using Nauther.Identity.Application.Features.Permission.Commands.EditPermission;
 using Nauther.Identity.Application.Features.Permission.Queries;
+using Nauther.Identity.Application.Features.Permission.Queries.GetPermissionList;
 using Nauther.Identity.Application.Resources;
 using Nauther.Identity.Application.Services.Interfaces;
 using Nauther.Identity.Domain.Entities;
@@ -24,11 +25,11 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
-    public async Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionsList(PaginationListDto paginationListDto, CancellationToken cancellationToken)
+    public async Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionsList(GetPermissionsListQuery query, CancellationToken cancellationToken)
     {
-        var total = await _permissionRepository.GetCountAsync(cancellationToken);
+        var total = await _permissionRepository.GetCountAsync(query.Search, cancellationToken);
 
-        var permissions = await _permissionRepository.GetAllListAsync(paginationListDto, cancellationToken);
+        var permissions = await _permissionRepository.GetAllListAsync(query.Search, query, cancellationToken);
         if (permissions == null || permissions.Any() == false)
             return new BaseResponse<IList<GetPermissionsQueryResponse>?>()
             {

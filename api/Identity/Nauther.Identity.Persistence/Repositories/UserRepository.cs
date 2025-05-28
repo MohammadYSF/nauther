@@ -12,6 +12,8 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
 
     public override async Task<IList<User>?> GetAllListAsync(PaginationListDto paginationListDto, CancellationToken cancellationToken)
     {
+        if (paginationListDto.PageSize == -1) return await _context.Users
+            .AsNoTracking().ToListAsync();
         return await _context.Users
             .AsNoTracking()
             .Skip((paginationListDto.PageNumber - 1) * paginationListDto.PageSize)
@@ -35,7 +37,7 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
         return await _context.Users.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken);
     }
 
-    public async  Task<User> GetById(string id, CancellationToken cancellationToken)
+    public async Task<User> GetById(string id, CancellationToken cancellationToken)
     {
         return await _context.Users
             .AsNoTracking()

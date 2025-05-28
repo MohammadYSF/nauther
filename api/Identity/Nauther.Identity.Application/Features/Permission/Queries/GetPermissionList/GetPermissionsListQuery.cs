@@ -6,5 +6,5 @@ namespace Nauther.Identity.Application.Features.Permission.Queries.GetPermission
 
 public class GetPermissionsListQuery : PaginationListDto, IRequest<BaseResponse<IList<GetPermissionsQueryResponse>>>
 {
-    
+    public string? Search { get; set; } = string.Empty;
 }
