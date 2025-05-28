@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { login, type LoginPayload, type LoginPayloadResponseDataModel } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,8 +12,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+
     const [user, setUser] = useState<string | null>(null);
-    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("accesstoken"));
     const navigate = useNavigate();
     const loginUser = async (payload: LoginPayload, returnUrl: string) => {
         try {

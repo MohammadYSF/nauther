@@ -211,7 +211,7 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
         })}
         style={{ direction: 'rtl' }}
       />
-      <AdminPopover
+      {/* <AdminPopover
         anchorEl={adminPopoverAnchor}
         open={Boolean(adminPopoverAnchor)}
         onClose={handleAdminPopoverClose}
@@ -220,7 +220,7 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
         anchorEl={permissionPopoverAnchor}
         open={Boolean(permissionPopoverAnchor)}
         onClose={handlePermissionPopoverClose}
-      />
+      /> */}
     </>
   );
 }
