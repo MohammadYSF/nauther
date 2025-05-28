@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  nather_ui:
+    container_name: nather_ui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Map port 3000 on the host to port 80 in the container
+    volumes:
+      - .:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
