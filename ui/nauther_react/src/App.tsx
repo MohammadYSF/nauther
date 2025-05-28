@@ -1,3 +1,4 @@
+import React from 'react';
 import { ConfigProvider } from 'antd';
 import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
 import AdminPage from './pages/AdminPage';
@@ -8,7 +9,9 @@ import PermissionPage from './pages/PermissionPage';
 import Layout from './components/Layout';
 import { OidcProvider, OidcSecure } from '@axa-fr/react-oidc';
 import Login from './pages/LoginPage';
+import NotFoundPage from './pages/NotFoundPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { themeConfig } from './theme/themeConfig';
 
 // This configuration use hybrid mode
 // ServiceWorker are used if available (more secure) else tokens are given to the client
@@ -24,19 +27,84 @@ const configuration = {
   demonstrating_proof_of_possession: false,
 };
 
-
-function App() {
+const App: React.FC = () => {
   return (
-    <OidcProvider configuration={configuration}>
-
-      <ConfigProvider direction="rtl">
-        <BrowserRouter>
+    <ConfigProvider 
+      theme={themeConfig}
+      direction="rtl"
+      locale={{
+        locale: 'fa_IR',
+        Pagination: {
+          items_per_page: 'در صفحه',
+          jump_to: 'رفتن به',
+          jump_to_confirm: 'تایید',
+          page: 'صفحه',
+          prev_page: 'صفحه بعدی',
+          next_page: 'صفحه قبلی',
+          prev_5: '۵ صفحه بعدی',
+          next_5: '۵ صفحه قبلی',
+          prev_3: '۳ صفحه بعدی',
+          next_3: '۳ صفحه قبلی'
+        },
+        Table: {
+          emptyText: 'داده‌ای وجود ندارد.',
+          filterTitle: 'فیلتر',
+          filterConfirm: 'تایید',
+          filterReset: 'پاک کردن',
+          selectAll: 'انتخاب همه',
+          selectInvert: 'معکوس کردن انتخاب',
+          selectionAll: 'انتخاب همه',
+          sortTitle: 'مرتب‌سازی',
+          expand: 'نمایش جزئیات',
+          collapse: 'بستن جزئیات'
+        },
+        Select: {
+          notFoundContent: 'موردی یافت نشد'
+        },
+        DatePicker: {
+          lang: {
+            locale: 'fa_IR',
+            today: 'امروز',
+            now: 'اکنون',
+            backToToday: 'بازگشت به امروز',
+            ok: 'تایید',
+            clear: 'پاک کردن',
+            month: 'ماه',
+            year: 'سال',
+            week: 'هفته',
+            timeSelect: 'انتخاب زمان',
+            dateSelect: 'انتخاب تاریخ',
+            monthSelect: 'انتخاب ماه',
+            yearSelect: 'انتخاب سال',
+            decadeSelect: 'انتخاب دهه',
+            yearFormat: 'YYYY',
+            dateFormat: 'YYYY/MM/DD',
+            dayFormat: 'DD',
+            dateTimeFormat: 'YYYY/MM/DD HH:mm:ss',
+            monthFormat: 'MMMM',
+            monthBeforeYear: true,
+            previousMonth: 'ماه قبل (PageUp)',
+            nextMonth: 'ماه بعد (PageDown)',
+            previousYear: 'سال قبل (Control + left)',
+            nextYear: 'سال بعد (Control + right)',
+            previousDecade: 'دهه قبل',
+            nextDecade: 'دهه بعد',
+            previousCentury: 'قرن قبل',
+            nextCentury: 'قرن بعد',
+            placeholder: 'انتخاب تاریخ'
+          },
+          timePickerLocale: {
+            placeholder: 'انتخاب زمان'
+          }
+        }
+      }}
+    >
+      <BrowserRouter>
+        <OidcProvider configuration={configuration}>
           <AuthProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route element={<Layout />} >
-
-
                 <Route element={<PrivateRoute />}>
                   <Route path="/" element={<AdminPage />} />
                   <Route path="/permission"
@@ -49,13 +117,14 @@ function App() {
                   <Route path="/admin/edit/:id" element={<AdminNewPage />} />
                 </Route>
               </Route>
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </AuthProvider>
-        </BrowserRouter>
-      </ConfigProvider >
-    </OidcProvider>
+        </OidcProvider>
+      </BrowserRouter>
+    </ConfigProvider>
   );
-}
+};
 
 export default App;
 

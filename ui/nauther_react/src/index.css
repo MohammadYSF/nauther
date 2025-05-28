@@ -1,7 +1,8 @@
 * {
   box-sizing: border-box;
-  font-family: 'Vazirmatn', sans-serif;
+  font-family: vazirmatn,'Vazirmatn', sans-serif !important;
 }
 body{
   margin-bottom: 0px !important;
+  margin-top: 0px !important;
 }

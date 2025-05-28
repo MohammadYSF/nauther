@@ -39,11 +39,10 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
         console.log("res is : ",res);
         if (Array.isArray(res.data)) {
           setRoles(res.data);
-          setTotal(res.data.length);
-          console.log("here is the total : ",res.data.length);
+          setTotal(res.metadata['total']);
         } else if (res.data && typeof res.data === 'object') {
           setRoles((res.data as any).items || []);
-          setTotal((res.data as any).total || 0);
+          setTotal((res.data as any).metadata.total || 0);
         } else {
           setRoles([]);
           setTotal(0);
@@ -188,6 +187,11 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
     },
   ];
 
+  const handleChangePage = (page: number, pageSize: number) => {
+    setPage((page as number) - 1);
+    setRowsPerPage(pageSize as number);
+  };
+
   return (
     <>
       <div style={{ display: 'flex', gap: 16, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap', direction: 'rtl' }}>
@@ -212,13 +216,9 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
           total: total,
           showSizeChanger: true,
           pageSizeOptions: [5, 10, 20, 50],
-          onChange: (page, pageSize) => {
-            setPage((page as number) - 1);
-            setRowsPerPage(pageSize as number);
-          },
+          onChange: handleChangePage,
           showTotal: (total) => `تعداد کل: ${total}`,
-          position: ['bottomCenter'],
-          locale: { items_per_page: 'در صفحه' },
+          position: ['bottomCenter']
         }}
         onRow={record => ({
           onDoubleClick: () => navigate(`/role/edit/${record.id}`),

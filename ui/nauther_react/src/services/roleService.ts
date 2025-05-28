@@ -11,15 +11,14 @@ type GetRoleByIdResponseDataModel = {
   }
 };
 type GetRolesResponseDataModel = {
-  total: number,
   data: {
     id: string,
     name: string,
     displayName: string,
     permissions: { id: string, name: string, displayName: string }[],
     users: { id: string, name: string }[],
-
-  }[]
+  }[],
+  metadata: {total: number}
 };
 type DeleteRolePayload = {
   ids: string[]

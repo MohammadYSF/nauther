@@ -42,10 +42,10 @@ export default function UserTable({ selected, setSelected, refresh }: { selected
       .then(res => {
         if (Array.isArray(res.data)) {
           setUsers(res.data);
-          setTotal(res.data.length);
+          setTotal(res.metadata.total);
         } else if (res.data && typeof res.data === 'object') {
           setUsers((res.data as any).items || []);
-          setTotal((res.data as any).total || 0);
+          setTotal((res.data as any).metadata.total || 0);
         } else {
           setUsers([]);
           setTotal(0);
@@ -197,7 +197,7 @@ export default function UserTable({ selected, setSelected, refresh }: { selected
     },
     {
       title: 'دسترسی‌ها',
-      dataIndex: 'permissions',
+      dataIndex: 'permissions', 
       key: 'permissions',
       align: 'right' as const,
       render: (permissions: { displayName: string }[] = []) => {
@@ -280,11 +280,10 @@ export default function UserTable({ selected, setSelected, refresh }: { selected
           pageSize: rowsPerPage,
           total: total,
           showSizeChanger: true,
-          
           pageSizeOptions: [5, 10, 20, 50],
           onChange: handleChangePage,
           showTotal: (total) => `تعداد کل: ${total}`,
-          position: ['bottomCenter'],
+          position: ['bottomCenter']
         }}
         onRow={record => ({
           onDoubleClick: () => navigate(`/admin/edit/${record.id}`),

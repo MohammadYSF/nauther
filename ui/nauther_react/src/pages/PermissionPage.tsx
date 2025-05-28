@@ -69,6 +69,9 @@ export default function PermissionPage() {
         console.log(error.status);
       })
       .finally(() => setLoading(false));
+
+
+      console.log("****",permissions?.metadata?.total || 0);
   };
 
   const handleTableChange = (pagination: any) => {
@@ -277,9 +280,9 @@ export default function PermissionPage() {
             pageSize: pageSize,
             total: permissions?.metadata?.total || 0,
             showSizeChanger: true,
+            pageSizeOptions: [5, 10, 20, 50],
             showTotal: (total) => `تعداد کل: ${total}`,
-            position: ['bottomCenter'],
-            locale: { items_per_page: 'در صفحه' },
+            position: ['bottomCenter']
           }}
           style={{ direction: 'rtl' }}
           locale={{ emptyText: 'داده‌ای وجود ندارد.' }}
