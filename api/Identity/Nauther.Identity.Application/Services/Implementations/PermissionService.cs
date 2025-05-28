@@ -1,3 +1,4 @@
+using System.Security;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Nauther.Framework.Application.Common.DTOs;
@@ -110,16 +111,20 @@ public class PermissionService(IMapper mapper, IPermissionRepository permissionR
                 StatusCode = StatusCodes.Status404NotFound,
                 Message = Messages.PermissionNotFound
             };
-        var permission = _mapper.Map<Permission>(dto);
+        existingPermission.Name = dto.Name;
+        existingPermission.DisplayName= dto.DisplayName;
 
-        await _permissionRepository.UpdateAsync(permission, cancellationToken);
+        //var permission = _mapper.Map<Permission>(dto);
+
+        //await _permissionRepository.UpdateAsync(permission, cancellationToken);
+        await _permissionRepository.UpdateAsync(existingPermission, cancellationToken);
         await _permissionRepository.SaveChangesAsync();
 
         return new BaseResponse<EditPermissionCommandResponse>()
         {
             StatusCode = StatusCodes.Status200OK,
             Message = Messages.PermissionCreated,
-            Data = _mapper.Map<EditPermissionCommandResponse>(permission),
+            Data = _mapper.Map<EditPermissionCommandResponse>(existingPermission),
         };
     }
 
