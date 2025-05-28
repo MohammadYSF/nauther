@@ -16,10 +16,7 @@ interface GetAllUsersResponseDataModel_Raw {
     statusCode: number;
     message: string;
     validationErrors: any;
-    data: {
-        key: string;
-        value: string; // JSON string
-    }[];
+    data: User[];
     metadata: { total: number }
 }
 export interface GetAllUsersResponseDataModel {
@@ -31,14 +28,12 @@ export interface GetAllUsersResponseDataModel {
 }
 
 export async function getAllExternalUsers(pageNumber: number, pageSize: number, search: string): Promise<GetAllUsersResponseDataModel> {
-    const response = await api.get<GetAllUsersResponseDataModel_Raw>('/user/external', {
+    const response = await api.get<GetAllUsersResponseDataModel>('/user/external', {
         params: { pageNumber, pageSize, search },
         headers: { accept: '*/*' }
     });
-    let x = response.data.data.map(item => ({
-        ...JSON.parse(item.value),
-        key: item.key,
-    } as User));
+    console.log("response is : ",response);
+    let x = response.data.data as User[];
     return {...response.data, data: x};
 }
 

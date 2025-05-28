@@ -18,6 +18,8 @@ export default function AdminNewPage() {
   const [userLoading, setUserLoading] = useState(false);
   const [permissions, setPermissions] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
+  const [roleSearch, setRoleSearch] = useState('');
+  const [permissionSearch, setPermissionSearch] = useState('');
 
   const navigate = useNavigate();
 
@@ -35,6 +37,31 @@ export default function AdminNewPage() {
     }, 500)
   ).current;
 
+  // Debounced role search
+  const debouncedRoleSearch = useRef(
+    debounce((value: string) => {
+      setRoleSearch(value);
+      fetchRoles(value);
+    }, 500)
+  ).current;
+
+  // Debounced permission search
+  const debouncedPermissionSearch = useRef(
+    debounce((value: string) => {
+      setPermissionSearch(value);
+      fetchPermissions(value);
+    }, 500)
+  ).current;
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedUserSearch.cancel();
+      debouncedRoleSearch.cancel();
+      debouncedPermissionSearch.cancel();
+    };
+  }, [debouncedUserSearch, debouncedRoleSearch, debouncedPermissionSearch]);
+
   // Fetch users with search and pagination
   const fetchUsers = async (page = 1, search = '', append = false) => {
     setUserLoading(true);
@@ -48,15 +75,39 @@ export default function AdminNewPage() {
     setUserLoading(false);
   };
 
+  // Fetch roles with search
+  const fetchRoles = async (search = '') => {
+    const res = await getRoles(1, 100, search);
+    setRoles(res.data || []);
+  };
+
+  // Fetch permissions with search
+  const fetchPermissions = async (search = '') => {
+    const res = await getPermissions(1, 100, search);
+    setPermissions(res.data || []);
+  };
+
   // Initial load
   useEffect(() => {
     fetchUsers(1, '', false);
+    fetchRoles();
+    fetchPermissions();
   }, []);
 
   // Handle search
   const handleUserSearch = (value: string) => {
     setUserSearch(value);
     debouncedUserSearch(value);
+  };
+
+  // Handle role search
+  const handleRoleSearch = (value: string) => {
+    debouncedRoleSearch(value);
+  };
+
+  // Handle permission search
+  const handlePermissionSearch = (value: string) => {
+    debouncedPermissionSearch(value);
   };
 
   // Handle infinite scroll
@@ -66,6 +117,15 @@ export default function AdminNewPage() {
       const nextPage = userPage + 1;
       setUserPage(nextPage);
       fetchUsers(nextPage, userSearch, true);
+    }
+  };
+
+  // Handle user selection change
+  const handleUserChange = (value: string | null) => {
+    if (!value) {
+      // Reset search and fetch all users when deselected
+      setUserSearch('');
+      fetchUsers(1, '', false);
     }
   };
 
@@ -165,33 +225,42 @@ export default function AdminNewPage() {
         </Typography.Title>
         <Form form={form} onFinish={handleFinish} layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
           <Form.Item label="نام کاربر" name="id">
-            <Select
-              showSearch
-              placeholder="انتخاب کنید"
-              optionFilterProp="children"
-              onSearch={handleUserSearch}
-              filterOption={false}
-              disabled={isEdit}
-              style={{ width: '100%', minWidth: 220 }}
-              notFoundContent={userLoading ? <span>در حال بارگذاری...</span> : null}
-              onPopupScroll={handleUserScroll}
-            >
-              {users.map(user => (
-                <Select.Option
-                  key={user.id}
-                  value={user.id}
-                  data-username={user.username}
-                >
-                  <Avatar
-                    size={24}
-                    src={user.profileImage}
-                    style={{ marginLeft: 8 }}
-                  />
-                  <span style={{ fontWeight: 500, fontSize: 15, marginLeft: 8 }}>{user.username}</span>
-                  <span style={{ color: '#888', fontSize: 13 }}>{user.userCode}</span>
-                </Select.Option>
-              ))}
-            </Select>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                style={{ position: 'absolute', opacity: 0, height: 0, width: 0 }}
+                autoComplete="off"
+              />
+              <Select
+                showSearch
+                placeholder="انتخاب کنید"
+                optionFilterProp="children"
+                onSearch={handleUserSearch}
+                onChange={handleUserChange}
+                allowClear
+                filterOption={false}
+                disabled={isEdit}
+                style={{ width: '100%', minWidth: 220 }}
+                notFoundContent={userLoading ? <span>در حال بارگذاری...</span> : <span>داده ای یافت نشد</span>}
+                onPopupScroll={handleUserScroll}
+              >
+                {users.map(user => (
+                  <Select.Option
+                    key={user.id}
+                    value={user.id}
+                    data-username={user.username}
+                  >
+                    <Avatar
+                      size={24}
+                      src={user.profileImage}
+                      style={{ marginLeft: 8 }}
+                    />
+                    <span style={{ fontWeight: 500, fontSize: 15, marginLeft: 8 }}>{user.username}</span>
+                    <span style={{ color: '#888', fontSize: 13 }}>{user.userCode}</span>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
@@ -201,6 +270,11 @@ export default function AdminNewPage() {
                   placeholder="انتخاب کنید"
                   style={{ width: '100%' }}
                   optionLabelProp="label"
+                  showSearch
+                  onSearch={handleRoleSearch}
+                  filterOption={false}
+                  notFoundContent="داده‌ای یافت نشد"
+
                 >
                   {roles.map((role, idx) => (
                     <Select.Option key={role.id} value={role.id} label={role.displayName}>
@@ -217,6 +291,11 @@ export default function AdminNewPage() {
                   placeholder="انتخاب کنید"
                   style={{ width: '100%' }}
                   optionLabelProp="label"
+                  showSearch
+                  onSearch={handlePermissionSearch}
+                  filterOption={false}
+                  notFoundContent="داده‌ای یافت نشد"
+
                 >
                   {permissions.map((perm, idx) => (
                     <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>

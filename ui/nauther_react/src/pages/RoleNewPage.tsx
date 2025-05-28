@@ -1,8 +1,9 @@
 import { Typography, Input, Button, Select, Card, Form, message } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRoleById, createRole, updateRole } from '../services/roleService';
 import { getPermissions, type GetPermissionsResponseDataModel } from '../services/permissionService';
+import debounce from 'lodash.debounce';
 
 export default function RoleNewPage() {
   const { id } = useParams();
@@ -10,12 +11,40 @@ export default function RoleNewPage() {
   const navigate = useNavigate();
 
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
+  const [permissionSearch, setPermissionSearch] = useState('');
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [apiData,setApiData] = useState<any>(null);
+
+  // Debounced permission search
+  const debouncedPermissionSearch = useRef(
+    debounce((value: string) => {
+      setPermissionSearch(value);
+      fetchPermissions(value);
+    }, 500)
+  ).current;
+
+  // Cleanup debounce on unmount
   useEffect(() => {
-    getPermissions().then(res => setPermissions(res));
+    return () => {
+      debouncedPermissionSearch.cancel();
+    };
+  }, [debouncedPermissionSearch]);
+
+  // Fetch permissions with search
+  const fetchPermissions = async (search = '') => {
+    const res = await getPermissions(1, 100, search);
+    setPermissions(res);
+  };
+
+  useEffect(() => {
+    fetchPermissions();
   }, []);
+
+  // Handle permission search
+  const handlePermissionSearch = (value: string) => {
+    debouncedPermissionSearch(value);
+  };
 
   useEffect(() => {
     if (isEdit && id) {
@@ -24,14 +53,12 @@ export default function RoleNewPage() {
         form.setFieldsValue({
          ...res.data,
          permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
-
         });
       });
     }
   }, [id, isEdit]);
 
   const onFinish = async (values:any) => {    
-
     try {
       if (isEdit && id) {
         // Update existing role
@@ -42,7 +69,6 @@ export default function RoleNewPage() {
           messageApi.success('نقش با موفقیت ایجاد شد');
           setTimeout(() => {
             navigate('/role');
-
           }, 1000);
         } else if (res && res.validationErrors) {
           const fields = Object.entries(res.validationErrors).map(([field, errors]: [string, any]) => ({
@@ -69,7 +95,6 @@ export default function RoleNewPage() {
       } else {
         message.error('خطایی رخ داده است');
       }
-
     }
   };
 
@@ -100,8 +125,12 @@ export default function RoleNewPage() {
               placeholder="انتخاب کنید"
               style={{ width: '100%' }}
               optionLabelProp="label"
+              showSearch
+              onSearch={handlePermissionSearch}
+              filterOption={false}
+              notFoundContent="داده‌ای یافت نشد"
             >
-              {permissions.data.map((perm, idx) => (
+              {(permissions.data || []).map((perm, idx) => (
                 <Select.Option key={perm.id} value={perm.id} label={perm.displayName}>
                   {perm.displayName}
                 </Select.Option>
