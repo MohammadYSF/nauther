@@ -10,5 +10,6 @@ public class GetUsersListQuery : PaginationListDto, IRequest<BaseResponse>
 }
 public class GetExternalUsersListQuery : PaginationListDto, IRequest<BaseResponse>
 {
+    public string? Search { get; set; }
 
 }
