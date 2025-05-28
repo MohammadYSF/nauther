@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Table, Input, Button, Spin, Card, Affix } from 'antd';
-import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel, deletePermissions } from '../services/permissionService';
 import type { ApiError } from '../services/api';
 import { useClickAway } from 'react-use';
+import debounce from 'lodash.debounce';
 
 export default function PermissionPage() {
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>();
@@ -17,13 +18,28 @@ export default function PermissionPage() {
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const editRowRef = useRef<HTMLDivElement>(null);
   const addRowRef = useRef<HTMLDivElement>(null);
 
+  // Debounced search function
+  const debouncedSearch = useRef(
+    debounce((value: string) => {
+      setSearch(value);
+    }, 500)
+  ).current;
+
   useEffect(() => {
-    fetchPermissions(page, pageSize);
-  }, [page, pageSize]);
+    fetchPermissions(page, pageSize, search);
+  }, [page, pageSize, search]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   useClickAway(editRowRef, () => {
     if (editId) {
@@ -41,9 +57,9 @@ export default function PermissionPage() {
     }
   });
 
-  const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10) => {
+  const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10, searchString = '') => {
     setLoading(true);
-    getPermissions(pageNumber, pageSizeNumber).then(res => {
+    getPermissions(pageNumber, pageSizeNumber, searchString).then(res => {
       setPermissions(res);
     })
       .catch(err => {
@@ -72,7 +88,7 @@ export default function PermissionPage() {
     setEditId(null);
     setEditValue('');
     setEditValueDisplayName('');
-    fetchPermissions(page, pageSize);
+    fetchPermissions(page, pageSize, search);
     setSaving(false);
   };
 
@@ -89,7 +105,7 @@ export default function PermissionPage() {
     setAddMode(false);
     setAddValue('');
     setAddValueDisplayName('');
-    fetchPermissions(page, pageSize);
+    fetchPermissions(page, pageSize, search);
     setSaving(false);
   };
 
@@ -97,7 +113,7 @@ export default function PermissionPage() {
     try {
       
       await deletePermissions({"ids":[id]});
-      fetchPermissions(page, pageSize);
+      fetchPermissions(page, pageSize, search);
     } catch (error) {
       console.error('Error deleting permission:', error);
     }
@@ -107,7 +123,7 @@ export default function PermissionPage() {
     try {
       await deletePermissions({"ids":selectedPermissions});
       setSelectedPermissions([]);
-      fetchPermissions(page, pageSize);
+      fetchPermissions(page, pageSize, search);
     } catch (error) {
       console.error('Error deleting permissions:', error);
     }
@@ -218,25 +234,34 @@ export default function PermissionPage() {
 
   return (
     <Card style={{ padding: 32, maxWidth: 900, margin: '0px auto', border: 'none' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
-        <Button
-          type={addMode ? "primary" : "primary"}
-          danger={addMode ? true : false}
-          style={{ borderRadius: 8 }}
-          icon={addMode ? <CloseOutlined /> : <PlusOutlined />}
-          shape="circle"
-          aria-label={addMode ? "انصراف" : "افزودن دسترسی"}
-          onClick={() => {
-            if (addMode) {
-              setAddMode(false);
-              setAddValue("");
-              setAddValueDisplayName("");
-            } else {
-              handleAdd();
-            }
-          }}
-        />
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <Input
+            size="small"
+            placeholder="جستجو دسترسی"
+            onChange={e => debouncedSearch(e.target.value)}
+            style={{ width: 200 }}
+            prefix={<SearchOutlined style={{ fontSize: 16 }} />}
+          />
+          <Button
+            type={addMode ? "primary" : "primary"}
+            danger={addMode ? true : false}
+            style={{ borderRadius: 8 }}
+            icon={addMode ? <CloseOutlined /> : <PlusOutlined />}
+            shape="circle"
+            aria-label={addMode ? "انصراف" : "افزودن دسترسی"}
+            onClick={() => {
+              if (addMode) {
+                setAddMode(false);
+                setAddValue("");
+                setAddValueDisplayName("");
+              } else {
+                handleAdd();
+              }
+            }}
+          />
+        </div>
       </div>
       <Spin spinning={loading} tip="در حال بارگذاری...">
         <Table

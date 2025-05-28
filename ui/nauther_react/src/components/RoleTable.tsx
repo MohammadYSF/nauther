@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRoles } from '../services/roleService';
 import { Table, Input, Typography, Popover, List, Button } from 'antd';
@@ -6,6 +6,7 @@ import { SearchOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-de
 import AdminPopover from './AdminPopover';
 import PermissionPopover from './PermissionPopover';
 import type { TableRowSelection } from 'antd/lib/table/interface';
+import debounce from 'lodash.debounce';
 
 interface RoleTableProps {
   rowSelection?: TableRowSelection<any>;
@@ -23,6 +24,13 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
   const [permissionPopoverAnchor, setPermissionPopoverAnchor] = useState<HTMLElement | null>(null);
 
   const navigate = useNavigate();
+
+  // Debounced search function
+  const debouncedSearch = useRef(
+    debounce((value: string) => {
+      setSearch(value);
+    }, 500)
+  ).current;
 
   useEffect(() => {
     setLoading(true);
@@ -43,6 +51,13 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
       })
       .finally(() => setLoading(false));
   }, [page, rowsPerPage, search, refresh]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   const handlePermissionClick = (event: React.MouseEvent<HTMLElement>) => {
     setPermissionPopoverAnchor(event.currentTarget);
@@ -179,8 +194,7 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
         <Input
           size="small"
           placeholder="جستجو نقش"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => debouncedSearch(e.target.value)}
           style={{ width: 200 }}
           prefix={<SearchOutlined style={{ fontSize: 16 }} />}
         />

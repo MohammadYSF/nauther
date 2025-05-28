@@ -29,4 +29,25 @@ api.interceptors.response.use(
     return Promise.reject(apiError); // unify error output
   }
 );
+// Request interceptor to add token
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('accesstoken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+// Response interceptor to handle errors
+api.interceptors.response.use((response) => {
+    return response;
+}, (error) => {
+    if (error.response?.status === 401) {
+        localStorage.removeItem("accesstoken");
+        window.location.href = '/login';
+    }
+    return error;
+});
 export default api;

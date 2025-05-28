@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdmins } from '../services/adminService';
 import { Table, Input, Select, Checkbox, Avatar, Popover, List, Typography, Divider } from 'antd';
@@ -6,6 +6,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons';
 import RolePopover from './RolePopover';
 import { getAllUsers, type User } from '../services/userService';
+import debounce from 'lodash.debounce';
 
 const rolesList = ['سوپر ادمین', 'ادمین', 'کاربر عادی'];
 
@@ -21,11 +22,23 @@ export default function UserTable({ selected, setSelected, refresh }: { selected
 
   const navigate = useNavigate();
 
+  // Debounced search function
+  const debouncedSearch = useRef(
+    debounce((value: string) => {
+      setSearch(value);
+    }, 500)
+  ).current;
 
-  
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
   useEffect(() => {
     setLoading(true);
-    getAllUsers(page + 1, rowsPerPage,'')
+    getAllUsers(page + 1, rowsPerPage,search)
       .then(res => {
         if (Array.isArray(res.data)) {
           setUsers(res.data);
@@ -237,8 +250,7 @@ export default function UserTable({ selected, setSelected, refresh }: { selected
         <Input
           size="small"
           placeholder="جستجو نام یا کد"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => debouncedSearch(e.target.value)}
           style={{ width: 200 }}
           prefix={<SearchOutlined style={{ fontSize: 16 }} />}
         />
