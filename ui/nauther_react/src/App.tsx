@@ -12,24 +12,33 @@ import Login from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { themeConfig } from './theme/themeConfig';
+import SignInOidc from './pages/SignInOidc';
 
 // This configuration use hybrid mode
 // ServiceWorker are used if available (more secure) else tokens are given to the client
 // You need to give inside your code the "access_token" when using fetch
 const configuration = {
-  client_id: 'interactive.public.short',
-  redirect_uri: window.location.origin + '/authentication/callback',
-  silent_redirect_uri: window.location.origin + '/authentication/silent-callback',
-  scope: 'openid profile email api offline_access', // offline_access scope allow your client to retrieve the refresh_token
-  authority: 'https://demo.duendesoftware.com',
-  service_worker_relative_url: '/OidcServiceWorker.js', // just comment that line to disable service worker mode
+  client_id: 'skoruba_identity_admin',
+  redirect_uri: window.location.origin + '/signin-oidc',
+  // silent_redirect_uri: window.location.origin + '/signin-oidc',
+  scope: 'openid profile email', // offline_access scope allow your client to retrieve the refresh_token
+  authority: 'https://localhost:44310',
+  // service_worker_relative_url: '/OidcServiceWorker.js', // just comment that line to disable service worker mode
   service_worker_only: false,
   demonstrating_proof_of_possession: false,
+  response_type: 'code', // triggers PKCE
+  token_request_extras: {
+    client_secret: "skoruba_admin_client_secret",
+  },
+  extras:{
+    client_secret: "skoruba_admin_client_secret",
+  }
+
 };
 
 const App: React.FC = () => {
   return (
-    <ConfigProvider 
+    <ConfigProvider
       theme={themeConfig}
       direction="rtl"
       locale={{
@@ -101,25 +110,28 @@ const App: React.FC = () => {
     >
       <BrowserRouter>
         <OidcProvider configuration={configuration}>
-          <AuthProvider>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route element={<Layout />} >
-                <Route element={<PrivateRoute />}>
-                  <Route path="/" element={<AdminPage />} />
-                  <Route path="/permission"
-                    element={<PermissionPage />}
-                  />
-                  <Route path="/role" element={<RolePage />} />
-                  <Route path="/role/new" element={<RoleNewPage />} />
-                  <Route path="/role/edit/:id" element={<RoleNewPage />} />
-                  <Route path="/admin/new" element={<AdminNewPage />} />
-                  <Route path="/admin/edit/:id" element={<AdminNewPage />} />
-                </Route>
+          {/* <AuthProvider> */}
+          <Routes>
+            <Route path="/signout-callback-oidc" element={<h2>Goodbye, you magnificent user.</h2>} />
+
+            <Route path="/login" element={<Login />} />
+            {/* <Route path="/signin-oidc" element={<SignInOidc />} /> */}
+            <Route element={<Layout />} >
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<AdminPage />} />
+                <Route path="/permission"
+                  element={<PermissionPage />}
+                />
+                <Route path="/role" element={<RolePage />} />
+                <Route path="/role/new" element={<RoleNewPage />} />
+                <Route path="/role/edit/:id" element={<RoleNewPage />} />
+                <Route path="/admin/new" element={<AdminNewPage />} />
+                <Route path="/admin/edit/:id" element={<AdminNewPage />} />
               </Route>
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </AuthProvider>
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+          {/* </AuthProvider> */}
         </OidcProvider>
       </BrowserRouter>
     </ConfigProvider>
@@ -129,7 +141,7 @@ const App: React.FC = () => {
 export default App;
 
 const PrivateRoute: React.FC = () => {
-  const { accessToken } = useAuth();
+  // const { accessToken } = useAuth();
   const location = useLocation();
 
   // if (!accessToken) {
@@ -137,7 +149,10 @@ const PrivateRoute: React.FC = () => {
   //   return <Navigate to="/login" state={{ from: location }} replace />;
   // }
 
-  return <Outlet />;
+  return (
+    <OidcSecure>
+      <Outlet />
+    </OidcSecure>);
 };
 
 export { PrivateRoute };

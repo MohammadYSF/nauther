@@ -3,24 +3,28 @@ import { UserOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useOidc } from '@axa-fr/react-oidc';
 
 export default function Topbar() {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const navigate = useNavigate();
-  const {user,logout} = useAuth();
+    const { login, logout, renewTokens, isAuthenticated } = useOidc();
+  // const {user,logout} = useAuth();
 
   const handleLogout = () => {
     // TODO: Implement logout logic
-    setPopoverOpen(false);
-    logout();
-    navigate("/");
+    // setPopoverOpen(false);
+    // logout();
+    // navigate("/");
+    if (isAuthenticated)
+      logout("/signout-callback-oidc");
   };
 
   const popoverContent = (
     <div style={{ minWidth: 200, padding: 16, background: '#f7f8fa', borderRadius: 12, boxShadow: '0 2px 8px #00000014', textAlign: 'center' }}>
       <Avatar size={48} style={{ backgroundColor: '#7265e6', fontWeight: 700, marginBottom: 8 }} icon={<UserOutlined />} />
       <Typography.Text style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 16 }}>
-        {user}
+        {/* {user} */}
       </Typography.Text>
       <Divider style={{ margin: '12px 0' }} />
       <Button type="primary" danger block style={{ fontWeight: 500, borderRadius: 8 }} onClick={handleLogout}>
