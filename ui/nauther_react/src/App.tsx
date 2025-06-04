@@ -132,10 +132,10 @@ const PrivateRoute: React.FC = () => {
   const { accessToken } = useAuth();
   const location = useLocation();
 
-  if (!accessToken) {
-    // Redirect to login, preserving the current location
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  // if (!accessToken) {
+  //   // Redirect to login, preserving the current location
+  //   return <Navigate to="/login" state={{ from: location }} replace />;
+  // }
 
   return <Outlet />;
 };

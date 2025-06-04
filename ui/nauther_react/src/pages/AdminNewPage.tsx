@@ -122,10 +122,13 @@ export default function AdminNewPage() {
 
   // Handle user selection change
   const handleUserChange = (value: string | null) => {
+    console.log("value is > ",value);
+    form.setFieldValue('id',value);
     if (!value) {
       // Reset search and fetch all users when deselected
       setUserSearch('');
       fetchUsers(1, '', false);
+      
     }
   };
 
@@ -136,6 +139,7 @@ export default function AdminNewPage() {
 
 
   const handleFinish = (values: any) => {
+    console.log("values is : ",values);
     let password = values["password"];
     let confirmPassword = values["confirmPassword"];
     // Validate passwords
