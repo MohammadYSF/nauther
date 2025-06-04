@@ -21,6 +21,7 @@ public static class PersistenceServiceRegistration
 
         services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserGroupRepository, UserGroupRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IUserCredentialRepository, UserCredentailRepository>();
@@ -29,7 +30,6 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
         services.AddScoped<IGroupPermissionRepository, GroupPermissionRepository>();
-        services.AddScoped<IUserGroupRepository, UserGroupRepository>();
 
         return services;
     }

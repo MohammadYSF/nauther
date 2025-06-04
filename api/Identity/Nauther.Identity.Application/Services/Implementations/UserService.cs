@@ -39,11 +39,12 @@ public class UserService(
     IPasswordHasherService passwordHasherService,
     IOtpService otpService,
     IJwtTokenService jwtTokenService,
-    IRedisCachingProvider _easyCachingProvider,
+    IRedisCachingProvider easyCachingProvider,
     IPermissionRepository permissionRepository,
     IRoleRepository roleRepository,
     IUserCredentialRepository userCredentialRepository) : IUserService
 {
+    private readonly IRedisCachingProvider _easyCachingProvider = easyCachingProvider;
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserPermissionRepository _userPermissionRepository = userPermissionRepository;

@@ -24,9 +24,12 @@ builder.Services
     .AddApiServices(builder.Configuration)
     .AddHttpClientHandlers();
 
+
+
 builder.Configuration
     .AddConfiguration(builder.Environment);
 
+        builder.Services.AddHostedService<CacheSeeder>();
 var app = builder.Build();
 
 // Apply migrations
