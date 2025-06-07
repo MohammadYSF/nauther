@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nauther.Framework.RestApi.Attributes;
 using Nauther.Identity.Application.Features.Permission.Commands.CreatePermission;
@@ -12,6 +13,7 @@ namespace Nauther.Identity.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(AuthenticationSchemes = "Bearer")]
 //[PermissionAuthorization("AccessAll")]
 public class PermissionController(IMediator mediator) : ControllerBase
 {

@@ -20,7 +20,8 @@ import SignInOidc from './pages/SignInOidc';
 const configuration = {
   client_id: 'skoruba_identity_admin',
   redirect_uri: window.location.origin + '/signin-oidc',
-  // silent_redirect_uri: window.location.origin + '/signin-oidc',
+  silent_login_uri:window.location.origin + '/silent-login-oidc',
+  silent_redirect_uri: window.location.origin + '/silent-redirect-oidc',
   scope: 'openid profile email', // offline_access scope allow your client to retrieve the refresh_token
   authority: 'https://localhost:44310',
   // service_worker_relative_url: '/OidcServiceWorker.js', // just comment that line to disable service worker mode
