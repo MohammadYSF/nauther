@@ -36,7 +36,6 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
     setLoading(true);
     getRoles(page + 1, rowsPerPage, search)
       .then(res => {
-        console.log("res is : ",res);
         if (Array.isArray(res.data)) {
           setRoles(res.data);
           setTotal(res.metadata['total']);
