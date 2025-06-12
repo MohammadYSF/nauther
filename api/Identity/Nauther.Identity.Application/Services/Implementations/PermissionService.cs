@@ -18,13 +18,11 @@ using Nauther.Identity.Infrastructure.Utilities.Constants;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
-public class PermissionService(IMapper mapper, IPermissionRepository permissionRepository,
-    IRedisCacheService redisCacheService)
+public class PermissionService(IMapper mapper, IPermissionRepository permissionRepository)
     : IPermissionService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
-    private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
     public async Task<BaseResponse<IList<GetPermissionsQueryResponse>?>> GetPermissionsList(GetPermissionsListQuery query, CancellationToken cancellationToken)
     {

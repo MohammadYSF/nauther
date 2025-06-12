@@ -1,11 +1,8 @@
 using auther.Identity.Application.Services.Interfaces;
 using AutoMapper;
-using EasyCaching.Core;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Shared.Responses;
-using Nauther.Identity.Application.Features.Auth.Commands.LoginWithPassword;
 using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
@@ -17,14 +14,11 @@ using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
 using Nauther.Identity.Application.Resources;
 using Nauther.Identity.Application.Services.Interfaces;
-using Nauther.Identity.Domain;
 using Nauther.Identity.Domain.Entities;
+using Nauther.Identity.Domain.ExternalContract;
 using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Services.JwtToken;
 using Nauther.Identity.Infrastructure.Utilities.PasswordHash;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
@@ -39,12 +33,12 @@ public class UserService(
     IPasswordHasherService passwordHasherService,
     IOtpService otpService,
     IJwtTokenService jwtTokenService,
-    IRedisCachingProvider easyCachingProvider,
     IPermissionRepository permissionRepository,
     IRoleRepository roleRepository,
-    IUserCredentialRepository userCredentialRepository) : IUserService
+    IUserCredentialRepository userCredentialRepository,
+    IExternalUserDataRepository externalUserDataRepository) : IUserService
 {
-    private readonly IRedisCachingProvider _easyCachingProvider = easyCachingProvider;
+    private readonly IExternalUserDataRepository _externalUserDataRepository=externalUserDataRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserPermissionRepository _userPermissionRepository = userPermissionRepository;
@@ -58,26 +52,23 @@ public class UserService(
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly IUserCredentialRepository _userCredentialRepository = userCredentialRepository;
-    private static readonly Guid UserRoleId = Guid.Parse("717D7A4A-D864-4774-8AE0-5010E745D87E");
 
 
     public async Task<BaseResponse> GetExternalUsersList(GetExternalUsersListQuery query,
         CancellationToken cancellationToken)
     {
         string search = query.Search ?? "";
-
-        var res = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
-        var filtered = res.Values
-    .Select(x => JObject.Parse(x))
+        var res = await _externalUserDataRepository.GetUsersAsync();
+        var filtered = res
     .Where(obj =>
     (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
     ||
     (
-    (obj["userCode"]?.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+    (obj.UserCode.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
     ||
-    (obj["phoneNumber"]?.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+    (obj.PhoneNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
     ||
-    (obj["username"]?.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+    (obj.Username.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
     )
     )
           .Skip((query.PageNumber - 1) * query.PageSize)
@@ -88,20 +79,19 @@ public class UserService(
         List<GetUsersListQueryResponse> data = [];
         foreach (var item in filtered)
         {
-            var id = item["id"]?.ToString();
+            var id = item.Id;
             var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
             var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
             var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
-            var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", id);
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync( id);
             data.Add(new GetUsersListQueryResponse
             {
                 Id = id,
-                IsActive = JObject.Parse(user_in_cache)["isActive"]?.ToObject<bool>() ?? false,
-                Username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty,
-                PhoneNumber = JObject.Parse(user_in_cache)["PhoneNumber"]?.ToObject<string>() ?? string.Empty,
-                UserCode = JObject.Parse(user_in_cache)["userCode"]?.ToObject<string>() ?? string.Empty,
-                ProfileImage = string.Empty, //todo
+                IsActive = user_in_cache.IsActive,
+                Username =user_in_cache.Username,
+                PhoneNumber = user_in_cache.PhoneNumber,
+                UserCode =user_in_cache.UserCode,
                 Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
                 {
                     DisplayName = a.DisplayName,
@@ -144,17 +134,16 @@ public class UserService(
         var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(user.Id, cancellationToken);
         var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
         var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
-        var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", user.Id);
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync( id);
         var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
 
         var data = new GetUserDetailQueryResponse
         {
-            Id = user.Id,
-            IsActive = JObject.Parse(user_in_cache)["isActive"]?.ToObject<bool>() ?? false,
-            Username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty,
-            PhoneNumber = JObject.Parse(user_in_cache)["PhoneNumber"]?.ToObject<string>() ?? string.Empty,
-            UserCode = JObject.Parse(user_in_cache)["userCode"]?.ToObject<string>() ?? string.Empty,
-            ProfileImage = string.Empty, //todo
+            Id = id,
+            IsActive = user_in_cache.IsActive,
+            Username =user_in_cache.Username,
+            PhoneNumber = user_in_cache.PhoneNumber,
+            UserCode =user_in_cache.UserCode,
             Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
                 DisplayName = a.DisplayName,
@@ -196,8 +185,9 @@ public class UserService(
     public async Task<BaseResponse> Edit(EditUserCommand request,
     CancellationToken cancellationToken)
     {
-        var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", request.Id.ToString());
-        if (string.IsNullOrEmpty(user_in_cache))
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id);
+        
+        if (user_in_cache == null)
         {
             return new BaseResponse<BaseResponse>()
             {
@@ -259,8 +249,8 @@ public class UserService(
     public async Task<BaseResponse> Register(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", request.Id.ToString());
-        if (string.IsNullOrEmpty(user_in_cache))
+        var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id.ToString());
+        if (user_in_cache == null)
         {
             return new BaseResponse<BaseResponse>()
             {
@@ -309,8 +299,8 @@ public class UserService(
 
     public async Task<BaseResponse<List<string>>> GetAllPermissionsByUsername(string username, CancellationToken cancellationToken)
     {
-        var users_in_cache = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
-        var id = users_in_cache.FirstOrDefault(a => JObject.Parse(a.Value)?["userCode"]?.ToString() == username).Key ?? "";
+        var users_in_cache = await _externalUserDataRepository.GetUsersAsync();
+        var id = users_in_cache.FirstOrDefault(a => a.UserCode == username)?.Id;
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
         var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
         var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
@@ -342,19 +332,17 @@ public class UserService(
     public async Task<BaseResponse> GetUsersList(GetUsersListQuery query, CancellationToken cancellationToken)
     {
         string search = query.Search ?? "";
-
-        var res = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
-        var filtered = res.Values
-    .Select(x => JObject.Parse(x))
+        var res = await _externalUserDataRepository.GetUsersAsync();
+        var filtered = res
     .Where(obj =>
     (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
     ||
     (
-    (obj["userCode"]?.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+    (obj.UserCode.Contains(search, StringComparison.OrdinalIgnoreCase))
     ||
-    (obj["phoneNumber"]?.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+    (obj.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase))
     ||
-    (obj["username"]?.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+    (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
     )
     )
           .Skip((query.PageNumber - 1) * query.PageSize)
@@ -364,22 +352,21 @@ public class UserService(
         var total = res.Count;
         var users = await _userRepository.GetAllListAsync(new PaginationListDto { PageSize = -1 }, cancellationToken);
         List<GetUsersListQueryResponse> data = [];
-        foreach (var item in filtered.Where(a => users.Select(b => b.Id.ToString()).Contains(a["id"]?.ToString())))
+        foreach (var item in filtered.Where(a => users.Select(b => b.Id.ToString()).Contains(a.Id)))
         {
-            var id = item["id"]?.ToString();
+            var id = item.Id;
             var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
             var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
             var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
-            var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", id);
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
             data.Add(new GetUsersListQueryResponse
             {
                 Id = id,
-                IsActive = JObject.Parse(user_in_cache)["isActive"]?.ToObject<bool>() ?? false,
-                Username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty,
-                PhoneNumber = JObject.Parse(user_in_cache)["PhoneNumber"]?.ToObject<string>() ?? string.Empty,
-                UserCode = JObject.Parse(user_in_cache)["userCode"]?.ToObject<string>() ?? string.Empty,
-                ProfileImage = string.Empty, //todo
+                IsActive = user_in_cache.IsActive,
+                Username = user_in_cache.Username,
+                PhoneNumber = user_in_cache.PhoneNumber,
+                UserCode = user_in_cache.UserCode,
                 Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
                 {
                     DisplayName = a.DisplayName,
@@ -418,11 +405,10 @@ public class UserService(
 
     public async Task<BaseResponse<CheckPasswordResponse>> CheckPassword(CheckPasswordCommand request, CancellationToken cancellationToken)
     {
-        var res = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
-        var filtered = res.Values
-    .Select(x => JObject.Parse(x))
-    .Where(obj => obj["userCode"]?.ToString() == request.Username)
-    .FirstOrDefault();
+        var res = await _externalUserDataRepository.GetUsersAsync();
+
+        var filtered = res
+            .FirstOrDefault(obj => obj.UserCode == request.Username);
         if (filtered == null)
         {
             return new BaseResponse<CheckPasswordResponse>
@@ -432,7 +418,7 @@ public class UserService(
             };
         }
 
-        var user = await _userRepository.GetById(filtered["id"]?.ToString(), cancellationToken);
+        var user = await _userRepository.GetById(filtered.Id, cancellationToken);
         var userCredential = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
         bool f = _passwordHasher.VerifyPassword(request.Password, userCredential.PasswordHash);
         if (!f)

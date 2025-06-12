@@ -10,6 +10,7 @@ using Nauther.Identity.Application.Features.Role.Queries;
 using Nauther.Identity.Application.Resources;
 using Nauther.Identity.Application.Services.Interfaces;
 using Nauther.Identity.Domain.Entities;
+using Nauther.Identity.Domain.ExternalContract;
 using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Utilities.Constants;
 using Newtonsoft.Json.Linq;
@@ -19,22 +20,20 @@ namespace Nauther.Identity.Application.Services.Implementations;
 public class RoleService(
     IMapper mapper,
     IRoleRepository roleRepository,
-    IRedisCacheService redisCacheService,
     IPermissionRepository permissionRepository,
     IRolePermissionRepository rolePermissionRepository,
     IUserRepository userRepository,
     IUserRoleRepository userRoleRepository,
-    IRedisCachingProvider easyCachingProvider)
+    IExternalUserDataRepository  externalUserDataRepository)
     : IRoleService
 {
-    private readonly IRedisCachingProvider _easyCachingProvider = easyCachingProvider;
+    private readonly IExternalUserDataRepository _externalUserDataRepository = externalUserDataRepository;
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRolePermissionRepository _rolePermissionRepository = rolePermissionRepository;
-    private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
 
     public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRolesList(string search, PaginationListDto paginationListDto,
@@ -61,8 +60,8 @@ public class RoleService(
             List<GetRolesQueryResponse_User> response_users = [];
             foreach (var item in users)
             {
-                var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", item.Id);
-                var username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty;
+                var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
+                var username = user_in_cache.Username;
                 response_users.Add(new GetRolesQueryResponse_User
                 {
                     Id = item.Id,
@@ -109,8 +108,8 @@ public class RoleService(
         List<GetRolesQueryResponse_User> response_users = [];
         foreach (var item in users)
         {
-            var user_in_cache = await _easyCachingProvider.HGetAsync("ids:userbasicinform", item.Id);
-            var username = JObject.Parse(user_in_cache)["username"]?.ToObject<string>() ?? string.Empty;
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
+            var username = user_in_cache.Username;
             response_users.Add(new GetRolesQueryResponse_User
             {
                 Id = item.Id,
