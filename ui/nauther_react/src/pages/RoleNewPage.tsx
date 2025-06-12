@@ -14,7 +14,7 @@ export default function RoleNewPage() {
   const [permissionSearch, setPermissionSearch] = useState('');
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const [apiData,setApiData] = useState<any>(null);
+  const [apiData, setApiData] = useState<any>(null);
 
   // Debounced permission search
   const debouncedPermissionSearch = useRef(
@@ -51,18 +51,23 @@ export default function RoleNewPage() {
       getRoleById(id).then(res => {
         setApiData(res.data);
         form.setFieldsValue({
-         ...res.data,
-         permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
+          ...res.data,
+          permissions: res.data.permissions ? res.data.permissions.map((p: any) => p.id) : [],
         });
       });
     }
   }, [id, isEdit]);
 
-  const onFinish = async (values:any) => {    
+  const onFinish = async (values: any) => {
     try {
       if (isEdit && id) {
         // Update existing role
         await updateRole(id, values);
+        messageApi.success('نقش با موفقیت ویرایش شد');
+        setTimeout(() => {
+          navigate('/role');
+        }, 1000);
+
       } else {
         const res = await createRole(values);
         if (res && res.statusCode === 201) {
@@ -104,7 +109,7 @@ export default function RoleNewPage() {
       <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
         <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
           <span style={{ color: '#337ab7', fontWeight: 700 }}>
-            {isEdit ? `ویرایش نقش :  ${apiData?.displayName??""}` : 'نقش جدید'}
+            {isEdit ? `ویرایش نقش :  ${apiData?.displayName ?? ""}` : 'نقش جدید'}
           </span>
           <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
         </Typography.Title>
