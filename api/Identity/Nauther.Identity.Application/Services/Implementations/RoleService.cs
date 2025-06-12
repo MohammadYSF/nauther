@@ -198,6 +198,8 @@ public class RoleService(
             PermissionId = a,
             RoleId = dto.Id
         }).ToList();
+        
+        await _roleRepository.UpdateAsync(role, cancellationToken);
         await _roleRepository.SaveChangesAsync();
 
         return new BaseResponse<EditRoleCommandResponse>()

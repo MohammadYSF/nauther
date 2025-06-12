@@ -53,9 +53,11 @@ public class RoleController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
     [HttpPut]
+    [Route("{Id}")]
     //[PermissionAuthorization("EditRole")]
-    public async Task<IActionResult> Put([FromBody] EditRoleCommand request)
+    public async Task<IActionResult> Put([FromRoute] Guid Id,[FromBody] EditRoleCommand request)
     {
+        request.Id = Id;
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);
     }
