@@ -32,4 +32,6 @@ CancellationToken cancellationToken);
     Task<BaseResponse> Register(Dima_RegisterUserCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request, CancellationToken cancellationToken);
     Task<BaseResponse<VerifyOtpCommandResponse>> VerifyOtp(VerifyOtpCommand request, CancellationToken cancellationToken);
+    
+    Task<BaseResponse<List<string>>> GetAllPermissionsByUsername(string username ,CancellationToken cancellationToken);
 }

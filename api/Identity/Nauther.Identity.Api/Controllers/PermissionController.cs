@@ -13,13 +13,13 @@ namespace Nauther.Identity.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = "Bearer")]
+// [Authorize(AuthenticationSchemes = "Bearer")]
 //[PermissionAuthorization("AccessAll")]
 public class PermissionController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    //[PermissionAuthorization("GetAllPermissions")]
+    [PermissionAuthorization("ViewPermission")]
     [HttpGet("all")]
     public async Task<IActionResult> Get([FromQuery] GetPermissionsListQuery request)
     {
@@ -27,7 +27,7 @@ public class PermissionController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [PermissionAuthorization("GetPermissionByName")]
+    // [PermissionAuthorization("GetPermissionByName")]
     [HttpGet("name")]
     public async Task<IActionResult> Get([FromQuery] GetPermissionByNameQuery request)
     {
@@ -35,7 +35,7 @@ public class PermissionController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [PermissionAuthorization("GetPermissionById")]
+    // [PermissionAuthorization("GetPermissionById")]
     [HttpGet]
     [Route("id")]
     public async Task<IActionResult> Get([FromQuery] GetPermissionByIdQuery request)

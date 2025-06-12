@@ -40,7 +40,7 @@ using (var scope = app.Services.CreateScope())
     //db.UserCredentials.ExecuteDelete();
     //db.UserRoles.ExecuteDelete();
     //db.UserPermissions.ExecuteDelete();
-    db.Database.Migrate();
+    // db.Database.Migrate();
 }
 
 app.AddMiddlewares();

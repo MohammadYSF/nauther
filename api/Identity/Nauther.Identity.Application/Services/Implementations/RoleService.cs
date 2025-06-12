@@ -167,9 +167,9 @@ public class RoleService(
         {
             Name = dto.Name,
             DisplayName = dto.DisplayName,
-            RolePermissions = dto.Permissions.Select(a => new RolePermission
+            RolePermissions =dto.Permissions.Select(a => new RolePermission()
             {
-                PermissionId = a
+                PermissionId = a,
             }).ToList()
         };
 

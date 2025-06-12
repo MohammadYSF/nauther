@@ -307,6 +307,24 @@ public class UserService(
         throw new NotImplementedException();
     }
 
+    public async Task<BaseResponse<List<string>>> GetAllPermissionsByUsername(string username, CancellationToken cancellationToken)
+    {
+        var users_in_cache = await _easyCachingProvider.HGetAllAsync("ids:userbasicinform");
+        var id = users_in_cache.FirstOrDefault(a => JObject.Parse(a.Value)?["userCode"]?.ToString() == username).Key ?? "";
+        var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
+        var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
+        var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
+        var rolePermissions =
+            await _rolePermissionRepository.GetRolePermissionsByRoleIdsAsync(
+                userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
+        
+        var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId)
+            .Concat(rolePermissions.Select(a=> a.PermissionId)).Distinct().ToList(), cancellationToken);
+
+
+        return new BaseResponse<List<string>>() { Data = permissions.Select(a => a.Name).ToList(), StatusCode = 200 };
+    }
+
     private async Task<bool> IsUserExist(Guid? id, string? phoneNumber,
         string? username, CancellationToken cancellationToken)
     {
@@ -425,13 +443,14 @@ public class UserService(
                 Message = Messages.InvalidPassword
             };
         }
+
         return new BaseResponse<CheckPasswordResponse>
         {
             StatusCode = StatusCodes.Status200OK,
             Data = new CheckPasswordResponse
             {
                 Id = user.Id,
-                Ok = true
+                Ok = true,
             }
         };
 

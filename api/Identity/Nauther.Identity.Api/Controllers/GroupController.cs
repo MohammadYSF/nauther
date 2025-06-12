@@ -10,6 +10,7 @@ namespace Nauther.Identity.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+
 public class GroupController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;

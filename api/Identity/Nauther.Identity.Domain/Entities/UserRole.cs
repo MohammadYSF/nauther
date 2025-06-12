@@ -2,7 +2,7 @@ using Nauther.Framework.Domain.Common;
 
 namespace Nauther.Identity.Domain.Entities;
 
-public class UserRole : AuditableEntity
+public class UserRole : BaseEntity
 {
     public string UserId { get; set; }
     public User User { get; set; } 

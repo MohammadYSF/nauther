@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -95,16 +96,20 @@ public static class InfrastructureServiceRegistration
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,
         IConfiguration configuration)
     {
-        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = "https://localhost:44310";
+                options.Authority = configuration["OpenIdConnect:Authority"];
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true,
+                    SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+                    {
+                        var jwt = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(token);
+                        return jwt;
+                    },
                 };
                 options.Events = new JwtBearerEvents
                 {

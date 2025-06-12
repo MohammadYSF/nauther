@@ -11,6 +11,7 @@ public class AuthUserRepository(IHttpContextAccessor httpContextAccessor) : IAut
     
     public async Task<GetUserDto?> GetUserByTokenAsync()
     {
+        string sub = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(a => a.Type == "sub")?.Value??string.Empty;
         var authHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
         if (authHeader?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) != true)
             return null;

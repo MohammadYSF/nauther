@@ -19,6 +19,13 @@ internal class RolePermissionRepository(AppDbContext context)
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<RolePermission>> GetRolePermissionsByRoleIdsAsync(List<Guid> roleIds, CancellationToken cancellationToken)
+    {
+        return await _context.RolePermissions.AsNoTracking()
+            .Where(a => roleIds.Contains(a.RoleId))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<string>> GetRolePermissionsNameAsync(Guid roleId, CancellationToken cancellationToken)
     {
         var permissions = await _context.Permissions
