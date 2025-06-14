@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nauther.Identity.Persistence.Data;
 
@@ -11,9 +12,11 @@ using Nauther.Identity.Persistence.Data;
 namespace Nauther.Identity.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613224042_Seed_Data_Added")]
+    partial class Seed_Data_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -277,12 +280,6 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33"
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserCredential", b =>
@@ -298,13 +295,6 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("UserCredentials");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33",
-                            PasswordHash = "$argon2id$v=19$m=65536,t=3,p=1$vCyJ1Bp2Vbb2Yh0LVIhh+w$LXPvVkoFs0bqF3OmXb4hWUpPlBvjouUi2bw/S0q0oEc"
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserGroup", b =>
@@ -365,13 +355,6 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33",
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738")
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.GroupPermission", b =>
@@ -414,11 +397,13 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserCredential", b =>
                 {
-                    b.HasOne("Nauther.Identity.Domain.Entities.User", null)
-                        .WithOne()
+                    b.HasOne("Nauther.Identity.Domain.Entities.User", "User")
+                        .WithOne("UserCredential")
                         .HasForeignKey("Nauther.Identity.Domain.Entities.UserCredential", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserGroup", b =>
@@ -503,6 +488,9 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.User", b =>
                 {
+                    b.Navigation("UserCredential")
+                        .IsRequired();
+
                     b.Navigation("UserGroups");
 
                     b.Navigation("UserPermissions");

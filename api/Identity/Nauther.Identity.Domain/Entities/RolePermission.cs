@@ -2,7 +2,7 @@ using Nauther.Framework.Domain.Common;
 
 namespace Nauther.Identity.Domain.Entities;
 
-public class RolePermission : BaseEntity
+public class RolePermission
 {
     public Guid RoleId { get; set; }
     public Role Role { get; set; } 

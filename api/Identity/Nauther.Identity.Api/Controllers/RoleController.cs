@@ -13,7 +13,7 @@ namespace Nauther.Identity.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = "Bearer")]
+// [Authorize(AuthenticationSchemes = "Bearer")]
 
 //[PermissionAuthorization("AccessAll")]
 public class RoleController(IMediator mediator) : ControllerBase
@@ -28,7 +28,7 @@ public class RoleController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [PermissionAuthorization("GetRoleByName")]
+    // [PermissionAuthorization("GetRoleByName")]
     [HttpGet("name")]
     public async Task<IActionResult> Get([FromQuery] GetRoleByNameQuery request)
     {

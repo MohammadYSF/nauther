@@ -12,9 +12,10 @@ public class UserCredentialConfiguration : IEntityTypeConfiguration<UserCredenti
 
         entity.Property(uc => uc.PasswordHash).HasMaxLength(500).IsRequired();
 
-        entity.HasOne(uc => uc.User)
-            .WithOne(u => u.UserCredential)
-            .HasForeignKey<UserCredential>(uc => uc.UserId)
+        entity.HasOne<User>()
+            .WithOne()
+            .HasForeignKey<UserCredential>(a => a.UserId)
+            .HasPrincipalKey<User>(a => a.Id)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

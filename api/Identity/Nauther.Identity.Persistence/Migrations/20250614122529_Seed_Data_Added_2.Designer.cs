@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nauther.Identity.Persistence.Data;
 
@@ -11,9 +12,11 @@ using Nauther.Identity.Persistence.Data;
 namespace Nauther.Identity.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250614122529_Seed_Data_Added_2")]
+    partial class Seed_Data_Added_2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,7 +306,7 @@ namespace Nauther.Identity.Persistence.Migrations
                         new
                         {
                             UserId = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33",
-                            PasswordHash = "$argon2id$v=19$m=65536,t=3,p=1$vCyJ1Bp2Vbb2Yh0LVIhh+w$LXPvVkoFs0bqF3OmXb4hWUpPlBvjouUi2bw/S0q0oEc"
+                            PasswordHash = "$argon2id$v=19$m=65536,t=3,p=1$Ep84MCTbcLcNvLawUW0yRw$pO29hahtMewUOFS4WXMwL0u7LL5SXNMXe2fUI3RoKlg"
                         });
                 });
 

@@ -26,5 +26,6 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
             .WithOne(p => p.Permission)
             .HasForeignKey(p => p.PermissionId)
             .OnDelete(DeleteBehavior.Cascade);
+        
     }
 }

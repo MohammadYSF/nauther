@@ -1,6 +1,7 @@
 using auther.Identity.Application.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Shared.Responses;
 using Nauther.Identity.Application.Features.Auth.Commands.Register;
@@ -18,6 +19,7 @@ using Nauther.Identity.Domain.Entities;
 using Nauther.Identity.Domain.ExternalContract;
 using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Services.JwtToken;
+using Nauther.Identity.Infrastructure.Utilities;
 using Nauther.Identity.Infrastructure.Utilities.PasswordHash;
 
 namespace Nauther.Identity.Application.Services.Implementations;
@@ -36,9 +38,10 @@ public class UserService(
     IPermissionRepository permissionRepository,
     IRoleRepository roleRepository,
     IUserCredentialRepository userCredentialRepository,
-    IExternalUserDataRepository externalUserDataRepository) : IUserService
+    IExternalUserDataRepository externalUserDataRepository,
+    IOptions<DefaultSuperAdminConfiguration> options) : IUserService
 {
-    private readonly IExternalUserDataRepository _externalUserDataRepository=externalUserDataRepository;
+    private readonly IExternalUserDataRepository _externalUserDataRepository = externalUserDataRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserPermissionRepository _userPermissionRepository = userPermissionRepository;
@@ -52,7 +55,7 @@ public class UserService(
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly IUserCredentialRepository _userCredentialRepository = userCredentialRepository;
-
+    private readonly DefaultSuperAdminConfiguration _defaultSuperAdminConfiguration = options.Value;
 
     public async Task<BaseResponse> GetExternalUsersList(GetExternalUsersListQuery query,
         CancellationToken cancellationToken)
@@ -60,18 +63,18 @@ public class UserService(
         string search = query.Search ?? "";
         var res = await _externalUserDataRepository.GetUsersAsync();
         var filtered = res
-    .Where(obj =>
-    (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
-    ||
-    (
-    (obj.UserCode.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-    ||
-    (obj.PhoneNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-    ||
-    (obj.Username.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-    )
-    )
-          .Skip((query.PageNumber - 1) * query.PageSize)
+            .Where(obj =>
+                (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
+                ||
+                (
+                    (obj.UserCode.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
+                    ||
+                    (obj.PhoneNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
+                    ||
+                    (obj.Username.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
+                )
+            )
+            .Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToList();
 
@@ -81,17 +84,21 @@ public class UserService(
         {
             var id = item.Id;
             var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
-            var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
-            var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
-            var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
-            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync( id);
+            var userPermissions =
+                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
+            var permissions =
+                await _permissionRepository.GetByIdsAsync(
+                    userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
+            var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
+                cancellationToken);
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
             data.Add(new GetUsersListQueryResponse
             {
                 Id = id,
                 IsActive = user_in_cache.IsActive,
-                Username =user_in_cache.Username,
+                Username = user_in_cache.Username,
                 PhoneNumber = user_in_cache.PhoneNumber,
-                UserCode =user_in_cache.UserCode,
+                UserCode = user_in_cache.UserCode,
                 Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
                 {
                     DisplayName = a.DisplayName,
@@ -104,6 +111,7 @@ public class UserService(
                 }).ToList()
             });
         }
+
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
@@ -112,10 +120,10 @@ public class UserService(
         };
     }
 
-    public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username, string? phoneNumber,
+    public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username,
+        string? phoneNumber,
         CancellationToken cancellationToken)
     {
-
         var user = await _userRepository.GetUserByPropertiesAsync(
             id,
             string.IsNullOrEmpty(phoneNumber) ? null : phoneNumber,
@@ -131,19 +139,23 @@ public class UserService(
             };
 
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(user.Id, cancellationToken);
-        var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(user.Id, cancellationToken);
-        var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
-        var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
-            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync( id);
+        var userPermissions =
+            await _userPermissionRepository.GetUserPermissionsByUserIdAsync(user.Id, cancellationToken);
+        var permissions =
+            await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(),
+                cancellationToken);
+        var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
+            cancellationToken);
+        var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
         var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
 
         var data = new GetUserDetailQueryResponse
         {
             Id = id,
             IsActive = user_in_cache.IsActive,
-            Username =user_in_cache.Username,
+            Username = user_in_cache.Username,
             PhoneNumber = user_in_cache.PhoneNumber,
-            UserCode =user_in_cache.UserCode,
+            UserCode = user_in_cache.UserCode,
             Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
                 DisplayName = a.DisplayName,
@@ -153,11 +165,7 @@ public class UserService(
             {
                 DisplayName = a.DisplayName,
                 Id = a.Id
-            }).ToList(),
-            CreatedBy = userCredentail.CreatedBy,
-            CreatedAt = userCredentail.CreatedAt,
-            UpdatedAt = userCredentail.UpdatedAt,
-            UpdatedBy = userCredentail.UpdatedBy
+            }).ToList()
         };
         return new BaseResponse<GetUserDetailQueryResponse?>()
         {
@@ -182,11 +190,12 @@ public class UserService(
             Data = _mapper.Map<VerifyNationalCodeCommandResponse>(user)
         };
     }
+
     public async Task<BaseResponse> Edit(EditUserCommand request,
-    CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
     {
-            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id);
-        
+        var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id);
+
         if (user_in_cache == null)
         {
             return new BaseResponse<BaseResponse>()
@@ -195,12 +204,14 @@ public class UserService(
                 Message = Messages.UserNotFound
             };
         }
+
         if (!string.IsNullOrEmpty(request.Password))
         {
             var userCredentail = await _userCredentialRepository.GetByUserIdAsync(request.Id, cancellationToken);
             userCredentail.PasswordHash = _passwordHasher.HashPassword(request.Password);
             await _userCredentialRepository.UpdateAsync(userCredentail, cancellationToken);
         }
+
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(request.Id, cancellationToken);
         foreach (var item in userRoles)
         {
@@ -209,6 +220,7 @@ public class UserService(
                 await _userRoleRepository.RemoveAsync(item, cancellationToken);
             }
         }
+
         foreach (var item in request.Roles)
         {
             if (!userRoles.Select(a => a.RoleId).Contains(item))
@@ -220,7 +232,9 @@ public class UserService(
                 }, cancellationToken);
             }
         }
-        var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(request.Id, cancellationToken);
+
+        var userPermissions =
+            await _userPermissionRepository.GetUserPermissionsByUserIdAsync(request.Id, cancellationToken);
         foreach (var item in userPermissions)
         {
             if (!request.Permissions.Contains(item.PermissionId))
@@ -228,6 +242,7 @@ public class UserService(
                 await _userPermissionRepository.RemoveAsync(item, cancellationToken);
             }
         }
+
         foreach (var item in request.Permissions)
         {
             if (!userPermissions.Select(a => a.PermissionId).Contains(item))
@@ -239,6 +254,7 @@ public class UserService(
                 }, cancellationToken);
             }
         }
+
         await _userRepository.SaveChangesAsync();
         return new BaseResponse()
         {
@@ -246,6 +262,7 @@ public class UserService(
             Data = new { Id = request.Id }
         };
     }
+
     public async Task<BaseResponse> Register(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
@@ -258,6 +275,7 @@ public class UserService(
                 Message = Messages.UserNotFound
             };
         }
+
         var u = new User
         {
             Id = request.Id.ToString(),
@@ -270,14 +288,15 @@ public class UserService(
             {
                 PermissionId = a,
                 UserId = request.Id.ToString()
-            }).ToList(),
-            UserCredential = new UserCredential
-            {
-                PasswordHash = _passwordHasher.HashPassword(request.Password),
-                UserId = request.Id.ToString()
-            }
+            }).ToList()
+        };
+        var userCredential = new UserCredential
+        {
+            PasswordHash = _passwordHasher.HashPassword(request.Password),
+            UserId = request.Id.ToString()
         };
         _ = await _userRepository.AddAsync(u, cancellationToken);
+        _ = await _userCredentialRepository.AddAsync(userCredential, cancellationToken);
         await _userRepository.SaveChangesAsync();
         return new BaseResponse<RegisterUserCommandResponse>()
         {
@@ -286,7 +305,8 @@ public class UserService(
         };
     }
 
-    public async Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<SendOtpCommandResponse>> SendOtp(SendOtpCommand request,
+        CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
@@ -297,19 +317,21 @@ public class UserService(
         throw new NotImplementedException();
     }
 
-    public async Task<BaseResponse<List<string>>> GetAllPermissionsByUsername(string username, CancellationToken cancellationToken)
+    public async Task<BaseResponse<List<string>>> GetAllPermissionsByUsername(string username,
+        CancellationToken cancellationToken)
     {
         var users_in_cache = await _externalUserDataRepository.GetUsersAsync();
         var id = users_in_cache.FirstOrDefault(a => a.UserCode == username)?.Id;
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
         var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
-        var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
+        var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
+            cancellationToken);
         var rolePermissions =
             await _rolePermissionRepository.GetRolePermissionsByRoleIdsAsync(
                 userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
-        
+
         var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId)
-            .Concat(rolePermissions.Select(a=> a.PermissionId)).Distinct().ToList(), cancellationToken);
+            .Concat(rolePermissions.Select(a => a.PermissionId)).Distinct().ToList(), cancellationToken);
 
 
         return new BaseResponse<List<string>>() { Data = permissions.Select(a => a.Name).ToList(), StatusCode = 200 };
@@ -334,18 +356,18 @@ public class UserService(
         string search = query.Search ?? "";
         var res = await _externalUserDataRepository.GetUsersAsync();
         var filtered = res
-    .Where(obj =>
-    (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
-    ||
-    (
-    (obj.UserCode.Contains(search, StringComparison.OrdinalIgnoreCase))
-    ||
-    (obj.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase))
-    ||
-    (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
-    )
-    )
-          .Skip((query.PageNumber - 1) * query.PageSize)
+            .Where(obj =>
+                (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
+                ||
+                (
+                    (obj.UserCode.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    ||
+                    (obj.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    ||
+                    (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
+                )
+            )
+            .Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToList();
 
@@ -356,9 +378,13 @@ public class UserService(
         {
             var id = item.Id;
             var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
-            var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
-            var permissions = await _permissionRepository.GetByIdsAsync(userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
-            var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(), cancellationToken);
+            var userPermissions =
+                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
+            var permissions =
+                await _permissionRepository.GetByIdsAsync(
+                    userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
+            var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
+                cancellationToken);
             var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
             data.Add(new GetUsersListQueryResponse
             {
@@ -379,12 +405,12 @@ public class UserService(
                 }).ToList()
             });
         }
+
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
             Data = data,
             Metadata = new Dictionary<string, object>() { { "total", total } }
-
         };
     }
 
@@ -403,24 +429,37 @@ public class UserService(
         };
     }
 
-    public async Task<BaseResponse<CheckPasswordResponse>> CheckPassword(CheckPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<CheckPasswordResponse>> CheckPassword(CheckPasswordCommand request,
+        CancellationToken cancellationToken)
     {
-        var res = await _externalUserDataRepository.GetUsersAsync();
-
-        var filtered = res
-            .FirstOrDefault(obj => obj.UserCode == request.Username);
-        if (filtered == null)
+        User user = null;
+        string stored_password_hash = string.Empty;
+        if (_defaultSuperAdminConfiguration.Username == request.Username)
         {
-            return new BaseResponse<CheckPasswordResponse>
+            user = _defaultSuperAdminConfiguration.User;
+            stored_password_hash = _passwordHasher.HashPassword(_defaultSuperAdminConfiguration.Password);
+        }
+        else
+        {
+            var res = await _externalUserDataRepository.GetUsersAsync();
+
+            var filtered = res
+                .FirstOrDefault(obj => obj.UserCode == request.Username);
+            if (filtered == null)
             {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Message = Messages.InvalidUsername
-            };
+                return new BaseResponse<CheckPasswordResponse>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = Messages.InvalidUsername
+                };
+            }
+
+            user = await _userRepository.GetById(filtered.Id, cancellationToken);
+            var userCredential = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
+            stored_password_hash = userCredential.PasswordHash;
         }
 
-        var user = await _userRepository.GetById(filtered.Id, cancellationToken);
-        var userCredential = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
-        bool f = _passwordHasher.VerifyPassword(request.Password, userCredential.PasswordHash);
+        bool f = _passwordHasher.VerifyPassword(request.Password, stored_password_hash);
         if (!f)
         {
             return new BaseResponse<CheckPasswordResponse>
@@ -439,6 +478,5 @@ public class UserService(
                 Ok = true,
             }
         };
-
     }
 }

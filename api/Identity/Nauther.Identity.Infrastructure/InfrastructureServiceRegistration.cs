@@ -10,6 +10,7 @@ using Nauther.Identity.Infrastructure.Models;
 using Nauther.Identity.Infrastructure.Services.ExternalUser;
 using Nauther.Identity.Infrastructure.Services.JwtToken;
 using Nauther.Identity.Infrastructure.Services.OTP;
+using Nauther.Identity.Infrastructure.Utilities;
 using Nauther.Identity.Infrastructure.Utilities.PasswordHash;
 
 namespace Nauther.Identity.Infrastructure;
@@ -23,6 +24,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         services.AddScoped<IOtpSender, OtpSender>();
         services.AddScoped<IExternalUserDataRepository, ExternalUserDataRepository>();
+        
+        services.Configure<DefaultSuperAdminConfiguration>(configuration.GetSection(nameof(DefaultSuperAdminConfiguration)));
 
         return services;
     }

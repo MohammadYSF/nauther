@@ -11,16 +11,16 @@ public class ExternalUserDataRepository(IRedisCachingProvider easyCachingProvide
     private const string CACHE_KEY = "ids:userbasicinform";
     
     
-    public async Task<ExternalUserModel> GetUserByUsernameAsync(string username)
+    public async Task<ExternalUserModel?> GetUserByUsernameAsync(string username)
     {
         var res = await this.GetUsersAsync();
         return res.FirstOrDefault(a => a.Username == username);
     }
 
-    public async Task<ExternalUserModel> GetUserByIdentifierAsync(string id)
+    public async Task<ExternalUserModel?> GetUserByIdentifierAsync(string id)
     {
         var user_in_cache = await _easyCachingProvider.HGetAsync(CACHE_KEY, id);
-        return JsonConvert.DeserializeObject<ExternalUserModel>(user_in_cache);
+        return string.IsNullOrEmpty(user_in_cache)?null: JsonConvert.DeserializeObject<ExternalUserModel>(user_in_cache);
     }
 
     public async Task<List<ExternalUserModel>> GetUsersAsync()

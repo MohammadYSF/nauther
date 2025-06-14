@@ -65,14 +65,20 @@ public static class Messages
 
 
 
-
+    public const string PERMISSION = "دسترسی";
+    public const string ROLE = "نقش";
+    public const string ADMIN = "ادمین";
+    public const string CREATE = "ایجاد";
+    public const string EDIT = "ویرایش";
+    public const string DELETE = "حذف";
+    public const string VIEW = "مشاهده";
+    
     public const string CREATE_PERMISSION = "ایجاد دسترسی";
     public const string EDIT_PERMISSION = "ویرایش دسترسی";
     public const string DELETE_PERMISSION = "حذف دسترسی";
     public const string VIEW_PERMISSIONS = "مشاهده دسترسی ها";
 
 
-    public const string ADMIN = "ادمین";
     public const string USER = "کاربر";
 
 }

@@ -10,10 +10,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         entity.HasKey(u => u.Id);
         
-        entity.HasOne(u => u.UserCredential)
-            .WithOne(uc => uc.User)
-            .HasForeignKey<UserCredential>(uc => uc.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // entity.HasOne(u => u.UserCredential)
+        //     .WithOne(uc => uc.User)
+        //     .HasForeignKey<UserCredential>(uc => uc.UserId)
+        //     .OnDelete(DeleteBehavior.Cascade);
         
         entity.HasMany(u => u.UserRoles)
             .WithOne(ur => ur.User)

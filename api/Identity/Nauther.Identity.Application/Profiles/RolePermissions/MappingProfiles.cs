@@ -11,8 +11,6 @@ public partial class MappingProfiles : Profile
     public MappingProfiles()
     {
         CreateMap<CreateRolePermissionDto, RolePermission>();
-        CreateMap<RolePermission, CreateRolePermissionCommandResponse>()
-            .ForMember(desc => desc.RolePermissionId, opt 
-                => opt.MapFrom(src => src.Id));
+        CreateMap<RolePermission, CreateRolePermissionCommandResponse>();
     }
 }

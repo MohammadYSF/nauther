@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nauther.Identity.Persistence.Data;
 
@@ -11,9 +12,11 @@ using Nauther.Identity.Persistence.Data;
 namespace Nauther.Identity.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613194349_UserCredential_Edit")]
+    partial class UserCredential_Edit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,75 +94,27 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("093d581c-28bb-4700-83a2-429d21765ee6"),
-                            DisplayName = "مشاهده دسترسی",
+                            Id = new Guid("67b1e085-d1ff-496a-9adb-5c57a2c0bb3d"),
+                            DisplayName = "مشاهده دسترسی ها",
                             Name = "ViewPermission"
                         },
                         new
                         {
-                            Id = new Guid("a40cda85-a303-46d7-8350-cbed507efb12"),
+                            Id = new Guid("2379b9d4-ca76-467b-bea7-6be08bcef55c"),
                             DisplayName = "ایجاد دسترسی",
-                            Name = "AddPermission"
+                            Name = "CreatePermission"
                         },
                         new
                         {
-                            Id = new Guid("7c52899e-c7b1-4074-95fc-4257120b5b29"),
+                            Id = new Guid("2479b9d4-ca76-467b-bea7-6be08bcef55c"),
                             DisplayName = "ویرایش دسترسی",
                             Name = "EditPermission"
                         },
                         new
                         {
-                            Id = new Guid("be05bebe-21e7-4d7f-964f-ce4030373ac6"),
+                            Id = new Guid("2579b9d4-ca76-467b-bea7-6be08bcef55c"),
                             DisplayName = "حذف دسترسی",
                             Name = "DeletePermission"
-                        },
-                        new
-                        {
-                            Id = new Guid("9a755e5d-4380-49ab-bae2-06480b8e9476"),
-                            DisplayName = "مشاهده نقش",
-                            Name = "ViewRole"
-                        },
-                        new
-                        {
-                            Id = new Guid("62ec4f35-44ca-4c63-82b9-689d2bfde0c6"),
-                            DisplayName = "ویرایش نقش",
-                            Name = "EditRole"
-                        },
-                        new
-                        {
-                            Id = new Guid("0f5c4756-d479-4029-a1c5-165f7385accb"),
-                            DisplayName = "ایجاد نقش",
-                            Name = "AddRole"
-                        },
-                        new
-                        {
-                            Id = new Guid("0010928a-3381-46aa-b9b7-c2db83dd0f82"),
-                            DisplayName = "حذف نقش",
-                            Name = "DeleteRole"
-                        },
-                        new
-                        {
-                            Id = new Guid("9a5a8465-cb5b-44eb-bbe5-16a463a03c37"),
-                            DisplayName = "مشاهده ادمین",
-                            Name = "ViewAdmin"
-                        },
-                        new
-                        {
-                            Id = new Guid("3180f21d-0785-4293-a8fe-281a533b768c"),
-                            DisplayName = "حذف ادمین",
-                            Name = "DeleteAdmin"
-                        },
-                        new
-                        {
-                            Id = new Guid("c1a243db-a5d5-4d5c-bae4-02a8ccf5fd33"),
-                            DisplayName = "ایجاد ادمین",
-                            Name = "AddAdmin"
-                        },
-                        new
-                        {
-                            Id = new Guid("8ca6c12d-a066-4859-a3a0-f786de32821c"),
-                            DisplayName = "ویرایش ادمین",
-                            Name = "EditAdmin"
                         });
                 });
 
@@ -186,9 +141,15 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            DisplayName = "نقش ادمین",
+                            Id = new Guid("bd7a5b0b-3059-4fab-8c36-b385b8baa9c9"),
+                            DisplayName = "ادمین",
                             Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("717d7a4a-d864-4774-8ae0-5010e745d87e"),
+                            DisplayName = "کاربر",
+                            Name = "User"
                         });
                 });
 
@@ -200,73 +161,14 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.Property<Guid>("PermissionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("RoleId", "PermissionId");
 
                     b.HasIndex("PermissionId");
 
                     b.ToTable("RolePermissions");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("093d581c-28bb-4700-83a2-429d21765ee6")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("a40cda85-a303-46d7-8350-cbed507efb12")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("7c52899e-c7b1-4074-95fc-4257120b5b29")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("be05bebe-21e7-4d7f-964f-ce4030373ac6")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("9a755e5d-4380-49ab-bae2-06480b8e9476")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("62ec4f35-44ca-4c63-82b9-689d2bfde0c6")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("0f5c4756-d479-4029-a1c5-165f7385accb")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("0010928a-3381-46aa-b9b7-c2db83dd0f82")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("9a5a8465-cb5b-44eb-bbe5-16a463a03c37")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("3180f21d-0785-4293-a8fe-281a533b768c")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("c1a243db-a5d5-4d5c-bae4-02a8ccf5fd33")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738"),
-                            PermissionId = new Guid("8ca6c12d-a066-4859-a3a0-f786de32821c")
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.User", b =>
@@ -277,18 +179,15 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33"
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserCredential", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -298,13 +197,6 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("UserCredentials");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33",
-                            PasswordHash = "$argon2id$v=19$m=65536,t=3,p=1$vCyJ1Bp2Vbb2Yh0LVIhh+w$LXPvVkoFs0bqF3OmXb4hWUpPlBvjouUi2bw/S0q0oEc"
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserGroup", b =>
@@ -345,6 +237,9 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.Property<Guid>("PermissionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("UserId", "PermissionId");
 
                     b.HasIndex("PermissionId");
@@ -360,18 +255,14 @@ namespace Nauther.Identity.Persistence.Migrations
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "65f84f5e-38d6-410a-a9a1-7e1cdff64b33",
-                            RoleId = new Guid("081e66fc-527d-47a7-941f-7af16e95e738")
-                        });
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.GroupPermission", b =>
@@ -414,11 +305,13 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserCredential", b =>
                 {
-                    b.HasOne("Nauther.Identity.Domain.Entities.User", null)
-                        .WithOne()
+                    b.HasOne("Nauther.Identity.Domain.Entities.User", "User")
+                        .WithOne("UserCredential")
                         .HasForeignKey("Nauther.Identity.Domain.Entities.UserCredential", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.UserGroup", b =>
@@ -503,6 +396,9 @@ namespace Nauther.Identity.Persistence.Migrations
 
             modelBuilder.Entity("Nauther.Identity.Domain.Entities.User", b =>
                 {
+                    b.Navigation("UserCredential")
+                        .IsRequired();
+
                     b.Navigation("UserGroups");
 
                     b.Navigation("UserPermissions");
