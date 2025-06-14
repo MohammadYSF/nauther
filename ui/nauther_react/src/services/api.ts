@@ -19,7 +19,7 @@ export interface ApiError {
 //   return { message: 'Unexpected error', data: error };
 // };
 const api = axios.create({
-  baseURL: 'https://localhost:5001/api', // Change to your backend base URL
+  baseURL: `${import.meta.env.VITE_API_URL}/api`, // Change to your backend base URL
   headers: {
     'Content-Type': 'application/json',
   },

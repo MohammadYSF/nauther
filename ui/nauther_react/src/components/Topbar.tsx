@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useOidc } from '@axa-fr/react-oidc';
 
 export default function Topbar() {
+  const appTitle = import.meta.env.VITE_APP_TITLE;
+  console.log(import.meta.env);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const navigate = useNavigate();
     const { login, logout, renewTokens, isAuthenticated } = useOidc();
@@ -57,7 +59,7 @@ export default function Topbar() {
         {/* Right: DIMA logo */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Typography.Text style={{ color: '#fff', fontWeight: 700, fontSize: 18, letterSpacing: 2 }}>
-            DIMA
+            {appTitle}
           </Typography.Text>
         </div>
         {/* Left: User full name and avatar */}
