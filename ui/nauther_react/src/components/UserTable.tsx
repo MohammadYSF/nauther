@@ -5,7 +5,7 @@ import { Table, Input, Select, Checkbox, Avatar, Popover, List, Typography, Divi
 import { SearchOutlined } from '@ant-design/icons';
 import { SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons';
 import RolePopover from './RolePopover';
-import { getAllUsers, type User } from '../services/userService';
+import { getAllUsers } from '../services/userService';
 import debounce from 'lodash.debounce';
 
 const rolesList = ['سوپر ادمین', 'ادمین', 'کاربر عادی'];
@@ -38,7 +38,7 @@ export default function UserTable({ selected, setSelected, refresh }: { selected
 
   useEffect(() => {
     setLoading(true);
-    getAllUsers(page + 1, rowsPerPage,search)
+    getAllUsers({page: page + 1,pageSize: rowsPerPage,search:search})
       .then(res => {
         if (Array.isArray(res.data)) {
           setUsers(res.data);

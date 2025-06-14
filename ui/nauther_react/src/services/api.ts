@@ -31,7 +31,7 @@ api.interceptors.response.use(
 );
 // Request interceptor to add token
 api.interceptors.request.use((config) => {
-  const token =JSON.parse(sessionStorage.getItem("oidc.default")).tokens.accessToken;
+  const token =JSON.parse(sessionStorage.getItem("oidc.default")??"").tokens.accessToken??"";
   console.log("Token from sessionStorage:", token);
   // const token = localStorage.getItem('accesstoken');
   if (token) {
