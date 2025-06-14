@@ -10,9 +10,9 @@ import Layout from './components/Layout';
 import { OidcProvider, OidcSecure } from '@axa-fr/react-oidc';
 import Login from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { themeConfig } from './theme/themeConfig';
-import SignInOidc from './pages/SignInOidc';
+import { AuthenticatingComponent, AuthenticatingErrorComponent, CallbackSuccessComponent, LoadingComponent, SessionLostComponent } from './components/OidcComponents';
+import { SignOutSuccessPage } from './pages/SignOutCallbackPage';
 
 // This configuration use hybrid mode
 // ServiceWorker are used if available (more secure) else tokens are given to the client
@@ -20,7 +20,7 @@ import SignInOidc from './pages/SignInOidc';
 const configuration = {
   client_id: 'skoruba_identity_admin',
   redirect_uri: window.location.origin + '/signin-oidc',
-  silent_login_uri:window.location.origin + '/silent-login-oidc',
+  silent_login_uri: window.location.origin + '/silent-login-oidc',
   silent_redirect_uri: window.location.origin + '/silent-redirect-oidc',
   scope: 'openid profile email', // offline_access scope allow your client to retrieve the refresh_token
   authority: 'https://localhost:44310',
@@ -31,7 +31,7 @@ const configuration = {
   token_request_extras: {
     client_secret: "skoruba_admin_client_secret",
   },
-  extras:{
+  extras: {
     client_secret: "skoruba_admin_client_secret",
   }
 
@@ -110,10 +110,17 @@ const App: React.FC = () => {
       }}
     >
       <BrowserRouter>
-        <OidcProvider configuration={configuration}>
+        <OidcProvider
+         loadingComponent={LoadingComponent}
+          authenticatingComponent={AuthenticatingComponent}
+         authenticatingErrorComponent={AuthenticatingErrorComponent}
+         callbackSuccessComponent={CallbackSuccessComponent}         
+          configuration={configuration}
+         
+         >
           {/* <AuthProvider> */}
           <Routes>
-            <Route path="/signout-callback-oidc" element={<h2>Goodbye, you magnificent user.</h2>} />
+            <Route path="/signout-callback-oidc" element={<SignOutSuccessPage />} />
 
             <Route path="/login" element={<Login />} />
             {/* <Route path="/signin-oidc" element={<SignInOidc />} /> */}
