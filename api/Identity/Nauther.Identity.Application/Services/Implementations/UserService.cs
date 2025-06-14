@@ -73,10 +73,15 @@ public class UserService(
                     ||
                     (obj.Username.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
                 )
-            )
-            .Skip((query.PageNumber - 1) * query.PageSize)
-            .Take(query.PageSize)
-            .ToList();
+            );
+
+        if (query.PageNumber > -1)
+        {
+            filtered=filtered.Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+        }
+
 
         var total = res.Count;
         List<GetUsersListQueryResponse> data = [];
@@ -320,8 +325,17 @@ public class UserService(
     public async Task<BaseResponse<List<string>>> GetAllPermissionsByUsername(string username,
         CancellationToken cancellationToken)
     {
-        var users_in_cache = await _externalUserDataRepository.GetUsersAsync();
-        var id = users_in_cache.FirstOrDefault(a => a.UserCode == username)?.Id;
+        var id = string.Empty;
+        if (_defaultSuperAdminConfiguration.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
+        {
+            id = _defaultSuperAdminConfiguration.Id;
+        }
+        else
+        {
+            var users_in_cache = await _externalUserDataRepository.GetUsersAsync();
+            id = users_in_cache.FirstOrDefault(a => a.UserCode == username)?.Id;
+        }
+
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
         var userPermissions = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
         var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
@@ -366,10 +380,13 @@ public class UserService(
                     ||
                     (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
                 )
-            )
-            .Skip((query.PageNumber - 1) * query.PageSize)
+            );
+        if (query.PageNumber > -1)
+        {
+            filtered=filtered.Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToList();
+        }
 
         var total = res.Count;
         var users = await _userRepository.GetAllListAsync(new PaginationListDto { PageSize = -1 }, cancellationToken);

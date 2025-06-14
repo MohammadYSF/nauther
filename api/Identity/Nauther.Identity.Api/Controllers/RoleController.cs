@@ -21,7 +21,6 @@ public class RoleController(IMediator mediator) : ControllerBase
     private readonly IMediator _mediator = mediator;
 
     //[PermissionAuthorization("GetAllRoles")]
-    [HttpGet("all")]
     public async Task<IActionResult> Get([FromQuery] GetRolesListQuery request)
     {
         var result = await _mediator.Send(request);

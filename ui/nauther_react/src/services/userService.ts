@@ -1,35 +1,12 @@
-import axios from 'axios';
+import type { GetApiParam } from '../types/getApiParam';
+import type { GetAllUsersResponseDataModel, User } from '../types/user';
 import api from './api';
 
-export interface User {
-    id: string;
-    userCode: string;
-    profileImage: string;
-    username: string;
-    phoneNumber: string;
-    isActive: boolean;
-    permissions:{id:string,displayName:string}[],
-    roles:{id:string,displayName:string}[]
-}
-
-interface GetAllUsersResponseDataModel_Raw {
-    statusCode: number;
-    message: string;
-    validationErrors: any;
-    data: User[];
-    metadata: { total: number }
-}
-export interface GetAllUsersResponseDataModel {
-    statusCode: number;
-    message: string;
-    validationErrors: any;
-    data: User[];
-    metadata: { total: number }
-}
-
-export async function getAllExternalUsers(pageNumber: number, pageSize: number, search: string): Promise<GetAllUsersResponseDataModel> {
+export async function getAllExternalUsers
+(param:GetApiParam)
+: Promise<GetAllUsersResponseDataModel> {
     const response = await api.get<GetAllUsersResponseDataModel>('/user/external', {
-        params: { pageNumber, pageSize, search },
+        params: param,
         headers: { accept: '*/*' }
     });
     console.log("response is : ",response);
@@ -37,9 +14,11 @@ export async function getAllExternalUsers(pageNumber: number, pageSize: number, 
     return {...response.data, data: x};
 }
 
-export async function getAllUsers(pageNumber: number, pageSize: number, search: string): Promise<GetAllUsersResponseDataModel> {
-    const response = await api.get<GetAllUsersResponseDataModel>('/user/all', {
-        params: { pageNumber, pageSize, search },
+export async function getAllUsers
+(param:GetApiParam)
+:Promise<GetAllUsersResponseDataModel> {
+    const response = await api.get<GetAllUsersResponseDataModel>('/admin/all', {
+        params: param,
         headers: { accept: '*/*' }
     });
     return response.data;

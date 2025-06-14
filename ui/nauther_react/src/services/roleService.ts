@@ -1,66 +1,12 @@
+import type { GetApiParam } from '../types/getApiParam';
+import type { CreateRolePayload, CreateRoleResponseModel, DeleteRoleResponseDataModel, EditRolePayload, GetRoleByIdResponseDataModel, GetRolesResponseDataModel } from '../types/role';
 import api from './api';
-type GetRoleByIdResponseDataModel = {
-  statusCode: number;
-  message: string;
-  validationErrors: any;
-  data: {
-    id: string,
-    name: string,
-    displayName: string,
-    permissions: { id: string, name: string, displayName: string }[]
-  }
-};
-type GetRolesResponseDataModel = {
-  data: {
-    id: string,
-    name: string,
-    displayName: string,
-    permissions: { id: string, name: string, displayName: string }[],
-    users: { id: string, name: string }[],
-  }[],
-  metadata: {total: number}
-};
-type DeleteRolePayload = {
-  ids: string[]
-};
-type DeleteRoleResponseDataModel = {
-  statusCode: number;
-  message: string;
-  validationErrors: any;
-  data: {
-    ids: string[]
-  };
-};
-type CreateRolePayload = {
-  name: string,
-  displayName: string,
-  permissions: string[]
-};
-type EditRolePayload = {
-  name: string,
-  displayName: string,
-  permissions: string[]
-};
-type CreateRoleResponseModel = {
-  statusCode: number;
-  message: string;
-  validationErrors: any;
-  data: { id: string };
-};
-type EditRoleResponseModel = {
-  id: string
-};
+
 export const getRoles = async (
-  page: number = 1,
-  pageSize: number = 10,
-  search: string = ''
+param:GetApiParam
 ): Promise<GetRolesResponseDataModel> => {
-  let res = await api.get<GetRolesResponseDataModel>('/role/all', {
-    params: {
-      page,
-      pageSize,
-      search,
-    },
+  let res = await api.get<GetRolesResponseDataModel>('/role', {
+    params:param
   });
   return res.data;
 
@@ -76,8 +22,8 @@ export const createRole = async (data: CreateRolePayload): Promise<CreateRoleRes
   return res.data;
 }
 
-export const editRole = async (id: string, data: EditRolePayload): Promise<EditRoleResponseModel> => {
-  let res = await api.put<EditRoleResponseModel>(`/role/${id}`, data);
+export const editRole = async (id: string, data: EditRolePayload): Promise<CreateRoleResponseModel> => {
+  let res = await api.put<CreateRoleResponseModel>(`/role/${id}`, data);
   return res.data;
 }
 

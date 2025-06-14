@@ -4,8 +4,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getAdminById, getAdmins, editAdmin, createAdmin } from '../services/adminService';
 import { getRoles } from '../services/roleService';
 import { getPermissions } from '../services/permissionService';
-import { getAllExternalUsers, type User } from '../services/userService';
+import { getAllExternalUsers } from '../services/userService';
 import debounce from 'lodash.debounce';
+import type { User } from '../types/user';
 
 export default function AdminNewPage() {
   const { id } = useParams();
@@ -65,7 +66,7 @@ export default function AdminNewPage() {
   // Fetch users with search and pagination
   const fetchUsers = async (page = 1, search = '', append = false) => {
     setUserLoading(true);
-    const res = await getAllExternalUsers(page, 20, search);
+    const res = await getAllExternalUsers({page:page,pageSize: 20,search: search});
     if (append) {
       setUsers(prev => [...prev, ...res.data]);
     } else {
@@ -77,13 +78,13 @@ export default function AdminNewPage() {
 
   // Fetch roles with search
   const fetchRoles = async (search = '') => {
-    const res = await getRoles(1, 100, search);
+    const res = await getRoles({page: 1,pageSize: 100, search: search});
     setRoles(res.data || []);
   };
 
   // Fetch permissions with search
   const fetchPermissions = async (search = '') => {
-    const res = await getPermissions(1, 100, search);
+    const res = await getPermissions({page:1,pageSize: 100,search: search});
     setPermissions(res.data || []);
   };
 
@@ -133,8 +134,8 @@ export default function AdminNewPage() {
   };
 
   useEffect(() => {
-    getRoles().then(res => setRoles(res.data || []));
-    getPermissions().then(res => setPermissions(res.data || []));
+    getRoles({page:-1,pageSize:10,search:''}).then(res => setRoles(res.data || []));
+    getPermissions({page:-1,pageSize:10,search:''}).then(res => setPermissions(res.data || []));
   }, []);
 
 

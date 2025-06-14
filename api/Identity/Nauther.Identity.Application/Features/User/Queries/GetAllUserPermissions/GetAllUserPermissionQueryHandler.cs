@@ -16,7 +16,7 @@ public class GetAllUserPermissionQueryHandler(IUserService userService, IMapper 
 
     public async Task<BaseResponse<List<string>>> Handle(GetAllUserPermissionQuery request, CancellationToken cancellationToken)
     {
-        var res = await _userService.GetAllPermissionsByUsername(request.Id,
+        var res = await _userService.GetAllPermissionsByUsername(request.Username,
             cancellationToken);
         return res;
     }

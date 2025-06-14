@@ -10,7 +10,7 @@ export default function RoleNewPage() {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], metadata: { total: 0 } });
+  const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({data:[],message:"",metadata:{total:0},statusCode:200,validationErrors:[]});
   const [permissionSearch, setPermissionSearch] = useState('');
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -33,7 +33,7 @@ export default function RoleNewPage() {
 
   // Fetch permissions with search
   const fetchPermissions = async (search = '') => {
-    const res = await getPermissions(1, 100, search);
+    const res = await getPermissions({page:1,pageSize:100,search:search});
     setPermissions(res);
   };
 

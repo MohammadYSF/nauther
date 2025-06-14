@@ -34,7 +34,7 @@ export default function   RoleTable({ rowSelection, refresh }: RoleTableProps) {
 
   useEffect(() => {
     setLoading(true);
-    getRoles(page + 1, rowsPerPage, search)
+    getRoles({page:page + 1,pageSize: rowsPerPage,search:search})
       .then(res => {
         if (Array.isArray(res.data)) {
           setRoles(res.data);

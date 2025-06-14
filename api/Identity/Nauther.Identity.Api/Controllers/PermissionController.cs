@@ -20,7 +20,6 @@ public class PermissionController(IMediator mediator) : ControllerBase
     private readonly IMediator _mediator = mediator;
 
     [PermissionAuthorization("ViewPermission")]
-    [HttpGet("all")]
     public async Task<IActionResult> Get([FromQuery] GetPermissionsListQuery request)
     {
         var result = await _mediator.Send(request);

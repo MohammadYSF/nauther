@@ -8,6 +8,7 @@ using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyOtp;
+using Nauther.Identity.Application.Features.User.Commands.CheckPassword;
 
 namespace Nauther.Identity.Api.Controllers;
 
@@ -45,6 +46,12 @@ public class AuthController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode,result);
     }
     
+    [HttpPost("checkPassword")]
+    public async Task<IActionResult> CheckPassword([FromBody] CheckPasswordCommand request)
+    {
+        var result = await _mediator.Send(request);
+        return StatusCode(result.StatusCode, result);
+    }
     /*[HttpPost("login/otp")]
     public async Task<IActionResult> SendOtp()
     {

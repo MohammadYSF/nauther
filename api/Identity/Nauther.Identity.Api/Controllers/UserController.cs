@@ -19,54 +19,10 @@ namespace Nauther.Identity.Api.Controllers;
 public class UserController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] Dima_RegisterUserCommand request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
-    [HttpPut("edit")]
-    public async Task<IActionResult> Edit([FromBody] EditUserCommand request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
-    [HttpDelete]
-    public async Task<IActionResult> Delete([FromBody] DeleteUserCommand request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
+
     //[PermissionAuthorization("GetAllUsers")]
     [HttpGet("external")]
     public async Task<IActionResult> Get([FromQuery] GetExternalUsersListQuery request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
-    [HttpGet("all")]
-    public async Task<IActionResult> Get([FromQuery] GetUsersListQuery request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
-
-    //[PermissionAuthorization("GetUserDetail")]
-    [HttpGet("detail")]
-    public async Task<IActionResult> Get([FromQuery] GetUserDetailQuery request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
-
-    [HttpPost("checkPassword")]
-    public async Task<IActionResult> CheckPassword([FromBody] CheckPasswordCommand request)
-    {
-        var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
-    }
-    [HttpPost("allUserPermissions")]
-    public async Task<IActionResult> GetAllPUserermisions([FromBody] GetAllUserPermissionQuery request)
     {
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);

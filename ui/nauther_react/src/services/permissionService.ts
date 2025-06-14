@@ -1,60 +1,17 @@
+import type { GetApiParam } from '../types/getApiParam';
+import type { CreatePermissionPayload, CreatePermissionResponseDataModel, DeletePermissionResponseDataModel, EditPermissionPayload, EditPermissionResponseDataModel, GetPermissionByIdResponseDataModel, GetPermissionsResponseDataModel, Permission } from '../types/permission';
 import api from './api';
-type CreatePermissionPayload = {
-  name: string,
-  displayName: string
-};
-type EditPermissionPayload = {
-  id: string,
-  name: string,
-  displayName: string
-};
-type DeletePermissionPayload = {
-  ids: string[]
-};
-type DeletePermissionResponseDataModel = {
-  statusCode: number,
-  message: string,
-  validationErrors: any,
-  data: {
-    ids: string[]
-  }
-}
-type CreatePermissionResponseDataModel = {
-  id: string
-};
-type EditPermissionResponseDataModel = {
-  id: string
-}
-type GetPermissionsResponseDataModel = {
-  metadata: { total: number }
-  data: {
-    id: string,
-    name: string,
-    displayName: string
-  }[]
-};
-type GetPermissionByIdResponseDataModel = {
-  id: string,
-  name: string,
-  displayName: string
-};
 
 export const getPermissions = async (
-  pageNumber: number = 1,
-  pageSize: number = 10,
-  search: string = ''
+param:GetApiParam
 ) => {
-  let res = await api.get<GetPermissionsResponseDataModel>('/permission/all', {
-    params: {
-      pageNumber,
-      pageSize,
-      search,
-    },
+  let res = await api.get<GetPermissionsResponseDataModel>('/permission', {
+    params: param
   });
   return res.data;
 }
 export const getPermissionById = async (id: string) => {
-  let res = await api.get<GetPermissionByIdResponseDataModel>(`/permissions/${id}`);
+  let res = await api.get<GetPermissionByIdResponseDataModel>(`/permission/${id}`);
   return res.data;
 }
 export const createPermission = async (data: CreatePermissionPayload) => {

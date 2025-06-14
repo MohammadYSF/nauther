@@ -1,6 +1,7 @@
 using AutoMapper;
 using EasyCaching.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Infrastructure.Caching.RedisCache;
 using Nauther.Framework.Shared.Responses;
@@ -13,6 +14,7 @@ using Nauther.Identity.Application.Services.Interfaces;
 using Nauther.Identity.Domain.Entities;
 using Nauther.Identity.Domain.ExternalContract;
 using Nauther.Identity.Domain.IRepositories;
+using Nauther.Identity.Infrastructure.Utilities;
 using Nauther.Identity.Infrastructure.Utilities.Constants;
 using Newtonsoft.Json.Linq;
 
@@ -25,7 +27,8 @@ public class RoleService(
     IRolePermissionRepository rolePermissionRepository,
     IUserRepository userRepository,
     IUserRoleRepository userRoleRepository,
-    IExternalUserDataRepository  externalUserDataRepository)
+    IExternalUserDataRepository externalUserDataRepository,
+    IOptions<DefaultSuperAdminConfiguration> options)
     : IRoleService
 {
     private readonly IExternalUserDataRepository _externalUserDataRepository = externalUserDataRepository;
@@ -35,12 +38,13 @@ public class RoleService(
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly IPermissionRepository _permissionRepository = permissionRepository;
     private readonly IRolePermissionRepository _rolePermissionRepository = rolePermissionRepository;
+    private readonly DefaultSuperAdminConfiguration _config = options.Value;
 
-
-    public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRolesList(string search, PaginationListDto paginationListDto,
+    public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRolesList(string search,
+        PaginationListDto paginationListDto,
         CancellationToken cancellationToken)
     {
-        var total = await _roleRepository.GetCountAsync(search,cancellationToken);
+        var total = await _roleRepository.GetCountAsync(search, cancellationToken);
         var roles = await _roleRepository.GetAllListAsync(search, paginationListDto, cancellationToken);
         if (roles == null || roles.Any() == false)
             return new BaseResponse<IList<GetRolesQueryResponse>?>()
@@ -53,7 +57,8 @@ public class RoleService(
         List<GetRolesQueryResponse> data = [];
         foreach (var role in roles)
         {
-            var rolePermissions = await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
+            var rolePermissions =
+                await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
             var permissionIds = rolePermissions.Select(a => a.PermissionId).ToList();
             var permissions = await _permissionRepository.GetByIdsAsync(permissionIds, cancellationToken);
             var userRoles = await _userRoleRepository.GetUserRolesListByRoleIdAsync(role.Id, cancellationToken);
@@ -61,8 +66,17 @@ public class RoleService(
             List<GetRolesQueryResponse_User> response_users = [];
             foreach (var item in users)
             {
-                var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
-                var username = user_in_cache.Username;
+                string username = string.Empty;
+                if (_config.Id == item.Id)
+                {
+                    username = _config.Username;
+                }
+                else
+                {
+                    var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
+                    username = user_in_cache.Username;
+                }
+
                 response_users.Add(new GetRolesQueryResponse_User
                 {
                     Id = item.Id,
@@ -101,7 +115,8 @@ public class RoleService(
                 StatusCode = StatusCodes.Status203NonAuthoritative,
                 Message = Messages.RoleNotFound
             };
-        var rolePermissions = await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
+        var rolePermissions =
+            await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(role.Id, cancellationToken);
         var permissionIds = rolePermissions.Select(a => a.PermissionId).ToList();
         var permissions = await _permissionRepository.GetByIdsAsync(permissionIds, cancellationToken);
         var userRoles = await _userRoleRepository.GetUserRolesListByRoleIdAsync(role.Id, cancellationToken);
@@ -117,6 +132,7 @@ public class RoleService(
                 Name = username
             });
         }
+
         var data = new GetRolesQueryResponse
         {
             Users = response_users,
@@ -137,7 +153,8 @@ public class RoleService(
         };
     }
 
-    public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRoleByName(string name, CancellationToken cancellationToken)
+    public async Task<BaseResponse<IList<GetRolesQueryResponse>?>> GetRoleByName(string name,
+        CancellationToken cancellationToken)
     {
         var roles = await _roleRepository.GetByNameAsync(name, cancellationToken);
         if (roles == null || roles.Any() == false)
@@ -154,7 +171,8 @@ public class RoleService(
         };
     }
 
-    public async Task<BaseResponse<CreateRoleCommandResponse>> AddRole(CreateRoleCommand dto, CancellationToken cancellationToken)
+    public async Task<BaseResponse<CreateRoleCommandResponse>> AddRole(CreateRoleCommand dto,
+        CancellationToken cancellationToken)
     {
         var existingRole = await _roleRepository.ExistsByNameAsync(dto.Name, cancellationToken);
         if (existingRole)
@@ -167,7 +185,7 @@ public class RoleService(
         {
             Name = dto.Name,
             DisplayName = dto.DisplayName,
-            RolePermissions =dto.Permissions.Select(a => new RolePermission()
+            RolePermissions = dto.Permissions.Select(a => new RolePermission()
             {
                 PermissionId = a,
             }).ToList()
@@ -184,21 +202,23 @@ public class RoleService(
         };
     }
 
-    public async Task<BaseResponse<EditRoleCommandResponse>> EditRole(EditRoleCommand dto, CancellationToken cancellationToken)
+    public async Task<BaseResponse<EditRoleCommandResponse>> EditRole(EditRoleCommand dto,
+        CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(dto.Id, cancellationToken);
 
-        var rolePermissions = await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(dto.Id, cancellationToken);
+        var rolePermissions =
+            await _rolePermissionRepository.GetRolePermissionsByRoleIdAsync(dto.Id, cancellationToken);
         role.Name = dto.Name;
         role.DisplayName = dto.DisplayName;
 
-        await _rolePermissionRepository.RemoveRange(rolePermissions,cancellationToken);
+        await _rolePermissionRepository.RemoveRange(rolePermissions, cancellationToken);
         role.RolePermissions = dto.Permissions.Select(a => new RolePermission()
         {
             PermissionId = a,
             RoleId = dto.Id
         }).ToList();
-        
+
         await _roleRepository.UpdateAsync(role, cancellationToken);
         await _roleRepository.SaveChangesAsync();
 

@@ -59,7 +59,7 @@ export default function PermissionPage() {
 
   const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10, searchString = '') => {
     setLoading(true);
-    getPermissions(pageNumber, pageSizeNumber, searchString).then(res => {
+    getPermissions({page:pageNumber,pageSize: pageSizeNumber,search: searchString}).then(res => {
       setPermissions(res);
     })
       .catch(err => {

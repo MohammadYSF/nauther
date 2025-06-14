@@ -8,7 +8,6 @@ using Nauther.Identity.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var x = Isopoh.Cryptography.Argon2.Argon2.Hash("12%^124AFAF!@#$#%#dgfsd!@");
 builder.Services
     .AddApplicationServices()
     .AddAuthUserService()
