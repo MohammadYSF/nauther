@@ -4,13 +4,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getRoleById, createRole, updateRole } from '../services/roleService';
 import { getPermissions, type GetPermissionsResponseDataModel } from '../services/permissionService';
 import debounce from 'lodash.debounce';
+import type { AxiosError } from 'axios';
+import type { BaseApiResponseModel } from '../types/baseApiResponseModel';
 
 export default function RoleNewPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({data:[],message:"",metadata:{total:0},statusCode:200,validationErrors:[]});
+  const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>({ data: [], message: "", metadata: { total: 0 }, statusCode: 200, validationErrors: [] });
   const [permissionSearch, setPermissionSearch] = useState('');
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -33,8 +35,13 @@ export default function RoleNewPage() {
 
   // Fetch permissions with search
   const fetchPermissions = async (search = '') => {
-    const res = await getPermissions({page:1,pageSize:100,search:search});
-    setPermissions(res);
+    await getPermissions({ page: 1, pageSize: 100, search: search })
+      .then((res) => {
+        setPermissions(res);
+      })
+      .catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message);
+      });
   };
 
   useEffect(() => {
@@ -59,50 +66,34 @@ export default function RoleNewPage() {
   }, [id, isEdit]);
 
   const onFinish = async (values: any) => {
-    try {
-      if (isEdit && id) {
-        // Update existing role
-        await updateRole(id, values);
-        messageApi.success('نقش با موفقیت ویرایش شد');
+    if (isEdit && id) {
+      await updateRole(id, values).then((res) => {
+        messageApi.success(res.message);
         setTimeout(() => {
           navigate('/role');
         }, 1000);
 
-      } else {
-        const res = await createRole(values);
-        if (res && res.statusCode === 201) {
-          messageApi.success('نقش با موفقیت ایجاد شد');
-          setTimeout(() => {
-            navigate('/role');
-          }, 1000);
-        } else if (res && res.validationErrors) {
-          const fields = Object.entries(res.validationErrors).map(([field, errors]: [string, any]) => ({
-            name: field,
-            errors: Array.isArray(errors) ? errors : [errors],
-          }));
-          form.setFields(fields);
-        } else if (res && res.message) {
-          message.error(res.message);
-        }
-      }
-    } catch (error: any) {
-      const res = error.data;
-      if (res.validationErrors) {
-        const validationErrors = res.validationErrors;
-        validationErrors.forEach((error: { key: string; value: string }) => {
-          form.setFields([{
-            name: error.key,
-            errors: [error.value],
-          }]);
-        });
-      } else if (res.message) {
-        message.error(res.message);
-      } else {
-        message.error('خطایی رخ داده است');
-      }
-    }
-  };
+      }).catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message);
+      });
 
+    } else {
+      await createRole(values).then((res) => {
+        messageApi.success(res.message);
+        setTimeout(() => {
+          navigate('/role');
+        }, 1000);
+      }
+      ).catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message);
+        const fields = Object.entries((error.response?.data as BaseApiResponseModel).validationErrors).map(([field, errors]: [string, any]) => ({
+          name: field,
+          errors: Array.isArray(errors) ? errors : [errors],
+        }));
+        form.setFields(fields);
+      });
+    }
+  }
   return (
     <>
       {contextHolder}

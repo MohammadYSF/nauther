@@ -9,9 +9,7 @@ export async function getAllExternalUsers
         params: param,
         headers: { accept: '*/*' }
     });
-    console.log("response is : ",response);
-    let x = response.data.data as User[];
-    return {...response.data, data: x};
+    return response.data;
 }
 
 export async function getAllUsers

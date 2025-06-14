@@ -1,7 +1,7 @@
 export const colors = {
   // Primary colors
   primary: {
-    main: '#2563eb', // A vibrant blue
+    main: '#1890ff', // A vibrant blue
     light: '#60a5fa',
     dark: '#1d4ed8',
     contrast: '#ffffff'

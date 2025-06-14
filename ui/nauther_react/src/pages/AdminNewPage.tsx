@@ -7,6 +7,8 @@ import { getPermissions } from '../services/permissionService';
 import { getAllExternalUsers } from '../services/userService';
 import debounce from 'lodash.debounce';
 import type { User } from '../types/user';
+import type { Axios, AxiosError } from 'axios';
+import type { BaseApiResponseModel } from '../types/baseApiResponseModel';
 
 export default function AdminNewPage() {
   const { id } = useParams();
@@ -66,26 +68,46 @@ export default function AdminNewPage() {
   // Fetch users with search and pagination
   const fetchUsers = async (page = 1, search = '', append = false) => {
     setUserLoading(true);
-    const res = await getAllExternalUsers({page:page,pageSize: 20,search: search});
-    if (append) {
-      setUsers(prev => [...prev, ...res.data]);
-    } else {
-      setUsers(res.data);
-    }
-    setUserHasMore(res.data.length === 20);
-    setUserLoading(false);
+    await getAllExternalUsers({ page: page, pageSize: 20, search: search }).then((res) => {
+      if (append) {
+        setUsers(prev => [...prev, ...res.data]);
+      } else {
+        setUsers(res.data);
+      }
+      setUserHasMore(res.data.length === 20);
+
+    })
+      .catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message)
+      })
+      .finally(() => {
+        setUserLoading(false);
+      });
+
   };
 
   // Fetch roles with search
   const fetchRoles = async (search = '') => {
-    const res = await getRoles({page: 1,pageSize: 100, search: search});
-    setRoles(res.data || []);
+    await getRoles({ page: 1, pageSize: 100, search: search })
+      .then((res) => {
+        setRoles(res.data || []);
+      })
+      .catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message)
+      })
+      ;
   };
 
   // Fetch permissions with search
   const fetchPermissions = async (search = '') => {
-    const res = await getPermissions({page:1,pageSize: 100,search: search});
-    setPermissions(res.data || []);
+    await getPermissions({ page: 1, pageSize: 100, search: search }).then((res) => {
+
+      setPermissions(res.data || []);
+    })
+      .catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message)
+      })
+      ;
   };
 
   // Initial load
@@ -123,29 +145,30 @@ export default function AdminNewPage() {
 
   // Handle user selection change
   const handleUserChange = (value: string | null) => {
-    console.log("value is > ",value);
-    form.setFieldValue('id',value);
+    console.log("value is > ", value);
+    form.setFieldValue('id', value);
     if (!value) {
       // Reset search and fetch all users when deselected
       setUserSearch('');
       fetchUsers(1, '', false);
-      
+
     }
   };
 
   useEffect(() => {
-    getRoles({page:-1,pageSize:10,search:''}).then(res => setRoles(res.data || []));
-    getPermissions({page:-1,pageSize:10,search:''}).then(res => setPermissions(res.data || []));
+    fetchRoles();
+    fetchPermissions();
+    // getRoles({ page: -1, pageSize: 10, search: '' }).then(res => setRoles(res.data || []));
+    // getPermissions({ page: -1, pageSize: 10, search: '' }).then(res => setPermissions(res.data || []));
   }, []);
 
 
   const handleFinish = (values: any) => {
-    console.log("values is : ",values);
     let password = values["password"];
     let confirmPassword = values["confirmPassword"];
     // Validate passwords
     if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+      messageApi.error("رمزعبورهای واردشده مطابقت ندارند");
       return;
     }
 
@@ -156,51 +179,33 @@ export default function AdminNewPage() {
     if (isEdit && id) {
       // Update existing admin
       editAdmin(id, data).then((response: any) => {
-        if (response.statusCode === 201) {
-          messageApi.success('Admin updated successfully!');
-          setTimeout(() => {
-            navigate('/');
-          }, 1000);
-        } else if (response.statusCode === 203) {
-          messageApi.error(response.message);
-        }
-      }).catch((err: any) => {
-        if (err && err.data && err.data.validationErrors) {
-          const validationErrors = err.data.validationErrors;
-          validationErrors.forEach((error: { key: string; value: string }) => {
-            form.setFields([{
-              name: error.key,
-              errors: [error.value],
-            }]);
-          });
-        } else {
-          messageApi.error('Failed to create admin.');
-        }
+        messageApi.error(response.message);
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }).catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message);
+        const fields = Object.entries((error.response?.data as BaseApiResponseModel).validationErrors).map(([field, errors]: [string, any]) => ({
+          name: field,
+          errors: Array.isArray(errors) ? errors : [errors],
+        }));
+        form.setFields(fields);
       });
     } else if (!isEdit) {
       // Create new admin
       createAdmin(data).then((response: any) => {
-        console.log("response is : ", response);
-        if (response.statusCode === 201) {
-          messageApi.success('Admin created successfully!');
-          setTimeout(() => {
-            navigate('/');
-          }, 1000);
-        } else if (response.statusCode === 203) {
-          messageApi.error(response.message);
-        }
-      }).catch((err: any) => {
-        if (err && err.data && err.data.validationErrors) {
-          const validationErrors = err.data.validationErrors;
-          validationErrors.forEach((error: { key: string; value: string }) => {
-            form.setFields([{
-              name: error.key,
-              errors: [error.value],
-            }]);
-          });
-        } else {
-          messageApi.error('Failed to create admin.');
-        }
+        messageApi.error(response.message);
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+
+      }).catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message);
+        const fields = Object.entries((error.response?.data as BaseApiResponseModel).validationErrors).map(([field, errors]: [string, any]) => ({
+          name: field,
+          errors: Array.isArray(errors) ? errors : [errors],
+        }));
+        form.setFields(fields);
       });
     }
   }
@@ -214,6 +219,8 @@ export default function AdminNewPage() {
           roles: res.data.roles ? res.data.roles.map((p: any) => p.id) : [],
           id: res.data.id
         });
+      }).catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message);
       });
     }
   }, [id, isEdit]);

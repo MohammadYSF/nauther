@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Table, Input, Button, Spin, Card, Affix } from 'antd';
+import { Table, Input, Button, Spin, Card, Affix, message } from 'antd';
 import { EditOutlined, SaveOutlined, PlusOutlined, CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { getPermissions, createPermission, editPermission, type GetPermissionsResponseDataModel, deletePermissions } from '../services/permissionService';
 import type { ApiError } from '../services/api';
 import { useClickAway } from 'react-use';
 import debounce from 'lodash.debounce';
+import type { AxiosError } from 'axios';
+import type { BaseApiResponseModel } from '../types/baseApiResponseModel';
 
 export default function PermissionPage() {
   const [permissions, setPermissions] = useState<GetPermissionsResponseDataModel>();
@@ -22,6 +24,7 @@ export default function PermissionPage() {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const editRowRef = useRef<HTMLDivElement>(null);
   const addRowRef = useRef<HTMLDivElement>(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
   // Debounced search function
   const debouncedSearch = useRef(
@@ -59,19 +62,13 @@ export default function PermissionPage() {
 
   const fetchPermissions = async (pageNumber = 1, pageSizeNumber = 10, searchString = '') => {
     setLoading(true);
-    getPermissions({page:pageNumber,pageSize: pageSizeNumber,search: searchString}).then(res => {
+    getPermissions({ page: pageNumber, pageSize: pageSizeNumber, search: searchString }).then(res => {
       setPermissions(res);
     })
-      .catch(err => {
-        let error = err as ApiError;
-        console.log(error.data);
-        console.log(error.message);
-        console.log(error.status);
+      .catch((error: AxiosError) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message)
       })
       .finally(() => setLoading(false));
-
-
-      console.log("****",permissions?.metadata?.total || 0);
   };
 
   const handleTableChange = (pagination: any) => {
@@ -87,7 +84,7 @@ export default function PermissionPage() {
 
   const handleEditSave = async (id: string) => {
     setSaving(true);
-    await editPermission({id:id, name: editValue, displayName: editValueDisplayName });
+    await editPermission({ id: id, name: editValue, displayName: editValueDisplayName });
     setEditId(null);
     setEditValue('');
     setEditValueDisplayName('');
@@ -102,40 +99,37 @@ export default function PermissionPage() {
   };
 
   const handleAddSave = async () => {
-    console.log("****",addValue);
     if (!addValue.trim()) return;
     setSaving(true);
-    try {
-      await createPermission({ name: addValue, displayName: addValueDisplayName });
+    await createPermission({ name: addValue, displayName: addValueDisplayName }).then((res) => {
+      messageApi.success(res.message);
       setAddMode(false);
       setAddValue('');
       setAddValueDisplayName('');
       fetchPermissions(page, pageSize, search);
-    } catch (error) {
-      console.error('Error creating permission:', error);
-    } finally {
+    }).catch((error: AxiosError) => {
+      messageApi.error((error.response?.data as BaseApiResponseModel).message)
+    }).finally(() => {
       setSaving(false);
-    }
+    });
   };
 
   const handleDeletePermission = async (id: string) => {
-    try {
-      
-      await deletePermissions({"ids":[id]});
-      fetchPermissions(page, pageSize, search);
-    } catch (error) {
-      console.error('Error deleting permission:', error);
-    }
+
+    await deletePermissions({ "ids": [id] });
+    fetchPermissions(page, pageSize, search);
+
   };
 
   const handleDeleteSelectedPermissions = async () => {
-    try {
-      await deletePermissions({"ids":selectedPermissions});
+    await deletePermissions({ "ids": selectedPermissions }).then((res) => {
+      messageApi.success(res.message);
       setSelectedPermissions([]);
       fetchPermissions(page, pageSize, search);
-    } catch (error) {
-      console.error('Error deleting permissions:', error);
-    }
+    })
+      .catch((error) => {
+        messageApi.error((error.response?.data as BaseApiResponseModel).message)
+      });
   };
 
   const columns = [
@@ -243,6 +237,7 @@ export default function PermissionPage() {
 
   return (
     <Card style={{ padding: 32, maxWidth: 900, margin: '0px auto', border: 'none' }}>
+      {contextHolder}
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>مدیریت دسترسی‌ها</h2>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
@@ -258,7 +253,7 @@ export default function PermissionPage() {
               <Button
                 type="default"
                 danger
-                style={{ 
+                style={{
                   borderRadius: 8,
                   display: 'flex',
                   alignItems: 'center',
@@ -286,7 +281,7 @@ export default function PermissionPage() {
             )}
             <Button
               type={editId ? "primary" : "primary"}
-              style={{ 
+              style={{
                 borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
@@ -300,8 +295,8 @@ export default function PermissionPage() {
               icon={editId ? <SaveOutlined /> : <PlusOutlined />}
               onClick={() => {
                 console.log("HERE");
-                console.log("editId",editId);
-                console.log("addMode",addMode);
+                console.log("editId", editId);
+                console.log("addMode", addMode);
                 if (editId) {
                   handleEditSave(editId);
                 } else if (addMode) {

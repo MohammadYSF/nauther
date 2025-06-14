@@ -1,4 +1,4 @@
-interface BaseApiResponseModel<T> {
+interface BaseApiResponseModel<T=null> {
     statusCode: number,
     message: string,
     validationErrors: ValidationError[],
@@ -8,4 +8,4 @@ interface ValidationError{
     key:string,
     value:string
 }
-export type { BaseApiResponseModel }
+export type { BaseApiResponseModel,ValidationError }
