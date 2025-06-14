@@ -10,29 +10,35 @@ namespace Nauther.Identity.Persistence.Repositories;
 internal class RoleRepository(AppDbContext context) : BaseRepository<Role>(context), IRoleRepository
 {
     private readonly AppDbContext _context = context;
-    public async Task<IList<Role>> GetAllListAsync(string search, PaginationListDto paginationListDto, CancellationToken cancellationToken)
+
+    public async Task<IList<Role>> GetAllListAsync(string search, PaginationListDto paginationListDto,
+        CancellationToken cancellationToken)
     {
-        dynamic res;
-        var query=  _context.Roles
-      .AsNoTracking()
-      .Where(a =>
-          (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search)) ||
-          a.Name.ToLower().Contains(search.ToLower()) ||
-          a.DisplayName.ToLower().Contains(search.ToLower()));
-        if (paginationListDto.PageNumber > -1)
+        if (paginationListDto.Page > -1)
         {
-            res=await query.Skip((paginationListDto.PageNumber - 1) * paginationListDto.PageSize)
+            return await _context.Roles
+                .AsNoTracking()
+                .Where(a =>
+                    (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search)) ||
+                    a.Name.ToLower().Contains(search.ToLower()) ||
+                    a.DisplayName.ToLower().Contains(search.ToLower()))
+                .Skip((paginationListDto.Page - 1) * paginationListDto.PageSize)
                 .Take(paginationListDto.PageSize)
                 .ToListAsync(cancellationToken);
         }
         else
         {
-            res = query.ToListAsync(cancellationToken);
+            return await _context.Roles
+                .AsNoTracking()
+                .Where(a =>
+                    (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search)) ||
+                    a.Name.ToLower().Contains(search.ToLower()) ||
+                    a.DisplayName.ToLower().Contains(search.ToLower()))
+                .ToListAsync(cancellationToken);
         }
 
-        return res;
-
     }
+
     public async Task<IList<Role>?> GetByNameAsync(string roleName, CancellationToken cancellationToken)
     {
         return await _context.Roles
@@ -56,11 +62,11 @@ internal class RoleRepository(AppDbContext context) : BaseRepository<Role>(conte
     public async Task<int> GetCountAsync(string? search, CancellationToken cancellationToken)
     {
         return await _context.Roles
-      .AsNoTracking()
-      .Where(a =>
-          (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search)) ||
-          a.Name.ToLower().Contains(search.ToLower()) ||
-          a.DisplayName.ToLower().Contains(search.ToLower()))
-      .CountAsync(cancellationToken);
+            .AsNoTracking()
+            .Where(a =>
+                (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search)) ||
+                a.Name.ToLower().Contains(search.ToLower()) ||
+                a.DisplayName.ToLower().Contains(search.ToLower()))
+            .CountAsync(cancellationToken);
     }
 }

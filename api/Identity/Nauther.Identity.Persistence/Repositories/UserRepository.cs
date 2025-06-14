@@ -16,7 +16,7 @@ internal class UserRepository(AppDbContext context) : BaseRepository<User>(conte
             .AsNoTracking().ToListAsync();
         return await _context.Users
             .AsNoTracking()
-            .Skip((paginationListDto.PageNumber - 1) * paginationListDto.PageSize)
+            .Skip((paginationListDto.Page - 1) * paginationListDto.PageSize)
             .Take(paginationListDto.PageSize)
             .ToListAsync(cancellationToken);
     }

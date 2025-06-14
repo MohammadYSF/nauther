@@ -24,7 +24,7 @@ internal class BaseRepository<T>(AppDbContext context) : IBaseRepository<T>
     {
         return await context.Set<T>()
             .AsNoTracking()
-            .Skip((paginationListDto.PageNumber - 1) * paginationListDto.PageSize)
+            .Skip((paginationListDto.Page - 1) * paginationListDto.PageSize)
             .Take(paginationListDto.PageSize)
             .ToListAsync(cancellationToken);
     }

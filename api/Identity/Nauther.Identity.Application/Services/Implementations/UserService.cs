@@ -75,9 +75,9 @@ public class UserService(
                 )
             );
 
-        if (query.PageNumber > -1)
+        if (query.Page > -1)
         {
-            filtered=filtered.Skip((query.PageNumber - 1) * query.PageSize)
+            filtered=filtered.Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
                 .ToList();
         }
@@ -381,9 +381,9 @@ public class UserService(
                     (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
                 )
             );
-        if (query.PageNumber > -1)
+        if (query.Page > -1)
         {
-            filtered=filtered.Skip((query.PageNumber - 1) * query.PageSize)
+            filtered=filtered.Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToList();
         }
