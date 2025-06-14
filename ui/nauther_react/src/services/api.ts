@@ -30,17 +30,11 @@ const api = axios.create({
 });
 api.interceptors.response.use(
   res => res,
-  // err => {
-  //   const apiError = extractApiError(err);
-  //   // Optionally log to monitoring service here
-  //   return Promise.reject(apiError); // unify error output
-  // }
+
 );
 // Request interceptor to add token
 api.interceptors.request.use((config) => {
   const token = JSON.parse(sessionStorage.getItem("oidc.default") ?? "").tokens.accessToken ?? "";
-  console.log("Token from sessionStorage:", token);
-  // const token = localStorage.getItem('accesstoken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

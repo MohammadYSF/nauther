@@ -294,9 +294,6 @@ export default function PermissionPage() {
               }}
               icon={editId ? <SaveOutlined /> : <PlusOutlined />}
               onClick={() => {
-                console.log("HERE");
-                console.log("editId", editId);
-                console.log("addMode", addMode);
                 if (editId) {
                   handleEditSave(editId);
                 } else if (addMode) {

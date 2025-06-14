@@ -145,7 +145,6 @@ export default function AdminNewPage() {
 
   // Handle user selection change
   const handleUserChange = (value: string | null) => {
-    console.log("value is > ", value);
     form.setFieldValue('id', value);
     if (!value) {
       // Reset search and fetch all users when deselected

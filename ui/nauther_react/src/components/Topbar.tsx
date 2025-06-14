@@ -7,7 +7,6 @@ import { useOidc } from '@axa-fr/react-oidc';
 
 export default function Topbar() {
   const appTitle = import.meta.env.VITE_APP_TITLE_PERSIAN;
-  console.log(import.meta.env);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const navigate = useNavigate();
     const { login, logout, renewTokens, isAuthenticated } = useOidc();
