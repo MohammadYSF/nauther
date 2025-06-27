@@ -19,7 +19,7 @@ export default function Sidebar() {
         width: 56,
         background: '#337ab7',
         height: '100%',
-        position: 'absolute',
+        position: 'fixed',
         right: 0,
         top: 0,
         borderRadius: '0 0 8px 0',
