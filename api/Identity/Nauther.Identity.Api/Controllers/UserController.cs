@@ -1,21 +1,14 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nauther.Framework.RestApi.Attributes;
 using Nauther.Identity.Application.Features.Auth.Commands.Register;
-using Nauther.Identity.Application.Features.User.Commands.CheckPassword;
-using Nauther.Identity.Application.Features.User.Commands.DeleteUser;
-using Nauther.Identity.Application.Features.User.Commands.EditUser;
-using Nauther.Identity.Application.Features.User.Queries.GetAllUserPermissions;
-using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
+using Nauther.Identity.Infrastructure.Attributes;
 
 namespace Nauther.Identity.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 // [Authorize(AuthenticationSchemes = "Bearer")]
-
 public class UserController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
@@ -27,5 +20,12 @@ public class UserController(IMediator mediator) : ControllerBase
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);
     }
-
+    //usage : X-API-KEY: SuperSecretKey123
+    [HttpPost("register")]
+    [ApiKey]
+    public async Task<IActionResult> Register([FromHeader(Name = "X-API-KEY")] string apiKey,[FromBody] Dima_RegisterUserCommand request)
+    {
+        var result = await _mediator.Send(request);
+        return StatusCode(result.StatusCode, result);
+    }
 }
