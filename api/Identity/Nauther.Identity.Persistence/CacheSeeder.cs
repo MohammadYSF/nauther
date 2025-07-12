@@ -6,11 +6,11 @@ using Nauther.Identity.Application.Features.Auth.Commands.Register;
 
 namespace Nauther.Identity.Persistence;
 
-public class CacheSeeder(IRedisCachingProvider redisCachingProvider,IMediator mediator,IServiceProvider serviceProvider):IHostedService
+public class CacheSeeder(IRedisCachingProvider redisCachingProvider, IMediator mediator, IServiceProvider serviceProvider) : IHostedService
 {
-    private readonly IRedisCachingProvider _redisCachingProvider=redisCachingProvider;
-    private readonly IServiceProvider _serviceProvider=serviceProvider;
-    private readonly IMediator _mediator=mediator;
+    private readonly IRedisCachingProvider _redisCachingProvider = redisCachingProvider;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly IMediator _mediator = mediator;
     public Task StartAsync(CancellationToken cancellationToken)
     {
 
@@ -25,14 +25,15 @@ public class CacheSeeder(IRedisCachingProvider redisCachingProvider,IMediator me
             }
 
             """);
-        var x = new Dima_RegisterUserCommand()
+        var x = new Dima_RegisterUserCommand(
+        new Dima_RegisterUserCommand_Dto
         {
-            Id = Guid.Parse("123e4567-e89b-12d3-a456-426614174000"),
+            Id = "123e4567-e89b-12d3-a456-426614174000",
             Password = "123!@#qweQWE",
             ConfirmPassword = "123!@#qweQWE",
             Permissions = [],
             Roles = []
-        };
+        }, false);//or maybe true . don't know :)
         _redisCachingProvider.HSet("ids:userbasicinform", "987f6543-a21b-34c2-b789-526734190abc", """
             {
               "id": "987f6543-a21b-34c2-b789-526734190abc",

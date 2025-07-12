@@ -77,7 +77,7 @@ public class UserService(
 
         if (query.Page > -1)
         {
-            filtered=filtered.Skip((query.Page - 1) * query.PageSize)
+            filtered = filtered.Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
                 .ToList();
         }
@@ -271,34 +271,37 @@ public class UserService(
     public async Task<BaseResponse> Register(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id.ToString());
-        if (user_in_cache == null)
+        if (request.Check)
         {
-            return new BaseResponse<BaseResponse>()
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id);
+            if (user_in_cache == null)
             {
-                StatusCode = StatusCodes.Status203NonAuthoritative,
-                Message = Messages.UserNotFound
-            };
+                return new BaseResponse<BaseResponse>()
+                {
+                    StatusCode = StatusCodes.Status203NonAuthoritative,
+                    Message = Messages.UserNotFound
+                };
+            }
         }
 
         var u = new User
         {
-            Id = request.Id.ToString(),
+            Id = request.Id,
             UserRoles = request.Roles.Select(a => new UserRole
             {
                 RoleId = a,
-                UserId = request.Id.ToString()
+                UserId = request.Id
             }).ToList(),
             UserPermissions = request.Permissions.Select(a => new UserPermission
             {
                 PermissionId = a,
-                UserId = request.Id.ToString()
+                UserId = request.Id
             }).ToList()
         };
         var userCredential = new UserCredential
         {
             PasswordHash = _passwordHasher.HashPassword(request.Password),
-            UserId = request.Id.ToString()
+            UserId = request.Id
         };
         _ = await _userRepository.AddAsync(u, cancellationToken);
         _ = await _userCredentialRepository.AddAsync(userCredential, cancellationToken);
@@ -383,7 +386,7 @@ public class UserService(
             );
         if (query.Page > -1)
         {
-            filtered=filtered.Skip((query.Page - 1) * query.PageSize)
+            filtered = filtered.Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToList();
         }

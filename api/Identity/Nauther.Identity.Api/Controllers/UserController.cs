@@ -23,9 +23,11 @@ public class UserController(IMediator mediator) : ControllerBase
     //usage : X-API-KEY: SuperSecretKey123
     [HttpPost("register")]
     [ApiKey]
-    public async Task<IActionResult> Register([FromHeader(Name = "X-API-KEY")] string apiKey,[FromBody] Dima_RegisterUserCommand request)
+    public async Task<IActionResult> Register([FromHeader(Name = "X-API-KEY")] string apiKey,[FromBody] Dima_RegisterUserCommand_Dto request)
     {
-        var result = await _mediator.Send(request);
+        var command = new Dima_RegisterUserCommand(request, false);
+
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
 }

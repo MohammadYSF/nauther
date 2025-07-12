@@ -10,14 +10,15 @@ using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
 namespace Nauther.Identity.Api.Controllers;
 
 [Route("api/[controller]")]
-public class AdminController(IMediator mediator): ControllerBase
+public class AdminController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
-    
+
     [HttpPost]
-    public async Task<IActionResult> Register([FromBody] Dima_RegisterUserCommand request)
+    public async Task<IActionResult> Register([FromBody] Dima_RegisterUserCommand_Dto request)
     {
-        var result = await _mediator.Send(request);
+        var command = new Dima_RegisterUserCommand(request, true);
+        var result = await _mediator.Send(command);
         return StatusCode(result.StatusCode, result);
     }
     [HttpPut]
