@@ -41,7 +41,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<Login />} />
             {/* <Route path="/signin-oidc" element={<SignInOidc />} /> */}
             <Route element={<Layout />} >
-              <Route element={<PrivateRoute />}>
+              {/* <Route element={<PrivateRoute />}> */}
                 <Route path="/" element={<AdminPage />} />
                 <Route path="/permission"
                   element={<PermissionPage />}
@@ -51,7 +51,7 @@ const App: React.FC = () => {
                 <Route path="/role/edit/:id" element={<RoleNewPage />} />
                 <Route path="/admin/new" element={<AdminNewPage />} />
                 <Route path="/admin/edit/:id" element={<AdminNewPage />} />
-              </Route>
+              {/* </Route> */}
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

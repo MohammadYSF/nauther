@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Nauther.Identity.Infrastructure.Services.ExternalUser;
 
-public class ExternalUserDataRepository(IRedisCachingProvider easyCachingProvider)
+public class DimaExternalUserDataRepository(IRedisCachingProvider easyCachingProvider)
     :IExternalUserDataRepository
 {
     private readonly IRedisCachingProvider _easyCachingProvider = easyCachingProvider;

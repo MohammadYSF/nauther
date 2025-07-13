@@ -34,9 +34,12 @@ api.interceptors.response.use(
 );
 // Request interceptor to add token
 api.interceptors.request.use((config) => {
-  const token = JSON.parse(sessionStorage.getItem("oidc.default") ?? "").tokens.accessToken ?? "";
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (sessionStorage.getItem("oidc.default")){
+    
+    const token = JSON.parse(sessionStorage.getItem("oidc.default") ?? "").tokens.accessToken ?? "";
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 }, (error) => {

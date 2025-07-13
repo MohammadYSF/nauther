@@ -394,25 +394,25 @@ public class UserService(
         var total = res.Count;
         var users = await _userRepository.GetAllListAsync(new PaginationListDto { PageSize = -1 }, cancellationToken);
         List<GetUsersListQueryResponse> data = [];
-        foreach (var item in filtered.Where(a => users.Select(b => b.Id.ToString()).Contains(a.Id)))
+        foreach (var item in users)
         {
-            var id = item.Id;
-            var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
+            var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(item.Id, cancellationToken);
             var userPermissions =
-                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
+                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(item.Id, cancellationToken);
             var permissions =
                 await _permissionRepository.GetByIdsAsync(
                     userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
                 cancellationToken);
-            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
+                   
             data.Add(new GetUsersListQueryResponse
             {
-                Id = id,
-                IsActive = user_in_cache.IsActive,
-                Username = user_in_cache.Username,
-                PhoneNumber = user_in_cache.PhoneNumber,
-                UserCode = user_in_cache.UserCode,
+                Id = item.Id,
+                IsActive = user_in_cache?.IsActive??true,
+                Username = user_in_cache?.Username??"",
+                PhoneNumber = user_in_cache?.PhoneNumber??"",
+                UserCode = user_in_cache?.UserCode??"",
                 Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
                 {
                     DisplayName = a.DisplayName,

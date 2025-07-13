@@ -23,7 +23,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         services.AddScoped<IOtpSender, OtpSender>();
-        services.AddScoped<IExternalUserDataRepository, ExternalUserDataRepository>();
+        services.AddScoped<IExternalUserDataRepository, DimaExternalUserDataRepository>();
         
         services.Configure<DefaultSuperAdminConfiguration>(configuration.GetSection(nameof(DefaultSuperAdminConfiguration)));
 
