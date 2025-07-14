@@ -380,10 +380,9 @@ public class UserService<T>(
 
         foreach (var item in filtered.Where(a => users.Select(b => b.Id.ToString()).Contains(a.Id)))
         {
-            var id = item.Id;
-            var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
+            var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(item.Id, cancellationToken);
             var userPermissions =
-                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
+                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(item.Id, cancellationToken);
             var permissions =
                 await _permissionRepository.GetByIdsAsync(
                     userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
