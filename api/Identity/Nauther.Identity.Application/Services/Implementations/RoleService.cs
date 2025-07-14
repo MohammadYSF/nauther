@@ -20,18 +20,18 @@ using Newtonsoft.Json.Linq;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
-public class RoleService(
+public class RoleService<T>(
     IMapper mapper,
     IRoleRepository roleRepository,
     IPermissionRepository permissionRepository,
     IRolePermissionRepository rolePermissionRepository,
     IUserRepository userRepository,
     IUserRoleRepository userRoleRepository,
-    IExternalUserDataRepository externalUserDataRepository,
+    IExternalUserDataRepository<T> externalUserDataRepository,
     IOptions<DefaultSuperAdminConfiguration> options)
-    : IRoleService
+    : IRoleService where T:External_UserModel
 {
-    private readonly IExternalUserDataRepository _externalUserDataRepository = externalUserDataRepository;
+    private readonly IExternalUserDataRepository<T> _externalUserDataRepository = externalUserDataRepository;
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
@@ -74,7 +74,7 @@ public class RoleService(
                 else
                 {
                     var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
-                    username = user_in_cache.Username;
+                    username = user_in_cache?.GetUsername();
                 }
 
                 response_users.Add(new GetRolesQueryResponse_User
@@ -125,7 +125,7 @@ public class RoleService(
         foreach (var item in users)
         {
             var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
-            var username = user_in_cache.Username;
+            var username = user_in_cache.GetUsername();
             response_users.Add(new GetRolesQueryResponse_User
             {
                 Id = item.Id,

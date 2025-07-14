@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="MongoDB.Bson" Version="3.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\..\Framework\Nauther.Framework.Application\Nauther.Framework.Application.csproj" />
       <ProjectReference Include="..\..\Framework\Nauther.Framework.Domain\Nauther.Framework.Domain.csproj" />
       <ProjectReference Include="..\..\Framework\Nauther.Framework.Shared\Nauther.Framework.Shared.csproj" />

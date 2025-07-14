@@ -1,3 +1,4 @@
+using System.Dynamic;
 using auther.Identity.Application.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +22,12 @@ using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Services.JwtToken;
 using Nauther.Identity.Infrastructure.Utilities;
 using Nauther.Identity.Infrastructure.Utilities.PasswordHash;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
-public class UserService(
+public class UserService<T>(
     IMapper mapper,
     IUserRepository userRepository,
     IUserPermissionRepository userPermissionRepository,
@@ -38,10 +41,10 @@ public class UserService(
     IPermissionRepository permissionRepository,
     IRoleRepository roleRepository,
     IUserCredentialRepository userCredentialRepository,
-    IExternalUserDataRepository externalUserDataRepository,
-    IOptions<DefaultSuperAdminConfiguration> options) : IUserService
+    IExternalUserDataRepository<T> externalUserDataRepository,
+    IOptions<DefaultSuperAdminConfiguration> options) : IUserService where T : External_UserModel
 {
-    private readonly IExternalUserDataRepository _externalUserDataRepository = externalUserDataRepository;
+    private readonly IExternalUserDataRepository<T> _externalUserDataRepository = externalUserDataRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserPermissionRepository _userPermissionRepository = userPermissionRepository;
@@ -67,11 +70,8 @@ public class UserService(
                 (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
                 ||
                 (
-                    (obj.UserCode.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.PhoneNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.Username.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
+                obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
+
                 )
             );
 
@@ -84,7 +84,7 @@ public class UserService(
 
 
         var total = res.Count;
-        List<GetUsersListQueryResponse> data = [];
+        JArray data = new();
         foreach (var item in filtered)
         {
             var id = item.Id;
@@ -97,35 +97,29 @@ public class UserService(
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
                 cancellationToken);
             var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
-            data.Add(new GetUsersListQueryResponse
+            var temp = user_in_cache.GetJObject();
+            temp["permissions"] = JArray.FromObject((permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
-                Id = id,
-                IsActive = user_in_cache.IsActive,
-                Username = user_in_cache.Username,
-                PhoneNumber = user_in_cache.PhoneNumber,
-                UserCode = user_in_cache.UserCode,
-                Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList(),
-                Roles = roles.Select(a => new GetUsersListQueryResponse_Role
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList()
-            });
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList()));
+            temp["roles"] = JArray.FromObject((roles.Select(a => new GetUsersListQueryResponse_Role
+            {
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList()));
+            data.Add(temp);
         }
 
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = data,
+            Data = data.ToString(Formatting.None),
             Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }
 
-    public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username,
+    public async Task<BaseResponse> GetUserDetails(string id, string? username,
         string? phoneNumber,
         CancellationToken cancellationToken)
     {
@@ -153,26 +147,19 @@ public class UserService(
             cancellationToken);
         var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
         var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
-
-        var data = new GetUserDetailQueryResponse
+        var data = user_in_cache.GetJObject();
+        data["permissions"] = Newtonsoft.Json.JsonConvert.SerializeObject(permissions.Select(a => new GetUsersListQueryResponse_Permission
         {
-            Id = id,
-            IsActive = user_in_cache.IsActive,
-            Username = user_in_cache.Username,
-            PhoneNumber = user_in_cache.PhoneNumber,
-            UserCode = user_in_cache.UserCode,
-            Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
-            {
-                DisplayName = a.DisplayName,
-                Id = a.Id
-            }).ToList(),
-            Roles = roles.Select(a => new GetUsersListQueryResponse_Role
-            {
-                DisplayName = a.DisplayName,
-                Id = a.Id
-            }).ToList()
-        };
-        return new BaseResponse<GetUserDetailQueryResponse?>()
+            DisplayName = a.DisplayName,
+            Id = a.Id
+        }).ToList());
+        data["roles"] = Newtonsoft.Json.JsonConvert.SerializeObject(roles.Select(a => new GetUsersListQueryResponse_Role
+        {
+            DisplayName = a.DisplayName,
+            Id = a.Id
+        }).ToList());
+
+        return new BaseResponse()
         {
             StatusCode = StatusCodes.Status200OK,
             Data = data
@@ -336,7 +323,7 @@ public class UserService(
         else
         {
             var users_in_cache = await _externalUserDataRepository.GetUsersAsync();
-            id = users_in_cache.FirstOrDefault(a => a.UserCode == username)?.Id;
+            id = users_in_cache.FirstOrDefault(a => a.GetUsername() == username)?.Id;
         }
 
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
@@ -377,23 +364,20 @@ public class UserService(
                 (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
                 ||
                 (
-                    (obj.UserCode.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
+                obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
                 )
             );
-        if (query.Page > -1)
-        {
-            filtered = filtered.Skip((query.Page - 1) * query.PageSize)
-            .Take(query.PageSize)
-            .ToList();
-        }
+        //if (query.Page > -1)
+        //{
+        //    filtered = filtered.Skip((query.Page - 1) * query.PageSize)
+        //    .Take(query.PageSize)
+        //    .ToList();
+        //}
 
         var total = res.Count;
         var users = await _userRepository.GetAllListAsync(new PaginationListDto { PageSize = -1 }, cancellationToken);
-        List<GetUsersListQueryResponse> data = [];
+        JArray data = new JArray();
+
         foreach (var item in filtered.Where(a => users.Select(b => b.Id.ToString()).Contains(a.Id)))
         {
             var id = item.Id;
@@ -406,30 +390,25 @@ public class UserService(
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
                 cancellationToken);
             var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
-            data.Add(new GetUsersListQueryResponse
+            var temp = user_in_cache.GetJObject();
+            temp.Add("permissions", Newtonsoft.Json.JsonConvert.SerializeObject(permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
-                Id = id,
-                IsActive = user_in_cache.IsActive,
-                Username = user_in_cache.Username,
-                PhoneNumber = user_in_cache.PhoneNumber,
-                UserCode = user_in_cache.UserCode,
-                Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList(),
-                Roles = roles.Select(a => new GetUsersListQueryResponse_Role
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList()
-            });
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList()));
+
+            temp.Add("roles", Newtonsoft.Json.JsonConvert.SerializeObject(roles.Select(a => new GetUsersListQueryResponse_Role
+            {
+                DisplayName = a.DisplayName,
+                Id = a.Id
+            }).ToList()));
+            data.Add(temp);
         }
 
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = data,
+            Data = data.ToString(Formatting.None),
             Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }
@@ -464,7 +443,7 @@ public class UserService(
             var res = await _externalUserDataRepository.GetUsersAsync();
 
             var filtered = res
-                .FirstOrDefault(obj => obj.UserCode == request.Username);
+                .FirstOrDefault(obj => obj.GetUsername() == request.Username);
             if (filtered == null)
             {
                 return new BaseResponse<CheckPasswordResponse>
