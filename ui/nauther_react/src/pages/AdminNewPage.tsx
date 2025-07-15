@@ -177,7 +177,7 @@ export default function AdminNewPage() {
     // Submit data
     if (isEdit && id) {
       // Update existing admin
-      editAdmin(id, data).then((response: any) => {
+      editAdmin(id, {...data,id:id}).then((response: any) => {
         messageApi.error(response.message);
         setTimeout(() => {
           navigate('/');
