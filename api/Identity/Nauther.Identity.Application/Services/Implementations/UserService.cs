@@ -70,17 +70,16 @@ public class UserService<T>(
                 (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
                 ||
                 (
-                obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
-
+                    obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
                 )
             );
-
-        if (query.Page > -1)
-        {
-            filtered = filtered.Skip((query.Page - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .ToList();
-        }
+        //
+        // if (query.Page > -1)
+        // {
+        //     filtered = filtered.Skip((query.Page - 1) * query.PageSize)
+        //         .Take(query.PageSize)
+        //         .ToList();
+        // }
 
 
         var total = res.Count;
@@ -100,13 +99,13 @@ public class UserService<T>(
             var temp = user_in_cache.GetJObject();
             temp["permissions"] = JArray.FromObject((permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
-                DisplayName = a.DisplayName,
-                Id = a.Id
+                displayName = a.DisplayName,
+                id = a.Id
             }).ToList()));
             temp["roles"] = JArray.FromObject((roles.Select(a => new GetUsersListQueryResponse_Role
             {
-                DisplayName = a.DisplayName,
-                Id = a.Id
+                displayName = a.DisplayName,
+                id = a.Id
             }).ToList()));
             data.Add(temp);
         }
@@ -114,7 +113,7 @@ public class UserService<T>(
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = data.ToString(Formatting.None),
+            Data = data,
             Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }
@@ -148,15 +147,16 @@ public class UserService<T>(
         var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
         var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
         var data = user_in_cache.GetJObject();
-        data["permissions"] = Newtonsoft.Json.JsonConvert.SerializeObject(permissions.Select(a => new GetUsersListQueryResponse_Permission
-        {
-            DisplayName = a.DisplayName,
-            Id = a.Id
-        }).ToList());
+        data["permissions"] = Newtonsoft.Json.JsonConvert.SerializeObject(permissions.Select(a =>
+            new GetUsersListQueryResponse_Permission
+            {
+                displayName = a.DisplayName,
+                id = a.Id
+            }).ToList());
         data["roles"] = Newtonsoft.Json.JsonConvert.SerializeObject(roles.Select(a => new GetUsersListQueryResponse_Role
         {
-            DisplayName = a.DisplayName,
-            Id = a.Id
+            displayName = a.DisplayName,
+            id = a.Id
         }).ToList());
 
         return new BaseResponse()
@@ -364,7 +364,7 @@ public class UserService<T>(
                 (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
                 ||
                 (
-                obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
+                    obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
                 )
             );
         //if (query.Page > -1)
@@ -388,18 +388,18 @@ public class UserService<T>(
                     userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
                 cancellationToken);
-            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
             var temp = user_in_cache.GetJObject();
-            temp.Add("permissions", Newtonsoft.Json.JsonConvert.SerializeObject(permissions.Select(a => new GetUsersListQueryResponse_Permission
+            temp.Add("permissions", JToken.FromObject(permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
-                DisplayName = a.DisplayName,
-                Id = a.Id
+                displayName = a.DisplayName,
+                id = a.Id
             }).ToList()));
 
-            temp.Add("roles", Newtonsoft.Json.JsonConvert.SerializeObject(roles.Select(a => new GetUsersListQueryResponse_Role
+            temp.Add("roles", JToken.FromObject(roles.Select(a => new GetUsersListQueryResponse_Role
             {
-                DisplayName = a.DisplayName,
-                Id = a.Id
+                displayName = a.DisplayName,
+                id = a.Id
             }).ToList()));
             data.Add(temp);
         }
@@ -407,7 +407,7 @@ public class UserService<T>(
         return new BaseResponse
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = data.ToString(Formatting.None),
+            Data = data,
             Metadata = new Dictionary<string, object>() { { "total", total } }
         };
     }

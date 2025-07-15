@@ -6,6 +6,8 @@ using Nauther.Identity.Application.Features.User.Commands.EditUser;
 using Nauther.Identity.Application.Features.User.Queries.GetAllUserPermissions;
 using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Nauther.Identity.Api.Controllers;
 
@@ -22,7 +24,7 @@ public class AdminController(IMediator mediator) : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
     [HttpPut]
-    public async Task<IActionResult> Edit([FromBody] EditUserCommand request)
+    public async Task<IActionResult> Edit([FromBody]EditUserCommand request)
     {
         var result = await _mediator.Send(request);
         return StatusCode(result.StatusCode, result);
@@ -54,6 +56,16 @@ public class AdminController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Get([FromQuery] GetUsersListQuery request)
     {
         var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
+        var json = JsonConvert.SerializeObject(result, new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.None
+        });
+        return new ContentResult
+        {
+            Content = json,
+            ContentType = "application/json",
+            StatusCode = result.StatusCode // or 400, 403, 418 (because you're a teapot), etc.
+        };
     }
 }
