@@ -177,8 +177,8 @@ export default function AdminNewPage() {
     // Submit data
     if (isEdit && id) {
       // Update existing admin
-      editAdmin(id, {...data,id:id}).then((response: any) => {
-        messageApi.error(response.message);
+      editAdmin(id, { ...data, id: id }).then((response: any) => {
+        messageApi.success(response.message);
         setTimeout(() => {
           navigate('/');
         }, 1000);
@@ -230,49 +230,59 @@ export default function AdminNewPage() {
       <Card style={{ padding: 32, maxWidth: 900, margin: '40px auto', border: 'none' }}>
         <Typography.Title level={5} style={{ fontWeight: 700, marginBottom: 24 }}>
           <span style={{ color: '#337ab7', fontWeight: 700 }}>
-            {isEdit ? `ویرایش ادمین ${users.find(a => a.id == id)?.username}` : 'ادمین جدید'}
+            {isEdit ? 
+            `ویرایش  ${users.find(a => a.id == id)?.username}`
+             : 'ادمین جدید'}
           </span>
           <span style={{ color: '#bdbdbd', fontWeight: 400, fontSize: 22, marginRight: 8 }}>{' > '}</span>
         </Typography.Title>
         <Form form={form} onFinish={handleFinish} layout="vertical" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'right' }}>
-          <Form.Item label="نام کاربر" name="id">
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                style={{ position: 'absolute', opacity: 0, height: 0, width: 0 }}
-                autoComplete="off"
-              />
-              <Select
-                showSearch
-                placeholder="انتخاب کنید"
-                optionFilterProp="children"
-                onSearch={handleUserSearch}
-                onChange={handleUserChange}
-                allowClear
-                filterOption={false}
-                disabled={isEdit}
-                style={{ width: '100%', minWidth: 220 }}
-                notFoundContent={userLoading ? <span>در حال بارگذاری...</span> : <span>داده ای یافت نشد</span>}
-                onPopupScroll={handleUserScroll}
-              >
-                {users.map(user => (
-                  <Select.Option
-                    key={user.id}
-                    value={user.id}
-                    data-username={user.username}
+          {!isEdit ?
+            <>
+              <Form.Item label="نام کاربر" name="id">
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    style={{ position: 'absolute', opacity: 0, height: 0, width: 0 }}
+                    autoComplete="off"
+                  />
+                  <Select
+                    showSearch
+                    placeholder="انتخاب کنید"
+                    optionFilterProp="children"
+                    onSearch={handleUserSearch}
+                    onChange={handleUserChange}
+                    allowClear
+                    filterOption={false}
+                    disabled={isEdit}
+                    style={{ width: '100%', minWidth: 220 }}
+                    notFoundContent={userLoading ? <span>در حال بارگذاری...</span> : <span>داده ای یافت نشد</span>}
+                    onPopupScroll={handleUserScroll}
                   >
-                    <Avatar
-                      size={24}
-                      src={user.profileImage}
-                      style={{ marginLeft: 8 }}
-                    />
-                    <span style={{ fontWeight: 500, fontSize: 15, marginLeft: 8 }}>{user.username}</span>
-                    <span style={{ color: '#888', fontSize: 13 }}>{user.userCode}</span>
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-          </Form.Item>
+                    {users.map(user => (
+                      <Select.Option
+                        key={user.id}
+                        value={user.id}
+                        data-username={user.username}
+                      >
+                        <Avatar
+                          size={24}
+                          src={user.profileImage}
+                          style={{ marginLeft: 8 }}
+                        />
+                        <span style={{ fontWeight: 500, fontSize: 15, marginLeft: 8 }}>{user.username}</span>
+                        <span style={{ color: '#888', fontSize: 13 }}>{user.userCode}</span>
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </Form.Item>
+            </>
+            : <>
+            
+            </>
+          }
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item label="نقش‌ها" name="roles">
