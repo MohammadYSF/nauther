@@ -15,6 +15,7 @@ public static class Messages
     public const string UserNotFound = "کاربری یافت نشد.";
     public const string UserAlreadyExisted = "در حال حاضر کاربری با این مشخصات وجود دارد.";
     public const string UserRegistered = "ثبت نام شما با موفقیت انجام شد.";
+    public const string UserUpdated = "کاربر با موفقیت ویرایش شد";
     public const string InvalidPassword = "رمز عبور وارد شده نامعتبر است.";
     public const string InvalidUsername = "نام کاربری وارد شده نامعتبر است.";
     public const string LoginSuccessfully = "شما با موفقیت وارد سامانه شدید.";

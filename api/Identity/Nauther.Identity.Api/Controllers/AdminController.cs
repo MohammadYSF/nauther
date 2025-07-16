@@ -50,7 +50,17 @@ public class AdminController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Get([FromQuery] GetUserDetailQuery request)
     {
         var result = await _mediator.Send(request);
-        return StatusCode(result.StatusCode, result);
+        var json = JsonConvert.SerializeObject(result, new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.None
+        });
+        return new ContentResult
+        {
+            Content = json,
+            ContentType = "application/json",
+            StatusCode = result.StatusCode // or 400, 403, 418 (because you're a teapot), etc.
+        };
     }
     [HttpGet("all")]
     public async Task<IActionResult> Get([FromQuery] GetUsersListQuery request)

@@ -147,22 +147,23 @@ public class UserService<T>(
         var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
         var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
         var data = user_in_cache.GetJObject();
-        data["permissions"] = Newtonsoft.Json.JsonConvert.SerializeObject(permissions.Select(a =>
+        data["username"] = data["email"].ToString();
+        data["permissions"] =JArray.FromObject(permissions.Select(a =>
             new GetUsersListQueryResponse_Permission
             {
                 displayName = a.DisplayName,
                 id = a.Id
             }).ToList());
-        data["roles"] = Newtonsoft.Json.JsonConvert.SerializeObject(roles.Select(a => new GetUsersListQueryResponse_Role
+        data["roles"] =JArray.FromObject(roles.Select(a => new GetUsersListQueryResponse_Role
         {
             displayName = a.DisplayName,
             id = a.Id
         }).ToList());
-
+    
         return new BaseResponse()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = data
+            Data = data 
         };
     }
 
@@ -251,7 +252,8 @@ public class UserService<T>(
         return new BaseResponse()
         {
             StatusCode = StatusCodes.Status201Created,
-            Data = new { Id = request.Id }
+            Data = new { Id = request.Id },
+            Message = Messages.UserUpdated
         };
     }
 
