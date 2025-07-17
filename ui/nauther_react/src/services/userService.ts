@@ -1,5 +1,5 @@
 import type { GetApiParam } from '../types/getApiParam';
-import type { GetAllUsersResponseDataModel, User } from '../types/user';
+import type { GetAllUsersResponseDataModel, GetAllUsersResponseDataModel_Raw, User } from '../types/user';
 import api from './api';
 
 export async function getAllExternalUsers

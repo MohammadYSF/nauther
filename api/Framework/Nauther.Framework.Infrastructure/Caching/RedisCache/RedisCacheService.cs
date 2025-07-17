@@ -20,7 +20,6 @@ public class RedisCacheService : IRedisCacheService
     public async Task AddAsync<T>(string key, T value, TimeSpan? expiry = null)
     {
         var serializedValue = JsonConvert.SerializeObject(value);
-
         await _database.StringSetAsync(key, serializedValue, expiry);
     }
 

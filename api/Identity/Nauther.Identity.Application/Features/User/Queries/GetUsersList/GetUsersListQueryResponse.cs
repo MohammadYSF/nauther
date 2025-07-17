@@ -15,12 +15,12 @@ public class GetUsersListQueryResponse
 }
 public class GetUsersListQueryResponse_Permission
 {
-    public Guid Id { get; set; }
-    public string DisplayName { get; set; }
+    public Guid id { get; set; }
+    public string displayName { get; set; }
 }
 
 public class GetUsersListQueryResponse_Role
 {
-    public Guid Id { get; set; }
-    public string DisplayName { get; set; }
+    public Guid id { get; set; }
+    public string displayName { get; set; }
 }

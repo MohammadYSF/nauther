@@ -1,6 +1,4 @@
-using Nauther.Framework.Application.Common.DTOs;
 using Nauther.Framework.Shared.Responses;
-using Nauther.Identity.Application.Features.Auth.Commands.LoginWithPassword;
 using Nauther.Identity.Application.Features.Auth.Commands.Register;
 using Nauther.Identity.Application.Features.Auth.Commands.SendOtp;
 using Nauther.Identity.Application.Features.Auth.Commands.VerifyNationalCode;
@@ -8,8 +6,8 @@ using Nauther.Identity.Application.Features.Auth.Commands.VerifyOtp;
 using Nauther.Identity.Application.Features.User.Commands.CheckPassword;
 using Nauther.Identity.Application.Features.User.Commands.DeleteUser;
 using Nauther.Identity.Application.Features.User.Commands.EditUser;
-using Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 using Nauther.Identity.Application.Features.User.Queries.GetUsersList;
+using Newtonsoft.Json.Linq;
 
 namespace auther.Identity.Application.Services.Interfaces;
 
@@ -26,7 +24,7 @@ CancellationToken cancellationToken);
     Task<BaseResponse> GetUsersList(GetUsersListQuery query, CancellationToken cancellationToken);
     Task<BaseResponse> GetExternalUsersList(GetExternalUsersListQuery query, CancellationToken cancellationToken);
 
-    Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username, string? phoneNumber,
+    Task<BaseResponse> GetUserDetails(string id, string? username, string? phoneNumber,
         CancellationToken cancellationToken);
     Task<BaseResponse<VerifyNationalCodeCommandResponse?>> GetUserByNationalCode(string nationalCode, CancellationToken cancellationToken);
     Task<BaseResponse> Register(Dima_RegisterUserCommand request, CancellationToken cancellationToken);

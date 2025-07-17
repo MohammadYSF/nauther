@@ -10,9 +10,28 @@ public class RegisterUserCommand : IRequest<BaseResponse<RegisterUserCommandResp
     public string Password { get; set; }
     public string ConfirmPassword { get; set; }
 }
+public class Dima_RegisterUserCommand_Dto
+{
+    public string Id { get; set; }
+    public string Password { get; set; }
+    public string ConfirmPassword { get; set; }
+
+    public List<Guid> Roles { get; set; } = [];
+    public List<Guid> Permissions { get; set; } = [];
+}
 public class Dima_RegisterUserCommand : IRequest<BaseResponse>
 {
-    public Guid Id { get; set; }
+    public Dima_RegisterUserCommand(Dima_RegisterUserCommand_Dto dto, bool check)
+    {
+        this.Check = check;
+        this.Id = dto.Id;
+        this.Password = dto.Password;
+        this.ConfirmPassword = dto.ConfirmPassword;
+        this.Roles = dto.Roles;
+        this.Permissions = dto.Permissions;
+    }
+    public bool Check { get; set; }
+    public string Id { get; set; }
     public string Password { get; set; }
     public string ConfirmPassword { get; set; }
 

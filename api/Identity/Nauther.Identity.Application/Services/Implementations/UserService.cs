@@ -1,3 +1,4 @@
+using System.Dynamic;
 using auther.Identity.Application.Services.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +22,12 @@ using Nauther.Identity.Domain.IRepositories;
 using Nauther.Identity.Infrastructure.Services.JwtToken;
 using Nauther.Identity.Infrastructure.Utilities;
 using Nauther.Identity.Infrastructure.Utilities.PasswordHash;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Nauther.Identity.Application.Services.Implementations;
 
-public class UserService(
+public class UserService<T>(
     IMapper mapper,
     IUserRepository userRepository,
     IUserPermissionRepository userPermissionRepository,
@@ -38,10 +41,10 @@ public class UserService(
     IPermissionRepository permissionRepository,
     IRoleRepository roleRepository,
     IUserCredentialRepository userCredentialRepository,
-    IExternalUserDataRepository externalUserDataRepository,
-    IOptions<DefaultSuperAdminConfiguration> options) : IUserService
+    IExternalUserDataRepository<T> externalUserDataRepository,
+    IOptions<DefaultSuperAdminConfiguration> options) : IUserService where T : External_UserModel
 {
-    private readonly IExternalUserDataRepository _externalUserDataRepository = externalUserDataRepository;
+    private readonly IExternalUserDataRepository<T> _externalUserDataRepository = externalUserDataRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserPermissionRepository _userPermissionRepository = userPermissionRepository;
@@ -67,24 +70,20 @@ public class UserService(
                 (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
                 ||
                 (
-                    (obj.UserCode.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.PhoneNumber.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.Username.ToString().Contains(search, StringComparison.OrdinalIgnoreCase))
+                    obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
                 )
             );
-
-        if (query.Page > -1)
-        {
-            filtered=filtered.Skip((query.Page - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .ToList();
-        }
+        //
+        // if (query.Page > -1)
+        // {
+        //     filtered = filtered.Skip((query.Page - 1) * query.PageSize)
+        //         .Take(query.PageSize)
+        //         .ToList();
+        // }
 
 
         var total = res.Count;
-        List<GetUsersListQueryResponse> data = [];
+        JArray data = new();
         foreach (var item in filtered)
         {
             var id = item.Id;
@@ -97,24 +96,18 @@ public class UserService(
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
                 cancellationToken);
             var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
-            data.Add(new GetUsersListQueryResponse
+            var temp = user_in_cache.GetJObject();
+            temp["permissions"] = JArray.FromObject((permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
-                Id = id,
-                IsActive = user_in_cache.IsActive,
-                Username = user_in_cache.Username,
-                PhoneNumber = user_in_cache.PhoneNumber,
-                UserCode = user_in_cache.UserCode,
-                Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList(),
-                Roles = roles.Select(a => new GetUsersListQueryResponse_Role
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList()
-            });
+                displayName = a.DisplayName,
+                id = a.Id
+            }).ToList()));
+            temp["roles"] = JArray.FromObject((roles.Select(a => new GetUsersListQueryResponse_Role
+            {
+                displayName = a.DisplayName,
+                id = a.Id
+            }).ToList()));
+            data.Add(temp);
         }
 
         return new BaseResponse
@@ -125,7 +118,7 @@ public class UserService(
         };
     }
 
-    public async Task<BaseResponse<GetUserDetailQueryResponse?>> GetUserDetails(string id, string? username,
+    public async Task<BaseResponse> GetUserDetails(string id, string? username,
         string? phoneNumber,
         CancellationToken cancellationToken)
     {
@@ -153,29 +146,24 @@ public class UserService(
             cancellationToken);
         var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
         var userCredentail = await _userCredentialRepository.GetByUserIdAsync(user.Id, cancellationToken);
-
-        var data = new GetUserDetailQueryResponse
+        var data = user_in_cache.GetJObject();
+        data["username"] = data["email"].ToString();
+        data["permissions"] =JArray.FromObject(permissions.Select(a =>
+            new GetUsersListQueryResponse_Permission
+            {
+                displayName = a.DisplayName,
+                id = a.Id
+            }).ToList());
+        data["roles"] =JArray.FromObject(roles.Select(a => new GetUsersListQueryResponse_Role
         {
-            Id = id,
-            IsActive = user_in_cache.IsActive,
-            Username = user_in_cache.Username,
-            PhoneNumber = user_in_cache.PhoneNumber,
-            UserCode = user_in_cache.UserCode,
-            Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
-            {
-                DisplayName = a.DisplayName,
-                Id = a.Id
-            }).ToList(),
-            Roles = roles.Select(a => new GetUsersListQueryResponse_Role
-            {
-                DisplayName = a.DisplayName,
-                Id = a.Id
-            }).ToList()
-        };
-        return new BaseResponse<GetUserDetailQueryResponse?>()
+            displayName = a.DisplayName,
+            id = a.Id
+        }).ToList());
+    
+        return new BaseResponse()
         {
             StatusCode = StatusCodes.Status200OK,
-            Data = data
+            Data = data 
         };
     }
 
@@ -264,41 +252,45 @@ public class UserService(
         return new BaseResponse()
         {
             StatusCode = StatusCodes.Status201Created,
-            Data = new { Id = request.Id }
+            Data = new { Id = request.Id },
+            Message = Messages.UserUpdated
         };
     }
 
     public async Task<BaseResponse> Register(Dima_RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id.ToString());
-        if (user_in_cache == null)
+        if (request.Check)
         {
-            return new BaseResponse<BaseResponse>()
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(request.Id);
+            if (user_in_cache == null)
             {
-                StatusCode = StatusCodes.Status203NonAuthoritative,
-                Message = Messages.UserNotFound
-            };
+                return new BaseResponse<BaseResponse>()
+                {
+                    StatusCode = StatusCodes.Status203NonAuthoritative,
+                    Message = Messages.UserNotFound
+                };
+            }
         }
 
         var u = new User
         {
-            Id = request.Id.ToString(),
+            Id = request.Id,
             UserRoles = request.Roles.Select(a => new UserRole
             {
                 RoleId = a,
-                UserId = request.Id.ToString()
+                UserId = request.Id
             }).ToList(),
             UserPermissions = request.Permissions.Select(a => new UserPermission
             {
                 PermissionId = a,
-                UserId = request.Id.ToString()
+                UserId = request.Id
             }).ToList()
         };
         var userCredential = new UserCredential
         {
             PasswordHash = _passwordHasher.HashPassword(request.Password),
-            UserId = request.Id.ToString()
+            UserId = request.Id
         };
         _ = await _userRepository.AddAsync(u, cancellationToken);
         _ = await _userCredentialRepository.AddAsync(userCredential, cancellationToken);
@@ -333,7 +325,7 @@ public class UserService(
         else
         {
             var users_in_cache = await _externalUserDataRepository.GetUsersAsync();
-            id = users_in_cache.FirstOrDefault(a => a.UserCode == username)?.Id;
+            id = users_in_cache.FirstOrDefault(a => a.GetUsername() == username)?.Id;
         }
 
         var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
@@ -374,53 +366,44 @@ public class UserService(
                 (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
                 ||
                 (
-                    (obj.UserCode.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.PhoneNumber.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    ||
-                    (obj.Username.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    obj.GetInfo().Contains(search, StringComparison.OrdinalIgnoreCase)
                 )
             );
-        if (query.Page > -1)
-        {
-            filtered=filtered.Skip((query.Page - 1) * query.PageSize)
-            .Take(query.PageSize)
-            .ToList();
-        }
+        //if (query.Page > -1)
+        //{
+        //    filtered = filtered.Skip((query.Page - 1) * query.PageSize)
+        //    .Take(query.PageSize)
+        //    .ToList();
+        //}
 
         var total = res.Count;
         var users = await _userRepository.GetAllListAsync(new PaginationListDto { PageSize = -1 }, cancellationToken);
-        List<GetUsersListQueryResponse> data = [];
+        JArray data = new JArray();
+
         foreach (var item in filtered.Where(a => users.Select(b => b.Id.ToString()).Contains(a.Id)))
         {
-            var id = item.Id;
-            var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(id, cancellationToken);
+            var userRoles = await _userRoleRepository.GetUserRolesListByUserIdAsync(item.Id, cancellationToken);
             var userPermissions =
-                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(id, cancellationToken);
+                await _userPermissionRepository.GetUserPermissionsByUserIdAsync(item.Id, cancellationToken);
             var permissions =
                 await _permissionRepository.GetByIdsAsync(
                     userPermissions.Select(a => a.PermissionId).Distinct().ToList(), cancellationToken);
             var roles = await _roleRepository.GetByIds(userRoles.Select(a => a.RoleId).Distinct().ToList(),
                 cancellationToken);
-            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(id);
-            data.Add(new GetUsersListQueryResponse
+            var user_in_cache = await _externalUserDataRepository.GetUserByIdentifierAsync(item.Id);
+            var temp = user_in_cache.GetJObject();
+            temp.Add("permissions", JToken.FromObject(permissions.Select(a => new GetUsersListQueryResponse_Permission
             {
-                Id = id,
-                IsActive = user_in_cache.IsActive,
-                Username = user_in_cache.Username,
-                PhoneNumber = user_in_cache.PhoneNumber,
-                UserCode = user_in_cache.UserCode,
-                Permissions = permissions.Select(a => new GetUsersListQueryResponse_Permission
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList(),
-                Roles = roles.Select(a => new GetUsersListQueryResponse_Role
-                {
-                    DisplayName = a.DisplayName,
-                    Id = a.Id
-                }).ToList()
-            });
+                displayName = a.DisplayName,
+                id = a.Id
+            }).ToList()));
+
+            temp.Add("roles", JToken.FromObject(roles.Select(a => new GetUsersListQueryResponse_Role
+            {
+                displayName = a.DisplayName,
+                id = a.Id
+            }).ToList()));
+            data.Add(temp);
         }
 
         return new BaseResponse
@@ -461,7 +444,7 @@ public class UserService(
             var res = await _externalUserDataRepository.GetUsersAsync();
 
             var filtered = res
-                .FirstOrDefault(obj => obj.UserCode == request.Username);
+                .FirstOrDefault(obj => obj.GetUsername() == request.Username);
             if (filtered == null)
             {
                 return new BaseResponse<CheckPasswordResponse>

@@ -3,7 +3,7 @@ using Nauther.Framework.Shared.Responses;
 
 namespace Nauther.Identity.Application.Features.User.Queries.GetUserDetail;
 
-public class GetUserDetailQuery : IRequest<BaseResponse<GetUserDetailQueryResponse>>
+public class GetUserDetailQuery : IRequest<BaseResponse>
 {
     public string Id { get; set; }
     public string? Username { get; set; }

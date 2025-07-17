@@ -13,7 +13,7 @@ interface User {
     roles:Role[]
 };
 
-interface GetAllUsersResponseDataModel_Raw extends BaseApiResponseModel<User[]> {
+interface GetAllUsersResponseDataModel_Raw extends BaseApiResponseModel<string> {
     metadata: { total: number }
 }
 interface GetAllUsersResponseDataModel extends BaseApiResponseModel<User[]> {
