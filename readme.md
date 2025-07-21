@@ -103,9 +103,11 @@ curl -X POST 'http://localhost:777/api/Auth/checkPassword' \
 ---
 
 ## Future Goals
-
+* Provide support for : PermissionGroup , RoleGroup
 * Provide a NuGet package for easy integration with other .NET projects
 * provide sdk for Python , JS , Java 
 * Improve the user interface design
+* Hardening security
 
 ---
+Feel free to reach me for suggestion,criticize or contributation !
