@@ -26,7 +26,7 @@ your api needs to talk to nauther . for that you need to include nauther api key
 ```X-API-KEY : <api key here>```
 
 
-two main api endpoints : `/register` , `/checkpassword` , `/<username>/permissions
+two main api endpoints : `/register` , `/checkpassword` , ` /<username>/permissions `
 
 ```
 curl -X 'POST' \
