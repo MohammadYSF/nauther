@@ -5,6 +5,7 @@ WORKDIR /src
 
 # Copy everything else and build
 COPY . .
+
 RUN dotnet restore
 RUN dotnet build Identity/Nauther.Identity.Api/Nauther.Identity.Api.csproj -c Release -o /app/build
 
@@ -25,6 +26,5 @@ COPY Identity/Nauther.Identity.Api/wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
 EXPOSE 80
-
 # Wait for SQL Server to be ready before starting the application
 ENTRYPOINT ["/wait-for-it.sh", "db:1433", "--", "dotnet", "Nauther.Identity.Api.dll"]

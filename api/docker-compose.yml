@@ -6,14 +6,17 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "7777:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=NautherDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
-      - Redis__Configuration=redis:6379 # Assuming you're using Microsoft.Extensions.Caching.StackExchangeRedis
+      - ConnectionStrings__SqlServerConnectionString=Server=db;Database=NautherDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - ConnectionStrings__RedisConnectionString=redis:6379
+      - ConnectionStrings__aied_mongodb=mongodb://mongo:27017
+
     depends_on:
       - db
       - redis
+      - mongo
     networks:
       - app-network
 
@@ -30,11 +33,20 @@ services:
       - sqlserver-data:/var/opt/mssql
     networks:
       - app-network
-
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
   redis:
     image: redis:7-alpine
     container_name: redis-cache
-    command: ["redis-server", "--requirepass", "SuperSecret123"]
+    command: ["redis-server"]
     ports:
       - "6379:6379"
     networks:
@@ -42,6 +54,7 @@ services:
 
 volumes:
   sqlserver-data:
+  mongo-data:
 
 networks:
   app-network:

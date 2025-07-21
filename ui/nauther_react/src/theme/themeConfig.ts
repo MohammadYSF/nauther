@@ -62,7 +62,6 @@ export const themeConfig: ThemeConfig = {
     },
     Input: {
       colorBorder: colors.border.main,
-      colorBorderHover: colors.primary.main,
       borderRadius: 6,
       controlHeight: 40,
     },
@@ -81,7 +80,6 @@ export const themeConfig: ThemeConfig = {
     },
     Select: {
       colorBorder: colors.border.main,
-      colorBorderHover: colors.primary.main,
       borderRadius: 6,
       controlHeight: 40,
     },
