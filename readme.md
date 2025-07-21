@@ -54,7 +54,7 @@ X-API-KEY: <your-api-key>
 ### 1. Register a User
 
 ```bash
-curl -X POST 'https://localhost:5001/api/User/register' \
+curl -X POST 'http://localhost:7777/api/User/register' \
   -H 'accept: */*' \
   -H 'X-API-KEY: <your-api-key>' \
   -H 'Content-Type: application/json' \
@@ -70,14 +70,14 @@ curl -X POST 'https://localhost:5001/api/User/register' \
 ### 2. Get User Permissions
 
 ```bash
-curl -X GET 'https://localhost:5001/api/Admin/<USERNAME>/permission' \
+curl -X GET 'http://localhost:7777/api/Admin/<USERNAME>/permission' \
   -H 'accept: */*'
 ```
 
 ### 3. Check Password
 
 ```bash
-curl -X POST 'https://localhost:5001/api/Auth/checkPassword' \
+curl -X POST 'http://localhost:777/api/Auth/checkPassword' \
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
   -d '{
