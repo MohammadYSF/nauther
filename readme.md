@@ -1,81 +1,111 @@
-Nauther
+# Nauther
 
-a system for permission-based user access management system
+**Nauther** is a permission-based user access management system. It is designed to provide out-of-the-box user access management for other applications (especially for small to medium projects which has tight deadlines).
 
-it aims to provide out of box user access management for other projects
+You can connect your application (API) to Nauther using HTTP protocol.
 
-you can connect your application(api) to nauther via http protocol
+Nauther includes a web-based UI panel for:
 
-nauther has a ui panel 
+* Creating, updating, and deleting:
 
-for creating/updating/deleting
+  * Admins
+  * Roles
+  * Permissions
+* Assigning:
 
-admins , roles , permissions ; 
+  * Permissions to roles
+  * Permissions to users
+  * Roles to users
 
-assigning permissions to roles;
+---
 
-assigning permissions to users;
+## Running with Docker
 
-assigning roles to users
+To run the project using Docker, follow the steps below.
 
-for running the projects using docker you need to follow below instructions :
+### Backend
 
-for backend . do this : 
-
-``` 
+```bash
 cd api
 docker compose up
 ```
 
-for front-end , do this :
+### Frontend
 
-```
+```bash
 cd ui/nauther_react
 docker compose up
 ```
 
-for api communication
-your api needs to talk to nauther . for that you need to include nauther api key in your header like this : 
+---
 
-```X-API-KEY : <api key here>```
+## API Integration
 
-
-two main api endpoints : `/register` , `/checkpassword` , ` /<username>/permissions `
+To communicate with Nauther, your application must include the API key in the request headers:
 
 ```
-curl -X 'POST' \
-  'https://localhost:5001/api/User/register' \
+X-API-KEY: <your-api-key>
+```
+
+---
+
+## Main API Endpoints
+
+### 1. Register a User
+
+```bash
+curl -X POST 'https://localhost:5001/api/User/register' \
   -H 'accept: */*' \
-  -H 'X-API-KEY: <put api key here>' \
+  -H 'X-API-KEY: <your-api-key>' \
   -H 'Content-Type: application/json' \
   -d '{
-  "id": <id of your own user you want to register it>,
-  "password": <raw password of your user>,
-  "confirmPassword": <again , raw password of your user>,
-  "roles": [
-    <put here list of id's of a role (which exists in nauther)>
-  ],
-  "permissions": [
-    <put here list of id's of a permission (which exists in nauther)>
-  ]
+    "id": "<user-id>",
+    "password": "<user-password>",
+    "confirmPassword": "<user-password-again>",
+    "roles": ["<role-id-1>", "<role-id-2>"],
+    "permissions": ["<permission-id-1>", "<permission-id-2>"]
 }'
 ```
 
+### 2. Get User Permissions
 
-```
-curl -X 'GET' \
-  'https://localhost:5001/api/Admin/<USERNAME>/permission' \
+```bash
+curl -X GET 'https://localhost:5001/api/Admin/<USERNAME>/permission' \
   -H 'accept: */*'
 ```
 
-```
-curl -X 'POST' \
-  'https://localhost:5001/api/Auth/checkPassword' \
+### 3. Check Password
+
+```bash
+curl -X POST 'https://localhost:5001/api/Auth/checkPassword' \
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
   -d '{
-  "username": "<USERNAME>",
-  "password": "<PASSWORD>"
+    "username": "<USERNAME>",
+    "password": "<PASSWORD>"
 }'
-
 ```
+
+---
+
+## Database Support
+
+### Currently Supported:
+
+* SQL Server (nauther's main database)
+* MongoDB , SQL Server (for reading external user data)
+
+### Planned Support:
+
+* PostgreSQL and MySQL for reading external user data
+* PostgreSQL, MySQL, and MongoDB as Nauther's main database
+
+---
+
+## Future Goals
+
+* Provide a NuGet package for easy integration with other .NET projects
+* provide sdk for Python , JS , Java 
+* Improve the user interface design
+
+---
