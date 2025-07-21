@@ -18,7 +18,21 @@ assigning permissions to users;
 
 assigning roles to users
 
+for running the projects using docker you need to follow below instructions :
 
+for backend . do this : 
+
+``` 
+cd api
+docker compose up
+```
+
+for front-end , do this :
+
+```
+cd ui/nauther_react
+docker compose up
+```
 
 for api communication
 your api needs to talk to nauther . for that you need to include nauther api key in your header like this : 
