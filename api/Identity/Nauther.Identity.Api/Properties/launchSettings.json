@@ -16,6 +16,13 @@
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:5001;http://localhost:6001"
     },
+      "Production": {
+      "commandName": "Project",
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Production"
+        },
+      "dotnetRunMessages": true
+    },
     "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",

@@ -8,10 +8,7 @@ services:
     ports:
       - "7777:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__SqlServerConnectionString=Server=db;Database=NautherDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
-      - ConnectionStrings__RedisConnectionString=redis:6379
-      - ConnectionStrings__aied_mongodb=mongodb://mongo:27017
+      - ASPNETCORE_ENVIRONMENT=Production
 
     depends_on:
       - db
