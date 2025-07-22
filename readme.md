@@ -88,6 +88,21 @@ curl -X POST 'http://localhost:777/api/Auth/checkPassword' \
 
 ---
 
+ok . now the part that YOU should code
+
+you should create a class which inhertis from the `External_UserModel`
+
+you can check the sample at : `Nauther.Identity.Domain.ExternalContract`
+
+after that you should create a class which implements interface : `IExternalUserDataRepository`
+
+you can checkout the sample code at : `Nauther.Identity.Infrastructure.Services.ExternalUser`
+
+finally , you should register your service at .NET DI . for this  check `InfrastructureServiceRegistration` class at `Nauther.Identity.Infrastructure` 
+
+
+the beauty of nauther is here : do any shit work you want in the service class . it does not matter what you do ; just implement IExternalUserDataRepository . 
+nauther lets you fetch data from anywhere you desire . 
 ## Database Support
 
 ### Currently Supported:
