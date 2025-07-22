@@ -119,3 +119,6 @@ external user data : as mentioned above , DOES NOT MATTER AT ALL
 
 ---
 Feel free to reach me for suggestion,criticize or contributation !
+
+(I know , there are some obvious serious stuff with nauther ; especiall security protocols)
+(The other frequest question that I've been asked is that : What was wrong with Microsoft AspNet Identity ? why did you reinvent the wheel . maybe you're right . maybe)
