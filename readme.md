@@ -103,17 +103,10 @@ finally , you should register your service at .NET DI . for this  check `Infrast
 
 the beauty of nauther is here : do any shit work you want in the service class . it does not matter what you do ; just implement IExternalUserDataRepository . 
 nauther lets you fetch data from anywhere you desire . 
-## Database Support
+## Database
+nauther own db : SQL Server
 
-### Currently Supported:
-
-* SQL Server (nauther's main database)
-* MongoDB , SQL Server (for reading external user data)
-
-### Planned Support:
-
-* PostgreSQL and MySQL for reading external user data
-* PostgreSQL, MySQL, and MongoDB as Nauther's main database
+external user data : as mentioned above , DOES NOT MATTER AT ALL
 
 ---
 
