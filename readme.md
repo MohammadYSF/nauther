@@ -111,11 +111,13 @@ external user data : as mentioned above , DOES NOT MATTER AT ALL
 ---
 
 ## Future Goals
+* Rule engine to handle row permissions
 * Provide support for : PermissionGroup , RoleGroup
 * Provide a NuGet package for easy integration with other .NET projects
 * provide sdk for Python , JS , Java 
 * Improve the user interface design
 * Hardening security
+
 
 ---
 Feel free to reach me for suggestion,criticize or contributation !
